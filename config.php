@@ -6,6 +6,7 @@ unset($CFG);
 global $CFG;
 $CFG = new stdClass();
 
+$CFG->sslproxy  = true;
 $CFG->dbtype    = 'mysqli';
 $CFG->dblibrary = 'native';
 $CFG->dbhost    = $dbhost;
