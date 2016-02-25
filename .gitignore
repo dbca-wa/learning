@@ -1,0 +1,4 @@
+.env
+.data/
+env.php
+*.swp

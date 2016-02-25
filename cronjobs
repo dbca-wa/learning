@@ -1,0 +1,2 @@
+# Cron job to run the moodle clean up
+0 * * * * www-data wget -O - http://learning-uat.dpaw.wa.gov.au/admin/cron.php?password=cl3anup >/dev/null 2>&1

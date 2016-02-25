@@ -1,0 +1,17 @@
+a:6:{s:20:"additionaldelimiters";s:0:"";s:8:"httpsurl";s:53:"https://cdn.mathjax.org/mathjax/2.3-latest/MathJax.js";s:7:"httpurl";s:52:"http://cdn.mathjax.org/mathjax/2.3-latest/MathJax.js";s:13:"mathjaxconfig";s:529:"MathJax.Hub.Config({
+    config: ["MMLorHTML.js", "Safe.js"],
+    jax: ["input/TeX","input/MathML","output/HTML-CSS","output/NativeMML"],
+    extensions: ["tex2jax.js","mml2jax.js","MathMenu.js","MathZoom.js"],
+    TeX: {
+        extensions: ["AMSmath.js","AMSsymbols.js","noErrors.js","noUndefined.js"]
+    },
+    menuSettings: {
+        zoom: "Double-Click",
+        mpContext: true,
+        mpMouse: true
+    },
+    errorSettings: { message: ["!"] },
+    skipStartupTypeset: true,
+    messageStyle: "none"
+});
+";s:22:"texfiltercompatibility";s:1:"0";s:7:"version";s:10:"2014111000";}
