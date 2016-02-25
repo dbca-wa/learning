@@ -350,23 +350,7 @@ abstract class format_base {
         } else {
             $sectionnum = $section;
         }
-
-        if (get_string_manager()->string_exists('sectionname', 'format_' . $this->format)) {
-            return get_string('sectionname', 'format_' . $this->format) . ' ' . $sectionnum;
-        }
-
-        // Return an empty string if there's no available section name string for the given format.
-        return '';
-    }
-
-    /**
-     * Returns the default section using format_base's implementation of get_section_name.
-     *
-     * @param int|stdClass $section Section object from database or just field course_sections section
-     * @return string The default value for the section name based on the given course format.
-     */
-    public function get_default_section_name($section) {
-        return self::get_section_name($section);
+        return get_string('sectionname', 'format_'.$this->format) . ' ' . $sectionnum;
     }
 
     /**
@@ -411,7 +395,6 @@ abstract class format_base {
      * @return null|moodle_url
      */
     public function get_view_url($section, $options = array()) {
-        global $CFG;
         $course = $this->get_course();
         $url = new moodle_url('/course/view.php', array('id' => $course->id));
 
@@ -422,7 +405,7 @@ abstract class format_base {
         } else {
             $sectionno = $section;
         }
-        if (empty($CFG->linkcoursesections) && !empty($options['navigation']) && $sectionno !== null) {
+        if (!empty($options['navigation']) && $sectionno !== null) {
             // by default assume that sections are never displayed on separate pages
             return null;
         }
@@ -950,85 +933,6 @@ abstract class format_base {
      *     Can be changed by the method
      */
     public function section_get_available_hook(section_info $section, &$available, &$availableinfo) {
-    }
-
-    /**
-     * Whether this format allows to delete sections
-     *
-     * If format supports deleting sections it is also recommended to define language string
-     * 'deletesection' inside the format.
-     *
-     * Do not call this function directly, instead use {@link course_can_delete_section()}
-     *
-     * @param int|stdClass|section_info $section
-     * @return bool
-     */
-    public function can_delete_section($section) {
-        return false;
-    }
-
-    /**
-     * Deletes a section
-     *
-     * Do not call this function directly, instead call {@link course_delete_section()}
-     *
-     * @param int|stdClass|section_info $section
-     * @param bool $forcedeleteifnotempty if set to false section will not be deleted if it has modules in it.
-     * @return bool whether section was deleted
-     */
-    public function delete_section($section, $forcedeleteifnotempty = false) {
-        global $DB;
-        if (!$this->uses_sections()) {
-            // Not possible to delete section if sections are not used.
-            return false;
-        }
-        if (!is_object($section)) {
-            $section = $DB->get_record('course_sections', array('course' => $this->get_courseid(), 'section' => $section),
-                'id,section,sequence');
-        }
-        if (!$section || !$section->section) {
-            // Not possible to delete 0-section.
-            return false;
-        }
-
-        if (!$forcedeleteifnotempty && !empty($section->sequence)) {
-            return false;
-        }
-
-        $course = $this->get_course();
-
-        // Remove the marker if it points to this section.
-        if ($section->section == $course->marker) {
-            course_set_marker($course->id, 0);
-        }
-
-        $lastsection = $DB->get_field_sql('SELECT max(section) from {course_sections}
-                            WHERE course = ?', array($course->id));
-
-        // Find out if we need to descrease the 'numsections' property later.
-        $courseformathasnumsections = array_key_exists('numsections',
-            $this->get_format_options());
-        $decreasenumsections = $courseformathasnumsections && ($section->section <= $course->numsections);
-
-        // Move the section to the end.
-        move_section_to($course, $section->section, $lastsection, true);
-
-        // Delete all modules from the section.
-        foreach (preg_split('/,/', $section->sequence, -1, PREG_SPLIT_NO_EMPTY) as $cmid) {
-            course_delete_module($cmid);
-        }
-
-        // Delete section and it's format options.
-        $DB->delete_records('course_format_options', array('sectionid' => $section->id));
-        $DB->delete_records('course_sections', array('id' => $section->id));
-        rebuild_course_cache($course->id, true);
-
-        // Descrease 'numsections' if needed.
-        if ($decreasenumsections) {
-            $this->update_course_format_options(array('numsections' => $course->numsections - 1));
-        }
-
-        return true;
     }
 }
 

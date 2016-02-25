@@ -435,7 +435,7 @@ Y.extend(TREE, Y.Base, TREE.prototype, {
  * @constructor
  * @extends Base
  */
-var BRANCH = function() {
+BRANCH = function() {
     BRANCH.superclass.constructor.apply(this, arguments);
 };
 BRANCH.prototype = {
@@ -483,9 +483,6 @@ BRANCH.prototype = {
      * This function creates a DOM structure for the branch and then injects
      * it into the navigation tree at the correct point.
      *
-     * It is important that this is kept in check with block_navigation_renderer::navigation_node as that produces
-     * the same thing as this but on the php side.
-     *
      * @method draw
      * @chainable
      * @param {Node} element
@@ -497,7 +494,6 @@ BRANCH.prototype = {
         var branchli = Y.Node.create('<li></li>');
         var link = this.get('link');
         var branchp = Y.Node.create('<p class="tree_item"></p>').setAttribute('id', this.get('id'));
-        var name;
         if (!link) {
             //add tab focus if not link (so still one focus per menu node).
             // it was suggested to have 2 foci. one for the node and one for the link in MDL-27428.
@@ -512,11 +508,10 @@ BRANCH.prototype = {
         // Prepare the icon, should be an object representing a pix_icon
         var branchicon = false;
         var icon = this.get('icon');
-        if (icon && (!isbranch || this.get('type') === NODETYPE.ACTIVITY || this.get('type') === NODETYPE.RESOURCE)) {
+        if (icon && (!isbranch || this.get('type') === NODETYPE.ACTIVITY)) {
             branchicon = Y.Node.create('<img alt="" />');
             branchicon.setAttribute('src', M.util.image_url(icon.pix, icon.component));
             branchli.addClass('item_with_icon');
-            branchp.addClass('hasicon');
             if (icon.alt) {
                 branchicon.setAttribute('alt', icon.alt);
             }
@@ -534,11 +529,8 @@ BRANCH.prototype = {
             var branchspan = Y.Node.create('<span></span>');
             if (branchicon) {
                 branchspan.appendChild(branchicon);
-                name = '<span class="item-content-wrap">' + this.get('name') + '</span>';
-            } else {
-                name = this.get('name');
             }
-            branchspan.append(name);
+            branchspan.append(this.get('name'));
             if (this.get('hidden')) {
                 branchspan.addClass('dimmed_text');
             }
@@ -547,11 +539,8 @@ BRANCH.prototype = {
             var branchlink = Y.Node.create('<a title="'+this.get('title')+'" href="'+link+'"></a>');
             if (branchicon) {
                 branchlink.appendChild(branchicon);
-                name = '<span class="item-content-wrap">' + this.get('name') + '</span>';
-            } else {
-                name = this.get('name');
             }
-            branchlink.append(name);
+            branchlink.append(this.get('name'));
             if (this.get('hidden')) {
                 branchlink.addClass('dimmed');
             }
@@ -645,7 +634,7 @@ BRANCH.prototype = {
 
         Y.io(M.cfg.wwwroot + ajaxfile, {
             method:'POST',
-            data:  params,
+            data:  build_querystring(params),
             on: {
                 complete: this.ajaxProcessResponse
             },
@@ -683,10 +672,8 @@ BRANCH.prototype = {
                         this.addChild(object.children[i]);
                     }
                 }
-                if ((this.get('type') === NODETYPE.CATEGORY ||
-                     this.get('type') === NODETYPE.ROOTNODE ||
-                     this.get('type') === NODETYPE.MYCATEGORY)
-                     && coursecount >= M.block_navigation.courselimit) {
+                if ((this.get('type') === NODETYPE.CATEGORY || this.get('type') === NODETYPE.ROOTNODE || this.get('type') === NODETYPE.MYCATEGORY)
+                    && coursecount >= M.block_navigation.courselimit) {
                     this.addViewAllCoursesChild(this);
                 }
                 Y.log('AJAX loading complete.', 'note', 'moodle-block_navigation');
@@ -763,8 +750,8 @@ BRANCH.prototype = {
             url = M.cfg.wwwroot+'/course/index.php?categoryid=' + branch.get('key');
         }
         branch.addChild({
-            name : M.util.get_string('viewallcourses', 'moodle'),
-            title : M.util.get_string('viewallcourses', 'moodle'),
+            name : M.str.moodle.viewallcourses,
+            title : M.str.moodle.viewallcourses,
             link : url,
             haschildren : false,
             icon : {'pix':"i/navigationitem",'component':'moodle'}

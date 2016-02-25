@@ -245,6 +245,7 @@ abstract class handler {
      * @return array message and message format to use.
      */
     protected static function remove_quoted_text($messagedata) {
+        $linecount = self::get_linecount_to_remove($messagedata);
         if (!empty($messagedata->plain)) {
             $text = $messagedata->plain;
         } else {
@@ -257,6 +258,8 @@ abstract class handler {
             return array($text, $messageformat);
         }
 
+        // Remove extra line. "Xyz wrote on...".
+        $count = 0;
         $i = 0;
         $flag = false;
         foreach ($splitted as $i => $element) {
@@ -268,6 +271,9 @@ abstract class handler {
                     $element = $splitted[$j];
                     if (!empty($element)) {
                         unset($splitted[$j]);
+                        $count++;
+                    }
+                    if ($count == $linecount) {
                         break;
                     }
                 }
@@ -276,8 +282,10 @@ abstract class handler {
         }
         if ($flag) {
             // Quoted text was found.
-            // Retrieve everything from the start until the line before the quoted text.
-            $splitted = array_slice($splitted, 0, $i-1);
+            $k = $i - $linecount; // Where to start the chopping process.
+
+            // Remove quoted text.
+            $splitted = array_slice($splitted, 0, $k);
 
             // Strip out empty lines towards the end, since a lot of clients add a huge chunk of empty lines.
             $reverse = array_reverse($splitted);
@@ -302,5 +310,25 @@ abstract class handler {
             }
         }
         return array($message, $messageformat);
+    }
+
+    /**
+     * Try to guess how many lines to remove from the email to delete "xyz wrote on" text. Hard coded numbers for various email
+     * clients.
+     * Gmail uses two
+     * Evolution uses one
+     * Thunderbird uses one
+     *
+     * @param \stdClass $messagedata The Inbound Message record
+     *
+     * @return int number of lines to chop off before the start of quoted text.
+     */
+    protected static function get_linecount_to_remove($messagedata) {
+        $linecount = 1;
+        if (!empty($messagedata->html) && stripos($messagedata->html, 'gmail_quote') !== false) {
+            // Gmail uses two lines.
+            $linecount = 2;
+        }
+        return $linecount;
     }
 }

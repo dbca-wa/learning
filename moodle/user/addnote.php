@@ -54,13 +54,11 @@ if (!empty($users) && confirm_sesskey()) {
     $note->courseid = $id;
     $note->format = FORMAT_PLAIN;
     foreach ($users as $k => $v) {
-        $user = $DB->get_record('user', array('id' => $v));
-        $content = trim($contents[$k]);
-        if (!$user || empty($content)) {
+        if (!$user = $DB->get_record('user', array('id' => $v)) || empty($contents[$k])) {
             continue;
         }
         $note->id = 0;
-        $note->content = $content;
+        $note->content = $contents[$k];
         $note->publishstate = $states[$k];
         $note->userid = $v;
         note_save($note);

@@ -7,14 +7,13 @@ Feature: Forms manipulation
   @javascript
   Scenario: Basic forms manipulation
     Given I log in as "admin"
-    And I follow "Preferences" in the user menu
-    And I follow "Edit profile"
+    And I navigate to "Edit profile" node in "My profile settings"
     When I set the field "First name" to "Field value"
-    And I set the field "Select a country" to "Japan"
+    And I set the field "Text editor" to "Plain text area"
     And I set the field "Unmask" to "1"
     And I expand all fieldsets
     Then the field "First name" matches value "Field value"
-    And the "Select a country" select box should contain "Japan"
+    And the "Text editor" select box should contain "Plain text area"
     And the field "Unmask" matches value "1"
     And I set the field "Unmask" to ""
     And the field "Unmask" matches value ""
@@ -26,7 +25,6 @@ Feature: Forms manipulation
       | fullname | shortname | category |
       | Course 1 | C1 | 0 |
     And I log in as "admin"
-    And I am on site homepage
     And I follow "Course 1"
     And I turn editing mode on
     And I add a "Quiz" to section "1"

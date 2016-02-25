@@ -18,19 +18,17 @@ M.core_completion.init = function(Y) {
 
         } else {
             var current = args.state.get('value');
-            var modulename = args.modulename.get('value'),
-                altstr,
-                titlestr;
+            var modulename = args.modulename.get('value');
             if (current == 1) {
-                altstr = M.util.get_string('completion-alt-manual-y', 'completion', modulename);
-                titlestr = M.util.get_string('completion-title-manual-y', 'completion', modulename);
+                var altstr = M.str.completion['completion-alt-manual-y'].replace('{$a}', modulename);
+                var titlestr = M.str.completion['completion-title-manual-y'].replace('{$a}', modulename);
                 args.state.set('value', 0);
                 args.image.set('src', M.util.image_url('i/completion-manual-y', 'moodle'));
                 args.image.set('alt', altstr);
                 args.image.set('title', titlestr);
             } else {
-                altstr = M.util.get_string('completion-alt-manual-n', 'completion', modulename);
-                titlestr = M.util.get_string('completion-title-manual-n', 'completion', modulename);
+                var altstr = M.str.completion['completion-alt-manual-n'].replace('{$a}', modulename);
+                var titlestr = M.str.completion['completion-title-manual-n'].replace('{$a}', modulename);
                 args.state.set('value', 1);
                 args.image.set('src', M.util.image_url('i/completion-manual-n', 'moodle'));
                 args.image.set('alt', altstr);

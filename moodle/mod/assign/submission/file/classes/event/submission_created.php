@@ -80,9 +80,4 @@ class submission_created extends \mod_assign\event\submission_created {
             throw new \coding_exception('The \'filesubmissioncount\' value must be set in other.');
         }
     }
-
-    public static function get_objectid_mapping() {
-        // No mapping available for 'assignsubmission_file'.
-        return array('db' => 'assignsubmission_file', 'restore' => \core\event\base::NOT_MAPPED);
-    }
 }

@@ -83,18 +83,11 @@ class HTML_Common {
      * @param    int     $tabOffset      Indent offset in tabs
      * @access   public
      */
-    public function __construct($attributes = null, $tabOffset = 0)
+    function HTML_Common($attributes = null, $tabOffset = 0)
     {
         $this->setAttributes($attributes);
         $this->setTabOffset($tabOffset);
     } // end constructor
-
-    /**
-     * Old syntax of class constructor for backward compatibility.
-     */
-    public function HTML_Common($attributes = null, $tabOffset = 0) {
-        self::__construct($attributes, $tabOffset);
-    }
 
     public static function raiseError($message = null,
                                        $code = null,

@@ -115,8 +115,4 @@ class all_submissions_downloaded extends base {
 
         parent::validate_data();
     }
-
-    public static function get_objectid_mapping() {
-        return array('db' => 'assign', 'restore' => 'assign');
-    }
 }

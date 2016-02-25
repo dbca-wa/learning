@@ -41,12 +41,12 @@ class backup_quiz_activity_structure_step extends backup_questions_activity_stru
         // Define each element separated.
         $quiz = new backup_nested_element('quiz', array('id'), array(
             'name', 'intro', 'introformat', 'timeopen', 'timeclose', 'timelimit',
-            'overduehandling', 'graceperiod', 'preferredbehaviour', 'canredoquestions', 'attempts_number',
+            'overduehandling', 'graceperiod', 'preferredbehaviour', 'attempts_number',
             'attemptonlast', 'grademethod', 'decimalpoints', 'questiondecimalpoints',
             'reviewattempt', 'reviewcorrectness', 'reviewmarks',
             'reviewspecificfeedback', 'reviewgeneralfeedback',
             'reviewrightanswer', 'reviewoverallfeedback',
-            'questionsperpage', 'navmethod', 'shuffleanswers',
+            'questionsperpage', 'navmethod', 'shufflequestions', 'shuffleanswers',
             'sumgrades', 'grade', 'timecreated',
             'timemodified', 'password', 'subnet', 'browsersecurity',
             'delay1', 'delay2', 'showuserpicture', 'showblocks', 'completionattemptsexhausted', 'completionpass'));
@@ -57,12 +57,7 @@ class backup_quiz_activity_structure_step extends backup_questions_activity_stru
         $qinstances = new backup_nested_element('question_instances');
 
         $qinstance = new backup_nested_element('question_instance', array('id'), array(
-            'slot', 'page', 'requireprevious', 'questionid', 'maxmark'));
-
-        $sections = new backup_nested_element('sections');
-
-        $section = new backup_nested_element('section', array('id'), array(
-            'firstslot', 'heading', 'shufflequestions'));
+            'slot', 'page', 'questionid', 'maxmark'));
 
         $feedbacks = new backup_nested_element('feedbacks');
 
@@ -97,9 +92,6 @@ class backup_quiz_activity_structure_step extends backup_questions_activity_stru
         $quiz->add_child($qinstances);
         $qinstances->add_child($qinstance);
 
-        $quiz->add_child($sections);
-        $sections->add_child($section);
-
         $quiz->add_child($feedbacks);
         $feedbacks->add_child($feedback);
 
@@ -116,9 +108,6 @@ class backup_quiz_activity_structure_step extends backup_questions_activity_stru
         $quiz->set_source_table('quiz', array('id' => backup::VAR_ACTIVITYID));
 
         $qinstance->set_source_table('quiz_slots',
-                array('quizid' => backup::VAR_PARENTID));
-
-        $section->set_source_table('quiz_sections',
                 array('quizid' => backup::VAR_PARENTID));
 
         $feedback->set_source_table('quiz_feedback',

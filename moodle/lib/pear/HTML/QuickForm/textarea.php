@@ -55,19 +55,13 @@ class HTML_QuickForm_textarea extends HTML_QuickForm_element
      * @access    public
      * @return    void
      */
-    public function __construct($elementName=null, $elementLabel=null, $attributes=null) {
-        parent::__construct($elementName, $elementLabel, $attributes);
+    function HTML_QuickForm_textarea($elementName=null, $elementLabel=null, $attributes=null)
+    {
+        HTML_QuickForm_element::HTML_QuickForm_element($elementName, $elementLabel, $attributes);
         $this->_persistantFreeze = true;
         $this->_type = 'textarea';
     } //end constructor
-
-    /**
-     * Old syntax of class constructor for backward compatibility.
-     */
-    public function HTML_QuickForm_textarea($elementName=null, $elementLabel=null, $attributes=null) {
-        self::__construct($elementName, $elementLabel, $attributes);
-    }
-
+    
     // }}}
     // {{{ setName()
 

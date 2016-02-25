@@ -306,13 +306,6 @@ class auth_db_testcase extends advanced_testcase {
         $DB->update_record('auth_db_users', $user3);
         $this->assertTrue($auth->user_login('u3', 'heslo'));
 
-        require_once($CFG->libdir.'/password_compat/lib/password.php');
-        set_config('passtype', 'saltedcrypt', 'auth/db');
-        $auth->config->passtype = 'saltedcrypt';
-        $user3->pass = password_hash('heslo', PASSWORD_BCRYPT);
-        $DB->update_record('auth_db_users', $user3);
-        $this->assertTrue($auth->user_login('u3', 'heslo'));
-
         set_config('passtype', 'internal', 'auth/db');
         $auth->config->passtype = 'internal';
         create_user_record('u3', 'heslo', 'db');
@@ -380,23 +373,5 @@ class auth_db_testcase extends advanced_testcase {
         $this->assertTrue($auth->user_exists('u4'));
 
         $this->cleanup_auth_database();
-    }
-
-    /**
-     * Testing the function _colonscope() from ADOdb.
-     */
-    public function test_adodb_colonscope() {
-        global $CFG;
-        require_once($CFG->libdir.'/adodb/adodb.inc.php');
-        require_once($CFG->libdir.'/adodb/drivers/adodb-odbc.inc.php');
-        require_once($CFG->libdir.'/adodb/drivers/adodb-db2ora.inc.php');
-
-        $this->resetAfterTest(false);
-
-        $sql = "select * from table WHERE column=:1 AND anothercolumn > :0";
-        $arr = array('b', 1);
-        list($sqlout, $arrout) = _colonscope($sql,$arr);
-        $this->assertEquals("select * from table WHERE column=? AND anothercolumn > ?", $sqlout);
-        $this->assertEquals(array(1, 'b'), $arrout);
     }
 }

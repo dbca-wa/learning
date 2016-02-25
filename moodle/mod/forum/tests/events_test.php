@@ -1040,8 +1040,7 @@ class mod_forum_events_testcase extends advanced_testcase {
             'relateduserid' => $user->id,
         );
 
-        $this->setExpectedException('coding_exception',
-                'Context level must be either CONTEXT_SYSTEM, CONTEXT_COURSE or CONTEXT_USER.');
+        $this->setExpectedException('coding_exception', 'Context level must be either CONTEXT_SYSTEM or CONTEXT_COURSE.');
         \mod_forum\event\user_report_viewed::create($params);
     }
 

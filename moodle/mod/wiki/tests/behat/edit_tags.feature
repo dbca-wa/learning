@@ -1,4 +1,4 @@
-@mod @mod_wiki @core_tag @javascript
+@mod @mod_wiki
 Feature: Edited wiki pages handle tags correctly
   In order to get wiki pages properly labelled
   As a user
@@ -33,15 +33,13 @@ Feature: Edited wiki pages handle tags correctly
     And I press "Create page"
     When I set the following fields to these values:
       | HTML format | Student page contents to be tagged |
-      | Tags | Example, Page, Cool |
+      | Other tags (enter tags separated by commas) | Example, Page, Cool |
     And I press "Save"
     Then I should see "Example" in the ".wiki-tags" "css_element"
     And I should see "Page" in the ".wiki-tags" "css_element"
     And I should see "Cool" in the ".wiki-tags" "css_element"
     And I follow "Edit"
-    Then I should see "Example" in the ".form-autocomplete-selection" "css_element"
-    Then I should see "Page" in the ".form-autocomplete-selection" "css_element"
-    Then I should see "Cool" in the ".form-autocomplete-selection" "css_element"
+    And the field "Other tags (enter tags separated by commas)" matches value "Example, Page, Cool"
     And I press "Cancel"
 
   Scenario: Wiki page edition of official tags works as expected
@@ -56,19 +54,17 @@ Feature: Edited wiki pages handle tags correctly
     And I follow "Course 1"
     And I follow "Test wiki name"
     And I press "Create page"
-    And I click on ".form-autocomplete-downarrow" "css_element"
-    And I should see "OT1" in the ".form-autocomplete-suggestions" "css_element"
-    And I should see "OT2" in the ".form-autocomplete-suggestions" "css_element"
-    And I should see "OT3" in the ".form-autocomplete-suggestions" "css_element"
+    And the "tags[officialtags][]" select box should contain "OT1"
+    And the "tags[officialtags][]" select box should contain "OT2"
+    And the "tags[officialtags][]" select box should contain "OT3"
     When I set the following fields to these values:
       | HTML format | Student page contents to be tagged |
-      | Tags | OT1, OT3 |
+      | tags[officialtags][] | OT1, OT3 |
     And I press "Save"
     Then I should see "OT1" in the ".wiki-tags" "css_element"
     And I should see "OT3" in the ".wiki-tags" "css_element"
     And I should not see "OT2" in the ".wiki-tags" "css_element"
     And I follow "Edit"
-    And I should see "OT1" in the ".form-autocomplete-selection" "css_element"
-    And I should see "OT3" in the ".form-autocomplete-selection" "css_element"
-    And I should not see "OT2" in the ".form-autocomplete-selection" "css_element"
+    And the field "tags[officialtags][]" matches value "OT1, OT3"
+    And the field "tags[officialtags][]" does not match value "OT2"
     And I press "Cancel"

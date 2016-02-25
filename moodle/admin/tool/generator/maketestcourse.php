@@ -54,16 +54,7 @@ $mform = new tool_generator_make_course_form('maketestcourse.php');
 if ($data = $mform->get_data()) {
     // Do actual work.
     echo $OUTPUT->heading(get_string('creating', 'tool_generator'));
-    $backend = new tool_generator_course_backend(
-        $data->shortname,
-        $data->size,
-        false,
-        false,
-        true,
-        $data->fullname,
-        $data->summary['text'],
-        $data->summary['format']
-    );
+    $backend = new tool_generator_course_backend($data->shortname, $data->size);
     $id = $backend->make();
 
     echo html_writer::div(

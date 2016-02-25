@@ -13,19 +13,19 @@ class Less_Tree_Unit extends Less_Tree{
 	public $backupUnit;
 	public $type = 'Unit';
 
-    public function __construct($numerator = array(), $denominator = array(), $backupUnit = null ){
+	function __construct($numerator = array(), $denominator = array(), $backupUnit = null ){
 		$this->numerator = $numerator;
 		$this->denominator = $denominator;
 		$this->backupUnit = $backupUnit;
 	}
 
-    public function __clone(){
+	function __clone(){
 	}
 
     /**
      * @see Less_Tree::genCSS
      */
-    public function genCSS( $output ){
+	function genCSS( $output ){
 
 		if( $this->numerator ){
 			$output->add( $this->numerator[0] );
@@ -37,7 +37,7 @@ class Less_Tree_Unit extends Less_Tree{
 		}
 	}
 
-    public function toString(){
+	function toString(){
 		$returnStr = implode('*',$this->numerator);
 		foreach($this->denominator as $d){
 			$returnStr .= '/'.$d;
@@ -45,7 +45,7 @@ class Less_Tree_Unit extends Less_Tree{
 		return $returnStr;
 	}
 
-    public function __toString(){
+	function __toString(){
 		return $this->toString();
 	}
 
@@ -53,33 +53,33 @@ class Less_Tree_Unit extends Less_Tree{
 	/**
 	 * @param Less_Tree_Unit $other
 	 */
-    public function compare($other) {
+	function compare($other) {
 		return $this->is( $other->toString() ) ? 0 : -1;
 	}
 
-    public function is($unitString){
+	function is($unitString){
 		return $this->toString() === $unitString;
 	}
 
-    public function isLength(){
+	function isLength(){
 		$css = $this->toCSS();
 		return !!preg_match('/px|em|%|in|cm|mm|pc|pt|ex/',$css);
 	}
 
-    public function isAngle() {
+	function isAngle() {
 		return isset( Less_Tree_UnitConversions::$angle[$this->toCSS()] );
 	}
 
-    public function isEmpty(){
+	function isEmpty(){
 		return !$this->numerator && !$this->denominator;
 	}
 
-    public function isSingular() {
+	function isSingular() {
 		return count($this->numerator) <= 1 && !$this->denominator;
 	}
 
 
-    public function usedUnits(){
+	function usedUnits(){
 		$result = array();
 
 		foreach(Less_Tree_UnitConversions::$groups as $groupName){
@@ -101,7 +101,7 @@ class Less_Tree_Unit extends Less_Tree{
 		return $result;
 	}
 
-    public function cancel(){
+	function cancel(){
 		$counter = array();
 		$backup = null;
 

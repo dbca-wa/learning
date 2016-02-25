@@ -272,18 +272,11 @@ class qtype_calculatedmulti_qe2_attempt_updater extends question_qtype_attempt_u
      * @return float the computed result.
      */
     protected function calculate_raw($expression) {
-        try {
-            // In older PHP versions this this is a way to validate code passed to eval.
-            // The trick came from http://php.net/manual/en/function.eval.php.
-            if (@eval('return true; $result = ' . $expression . ';')) {
-                return eval('return ' . $expression . ';');
-            }
-        } catch (Throwable $e) {
-            // PHP7 and later now throws ParseException and friends from eval(),
-            // which is much better.
+        // This validation trick from http://php.net/manual/en/function.eval.php.
+        if (!@eval('return true; $result = ' . $expression . ';')) {
+            return '[Invalid expression ' . $expression . ']';
         }
-        // In either case of an invalid $expression, we end here.
-        return '[Invalid expression ' . $expression . ']';
+        return eval('return ' . $expression . ';');
     }
 
     /**

@@ -33,14 +33,7 @@ class MoodleQuickForm_wikieditor extends MoodleQuickForm_textarea {
 
     private $files;
 
-    /**
-     * Constructor
-     *
-     * @param string $elementName (optional) name of the text field
-     * @param string $elementLabel (optional) text field label
-     * @param string $attributes (optional) Either a typical HTML attribute string or an associative array
-     */
-    function __construct($elementName = null, $elementLabel = null, $attributes = null) {
+    function MoodleQuickForm_wikieditor($elementName = null, $elementLabel = null, $attributes = null) {
         if (isset($attributes['wiki_format'])) {
             $this->wikiformat = $attributes['wiki_format'];
             unset($attributes['wiki_format']);
@@ -50,14 +43,7 @@ class MoodleQuickForm_wikieditor extends MoodleQuickForm_textarea {
             unset($attributes['files']);
         }
 
-        parent::__construct($elementName, $elementLabel, $attributes);
-    }
-
-    /**
-     * Old syntax of class constructor for backward compatibility.
-     */
-    public function MoodleQuickForm_wikieditor($elementName = null, $elementLabel = null, $attributes = null) {
-        self::__construct($elementName, $elementLabel, $attributes);
+        parent::MoodleQuickForm_textarea($elementName, $elementLabel, $attributes);
     }
 
     function setWikiFormat($wikiformat) {

@@ -104,11 +104,10 @@ class select extends screen {
 
             $url = new moodle_url('/grade/report/singleview/index.php', $params);
 
-            $select = new \single_select($url, 'itemid', $options, '', array('' => $screen->select_label()));
-            $select->set_label($screen->select_label(), array('class'=>'accesshide'));
+            $select = new \single_select($url, 'itemid', $options);
+            $select->set_label($screen->description());
             $html .= $OUTPUT->render($select);
         }
-        $html = $OUTPUT->container($html, 'selectitems');
 
         if (empty($html)) {
             $OUTPUT->notification(get_string('noscreens', 'gradereport_singleview'));

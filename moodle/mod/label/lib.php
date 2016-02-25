@@ -290,7 +290,11 @@ function label_generate_resized_image(stored_file $file, $maxwidth, $maxheight) 
             $mimetype = $file->get_mimetype();
             if ($mimetype === 'image/gif' or $mimetype === 'image/jpeg' or $mimetype === 'image/png') {
                 require_once($CFG->libdir.'/gdlib.php');
-                $data = $file->generate_image_thumbnail($width, $height);
+                $tmproot = make_temp_directory('mod_label');
+                $tmpfilepath = $tmproot.'/'.$file->get_contenthash();
+                $file->copy_content_to($tmpfilepath);
+                $data = generate_image_thumbnail($tmpfilepath, $width, $height);
+                unlink($tmpfilepath);
 
                 if (!empty($data)) {
                     $fs = get_file_storage();

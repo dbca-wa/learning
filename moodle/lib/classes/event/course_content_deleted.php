@@ -104,12 +104,4 @@ class course_content_deleted extends base {
             throw new \coding_exception('The \'options\' value must be set in other.');
         }
     }
-
-    public static function get_objectid_mapping() {
-        return array('db' => 'course', 'restore' => 'course');
-    }
-
-    public static function get_other_mapping() {
-        return false;
-    }
 }

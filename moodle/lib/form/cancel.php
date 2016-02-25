@@ -52,7 +52,7 @@ class MoodleQuickForm_cancel extends MoodleQuickForm_submit
      * @param mixed $attributes (optional) Either a typical HTML attribute string
      *              or an associative array
      */
-    public function __construct($elementName=null, $value=null, $attributes=null)
+    function MoodleQuickForm_cancel($elementName=null, $value=null, $attributes=null)
     {
         if ($elementName==null){
             $elementName='cancel';
@@ -60,7 +60,7 @@ class MoodleQuickForm_cancel extends MoodleQuickForm_submit
         if ($value==null){
             $value=get_string('cancel');
         }
-        parent::__construct($elementName, $value, $attributes);
+        MoodleQuickForm_submit::MoodleQuickForm_submit($elementName, $value, $attributes);
         $this->updateAttributes(array('onclick'=>'skipClientValidation = true; return true;'));
 
         // Add the class btn-cancel.
@@ -69,13 +69,6 @@ class MoodleQuickForm_cancel extends MoodleQuickForm_submit
             $class = '';
         }
         $this->updateAttributes(array('class' => $class . ' btn-cancel'));
-    }
-
-    /**
-     * Old syntax of class constructor for backward compatibility.
-     */
-    public function MoodleQuickForm_cancel($elementName=null, $value=null, $attributes=null) {
-        self::__construct($elementName, $value, $attributes);
     }
 
     /**
@@ -90,7 +83,8 @@ class MoodleQuickForm_cancel extends MoodleQuickForm_submit
     {
         switch ($event) {
             case 'createElement':
-                static::__construct($arg[0], $arg[1], $arg[2]);
+                $className = get_class($this);
+                $this->$className($arg[0], $arg[1], $arg[2]);
                 $caller->_registerCancelButton($this->getName());
                 return true;
                 break;

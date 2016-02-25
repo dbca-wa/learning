@@ -543,10 +543,10 @@ M.form_dndupload.init = function(Y, options) {
          * @param string type - 'error' or 'info'
          */
         print_msg: function(msg, type) {
-            var header = M.util.get_string('error', 'moodle');
+            var header = M.str.moodle.error;
             if (type != 'error') {
                 type = 'info'; // one of only two types excepted
-                header = M.util.get_string('info', 'moodle');
+                header = M.str.moodle.info;
             }
             if (!this.msg_dlg) {
                 this.msg_dlg_node = Y.Node.createWithFilesSkin(M.core_filepicker.templates.message);
@@ -684,7 +684,7 @@ M.form_dndupload.init = function(Y, options) {
             node.generateID();
             var process_dlg = new Y.Panel({
                 srcNode      : node,
-                headerContent: M.util.get_string('fileexistsdialogheader', 'repository'),
+                headerContent: M.str.repository.fileexistsdialogheader,
                 zIndex       : 8000,
                 centered     : true,
                 modal        : true,
@@ -876,6 +876,7 @@ M.form_dndupload.init = function(Y, options) {
 
             // Prepare the data to send
             var formdata = new FormData();
+            formdata.append('action', 'upload');
             formdata.append('repo_upload_file', file); // The FormData class allows us to attach a file
             formdata.append('sesskey', M.cfg.sesskey);
             formdata.append('repo_id', this.repositoryid);
@@ -904,14 +905,8 @@ M.form_dndupload.init = function(Y, options) {
                 formdata.append('accepted_types[]', this.options.acceptedtypes);
             }
 
-            // Send the file & required details.
-            var uploadUrl = this.api;
-            if (uploadUrl.indexOf('?') !== -1) {
-                uploadUrl += '&action=upload';
-            } else {
-                uploadUrl += '?action=upload';
-            }
-            xhr.open("POST", uploadUrl, true);
+            // Send the file & required details
+            xhr.open("POST", this.api, true);
             xhr.send(formdata);
             return true;
         }

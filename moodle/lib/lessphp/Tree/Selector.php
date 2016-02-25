@@ -45,7 +45,7 @@ class Less_Tree_Selector extends Less_Tree{
 		$this->CacheElements();
 	}
 
-    public function accept($visitor) {
+	function accept($visitor) {
 		$this->elements = $visitor->visitArray($this->elements);
 		$this->extendList = $visitor->visitArray($this->extendList);
 		if( $this->condition ){
@@ -57,7 +57,7 @@ class Less_Tree_Selector extends Less_Tree{
 		}
 	}
 
-    public function createDerived( $elements, $extendList = null, $evaldCondition = null ){
+	function createDerived( $elements, $extendList = null, $evaldCondition = null ){
 		$newSelector = new Less_Tree_Selector( $elements, ($extendList ? $extendList : $this->extendList), null, $this->index, $this->currentFileInfo, $this->isReferenced);
 		$newSelector->evaldCondition = $evaldCondition ? $evaldCondition : $this->evaldCondition;
 		return $newSelector;
@@ -142,7 +142,7 @@ class Less_Tree_Selector extends Less_Tree{
 	/**
 	 * @see Less_Tree::genCSS
 	 */
-    public function genCSS( $output, $firstSelector = true ){
+	function genCSS( $output, $firstSelector = true ){
 
 		if( !$firstSelector && $this->elements[0]->combinator === "" ){
 			$output->add(' ', $this->currentFileInfo, $this->index);
@@ -153,15 +153,15 @@ class Less_Tree_Selector extends Less_Tree{
 		}
 	}
 
-    public function markReferenced(){
+	function markReferenced(){
 		$this->isReferenced = true;
 	}
 
-    public function getIsReferenced(){
+	function getIsReferenced(){
 		return !isset($this->currentFileInfo['reference']) || !$this->currentFileInfo['reference'] || $this->isReferenced;
 	}
 
-    public function getIsOutput(){
+	function getIsOutput(){
 		return $this->evaldCondition;
 	}
 

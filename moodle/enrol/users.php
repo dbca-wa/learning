@@ -35,11 +35,10 @@ $search  = optional_param('search', '', PARAM_RAW);
 $role    = optional_param('role', 0, PARAM_INT);
 $fgroup  = optional_param('filtergroup', 0, PARAM_INT);
 $status  = optional_param('status', -1, PARAM_INT);
-$newcourse = optional_param('newcourse', false, PARAM_BOOL);
 
 // When users reset the form, redirect back to first page without other params.
 if (optional_param('resetbutton', '', PARAM_RAW) !== '') {
-    redirect('users.php?id=' . $id . '&newcourse=' . $newcourse);
+    redirect('users.php?id=' . $id);
 }
 
 $course = $DB->get_record('course', array('id'=>$id), '*', MUST_EXIST);
@@ -55,7 +54,7 @@ $PAGE->set_pagelayout('admin');
 
 $manager = new course_enrolment_manager($PAGE, $course, $filter, $role, $search, $fgroup, $status);
 $table = new course_enrolment_users_table($manager, $PAGE);
-$PAGE->set_url('/enrol/users.php', $manager->get_url_params()+$table->get_url_params()+array('newcourse' => $newcourse));
+$PAGE->set_url('/enrol/users.php', $manager->get_url_params()+$table->get_url_params());
 navigation_node::override_active_url(new moodle_url('/enrol/users.php', array('id' => $id)));
 
 // Check if there is an action to take
@@ -144,12 +143,7 @@ if ($action) {
                 $mform = new enrol_users_addmember_form(NULL, array('user'=>$user, 'course'=>$course, 'allgroups'=>$manager->get_all_groups()));
                 $mform->set_data($PAGE->url->params());
                 $data = $mform->get_data();
-                if ($mform->is_cancelled()) {
-                    redirect($PAGE->url);
-                } if (!empty($data->groupids)) {
-                    foreach ($data->groupids as $groupid) {
-                        $manager->add_user_to_group($user, $groupid);
-                    }
+                if ($mform->is_cancelled() || ($data && $manager->add_user_to_group($user, $data->groupid))) {
                     redirect($PAGE->url);
                 } else {
                     $pagetitle = get_string('addgroup', 'group');
@@ -228,7 +222,7 @@ if (!has_capability('moodle/course:viewhiddenuserfields', $context)) {
     }
 }
 
-$filterform = new enrol_users_filter_form('users.php', array('manager' => $manager, 'id' => $id, 'newcourse' => $newcourse),
+$filterform = new enrol_users_filter_form('users.php', array('manager' => $manager, 'id' => $id),
         'get', '', array('id' => 'filterform'));
 $filterform->set_data(array('search' => $search, 'ifilter' => $filter, 'role' => $role,
     'filtergroup' => $fgroup, 'status' => $status));
@@ -252,8 +246,4 @@ $PAGE->set_heading($PAGE->title);
 echo $OUTPUT->header();
 echo $OUTPUT->heading(get_string('enrolledusers', 'enrol'));
 echo $renderer->render_course_enrolment_users_table($table, $filterform);
-if ($newcourse == 1) {
-    echo $OUTPUT->single_button(new moodle_url('/course/view.php', array('id' => $id)),
-    get_string('proceedtocourse', 'enrol'), 'GET', array('class' => 'enrol-users-page-action'));
-}
 echo $OUTPUT->footer();

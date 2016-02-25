@@ -52,7 +52,6 @@ if (!has_any_capability(array('moodle/role:assign', 'moodle/role:safeoverride', 
 $PAGE->set_url($url);
 
 if ($context->contextlevel == CONTEXT_USER and $USER->id != $context->instanceid) {
-    $PAGE->navbar->includesettingsbase = true;
     $PAGE->navigation->extend_for_user($user);
     $PAGE->set_context(context_course::instance($course->id));
 } else {

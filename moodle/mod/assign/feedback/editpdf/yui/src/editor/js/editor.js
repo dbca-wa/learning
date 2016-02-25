@@ -28,7 +28,7 @@
  * @constructor
  * @extends Y.Base
  */
-var EDITOR = function() {
+EDITOR = function() {
     EDITOR.superclass.constructor.apply(this, arguments);
 };
 EDITOR.prototype = {
@@ -219,7 +219,7 @@ EDITOR.prototype = {
         var button, currenttoolnode, imgurl;
 
         // Initalise the colour buttons.
-        button = this.get_dialogue_element(SELECTOR.COMMENTCOLOURBUTTON);
+        button = Y.one(SELECTOR.COMMENTCOLOURBUTTON);
 
         imgurl = M.util.image_url('background_colour_' + this.currentedit.commentcolour, 'assignfeedback_editpdf');
         button.one('img').setAttribute('src', imgurl);
@@ -230,15 +230,15 @@ EDITOR.prototype = {
             button.one('img').setStyle('borderStyle', 'solid');
         }
 
-        button = this.get_dialogue_element(SELECTOR.ANNOTATIONCOLOURBUTTON);
+        button = Y.one(SELECTOR.ANNOTATIONCOLOURBUTTON);
         imgurl = M.util.image_url('colour_' + this.currentedit.annotationcolour, 'assignfeedback_editpdf');
         button.one('img').setAttribute('src', imgurl);
 
-        currenttoolnode = this.get_dialogue_element(TOOLSELECTOR[this.currentedit.tool]);
+        currenttoolnode = Y.one(TOOLSELECTOR[this.currentedit.tool]);
         currenttoolnode.addClass('assignfeedback_editpdf_selectedbutton');
         currenttoolnode.setAttribute('aria-pressed', 'true');
 
-        button = this.get_dialogue_element(SELECTOR.STAMPSBUTTON);
+        button = Y.one(SELECTOR.STAMPSBUTTON);
         button.one('img').setAttrs({'src': this.get_stamp_image_url(this.currentedit.stamp),
                                     'height': '16',
                                     'width': '16'});
@@ -249,7 +249,7 @@ EDITOR.prototype = {
      * @method get_canvas_bounds
      */
     get_canvas_bounds : function() {
-        var canvas = this.get_dialogue_element(SELECTOR.DRAWINGCANVAS),
+        var canvas = Y.one(SELECTOR.DRAWINGCANVAS),
             offsetcanvas = canvas.getXY(),
             offsetleft = offsetcanvas[0],
             offsettop = offsetcanvas[1],
@@ -308,12 +308,12 @@ EDITOR.prototype = {
             // Add custom class for styling.
             this.dialogue.get('boundingBox').addClass(CSS.DIALOGUE);
 
-            this.loadingicon = this.get_dialogue_element(SELECTOR.LOADINGICON);
+            this.loadingicon = Y.one(SELECTOR.LOADINGICON);
 
-            drawingcanvas = this.get_dialogue_element(SELECTOR.DRAWINGCANVAS);
-            this.graphic = new Y.Graphic({render : drawingcanvas});
+            drawingcanvas = Y.one(SELECTOR.DRAWINGCANVAS);
+            this.graphic = new Y.Graphic({render : SELECTOR.DRAWINGCANVAS});
 
-            drawingregion = this.get_dialogue_element(SELECTOR.DRAWINGREGION);
+            drawingregion = Y.one(SELECTOR.DRAWINGREGION);
             drawingregion.on('scroll', this.move_canvas, this);
 
             if (!this.get('readonly')) {
@@ -393,7 +393,7 @@ EDITOR.prototype = {
                             var pagetotal = this.get('pagetotal');
 
                             // Update the progress bar.
-                            var progressbarcontainer = this.get_dialogue_element(SELECTOR.PROGRESSBARCONTAINER);
+                            var progressbarcontainer = Y.one(SELECTOR.PROGRESSBARCONTAINER);
                             var progressbar = progressbarcontainer.one('.bar');
                             if (progressbar) {
                                 // Calculate progress.
@@ -520,7 +520,7 @@ EDITOR.prototype = {
             picker,
             filename;
 
-        searchcommentsbutton = this.get_dialogue_element(SELECTOR.SEARCHCOMMENTSBUTTON);
+        searchcommentsbutton = Y.one(SELECTOR.SEARCHCOMMENTSBUTTON);
         searchcommentsbutton.on('click', this.open_search_comments, this);
         searchcommentsbutton.on('key', this.open_search_comments, 'down:13', this);
 
@@ -529,7 +529,7 @@ EDITOR.prototype = {
         }
         // Setup the tool buttons.
         Y.each(TOOLSELECTOR, function(selector, tool) {
-            toolnode = this.get_dialogue_element(selector);
+            toolnode = Y.one(selector);
             toolnode.on('click', this.handle_tool_button, this, tool);
             toolnode.on('key', this.handle_tool_button, 'down:13', this, tool);
             toolnode.setAttribute('aria-pressed', 'false');
@@ -537,7 +537,7 @@ EDITOR.prototype = {
 
         // Set the default tool.
 
-        commentcolourbutton = this.get_dialogue_element(SELECTOR.COMMENTCOLOURBUTTON);
+        commentcolourbutton = Y.one(SELECTOR.COMMENTCOLOURBUTTON);
         picker = new M.assignfeedback_editpdf.colourpicker({
             buttonNode: commentcolourbutton,
             colours: COMMENTCOLOUR,
@@ -553,7 +553,7 @@ EDITOR.prototype = {
             context: this
         });
 
-        annotationcolourbutton = this.get_dialogue_element(SELECTOR.ANNOTATIONCOLOURBUTTON);
+        annotationcolourbutton = Y.one(SELECTOR.ANNOTATIONCOLOURBUTTON);
         picker = new M.assignfeedback_editpdf.colourpicker({
             buttonNode: annotationcolourbutton,
             iconprefix: 'colour_',
@@ -575,11 +575,11 @@ EDITOR.prototype = {
 
         stampfiles = this.get('stampfiles');
         if (stampfiles.length <= 0) {
-            this.get_dialogue_element(TOOLSELECTOR.stamp).ancestor().hide();
+            Y.one(TOOLSELECTOR.stamp).ancestor().hide();
         } else {
             filename = stampfiles[0].substr(stampfiles[0].lastIndexOf('/') + 1);
             this.currentedit.stamp = filename;
-            currentstampbutton = this.get_dialogue_element(SELECTOR.STAMPSBUTTON);
+            currentstampbutton = Y.one(SELECTOR.STAMPSBUTTON);
 
             picker = new M.assignfeedback_editpdf.stamppicker({
                 buttonNode: currentstampbutton,
@@ -612,7 +612,7 @@ EDITOR.prototype = {
         e.preventDefault();
 
         // Change style of the pressed button.
-        currenttoolnode = this.get_dialogue_element(TOOLSELECTOR[this.currentedit.tool]);
+        currenttoolnode = Y.one(TOOLSELECTOR[this.currentedit.tool]);
         currenttoolnode.removeClass('assignfeedback_editpdf_selectedbutton');
         currenttoolnode.setAttribute('aria-pressed', 'false');
         this.currentedit.tool = tool;
@@ -674,15 +674,6 @@ EDITOR.prototype = {
     },
 
     /**
-     * Find an element within the dialogue.
-     * @protected
-     * @method get_dialogue_element
-     */
-    get_dialogue_element : function(selector) {
-        return this.dialogue.get('boundingBox').one(selector);
-    },
-
-    /**
      * Redraw the active edit.
      * @protected
      * @method redraw_active_edit
@@ -702,7 +693,7 @@ EDITOR.prototype = {
      */
     edit_start : function(e) {
         e.preventDefault();
-        var canvas = this.get_dialogue_element(SELECTOR.DRAWINGCANVAS),
+        var canvas = Y.one(SELECTOR.DRAWINGCANVAS),
             offset = canvas.getXY(),
             scrolltop = canvas.get('docScrollY'),
             scrollleft = canvas.get('docScrollX'),
@@ -729,9 +720,9 @@ EDITOR.prototype = {
         this.currentedit.end = {x : point.x, y : point.y};
 
         if (this.currentedit.tool === 'select') {
-            var x = this.currentedit.end.x,
-                y = this.currentedit.end.y,
-                annotations = this.pages[this.currentpage].annotations;
+            x = this.currentedit.end.x;
+            y = this.currentedit.end.y;
+            annotations = this.pages[this.currentpage].annotations;
             // Find the first annotation whose bounds encompass the click.
             Y.each(annotations, function(annotation) {
                 if (((x - annotation.x) * (x - annotation.endx)) <= 0 &&
@@ -773,7 +764,7 @@ EDITOR.prototype = {
     edit_move : function(e) {
         e.preventDefault();
         var bounds = this.get_canvas_bounds(),
-            canvas = this.get_dialogue_element(SELECTOR.DRAWINGCANVAS),
+            canvas = Y.one(SELECTOR.DRAWINGCANVAS),
             clientpoint = new M.assignfeedback_editpdf.point(e.clientX + canvas.get('docScrollX'),
                                                              e.clientY + canvas.get('docScrollY')),
             point = this.get_canvas_coordinates(clientpoint);
@@ -870,7 +861,7 @@ EDITOR.prototype = {
         if (drawregionheight < 100) {
             drawregionheight = 100;
         }
-        drawingregion = this.get_dialogue_element(SELECTOR.DRAWINGREGION);
+        drawingregion = Y.one(SELECTOR.DRAWINGREGION);
         drawingregion.setStyle('maxHeight', drawregionheight +'px');
         this.redraw();
         return true;
@@ -930,8 +921,7 @@ EDITOR.prototype = {
                         if (jsondata.error) {
                             return new M.core.ajaxException(jsondata);
                         }
-                        Y.one('#' + this.get('linkid')).siblings(SELECTOR.UNSAVEDCHANGESDIV)
-                            .item(0).addClass('haschanges');
+                        Y.one(SELECTOR.UNSAVEDCHANGESDIV).addClass('haschanges');
                     } catch (e) {
                         return new M.core.exception(e);
                     }
@@ -995,13 +985,13 @@ EDITOR.prototype = {
      * @method change_page
      */
     change_page : function() {
-        var drawingcanvas = this.get_dialogue_element(SELECTOR.DRAWINGCANVAS),
+        var drawingcanvas = Y.one(SELECTOR.DRAWINGCANVAS),
             page,
             previousbutton,
             nextbutton;
 
-        previousbutton = this.get_dialogue_element(SELECTOR.PREVIOUSBUTTON);
-        nextbutton = this.get_dialogue_element(SELECTOR.NEXTBUTTON);
+        previousbutton = Y.one(SELECTOR.PREVIOUSBUTTON);
+        nextbutton = Y.one(SELECTOR.NEXTBUTTON);
 
         if (this.currentpage > 0) {
             previousbutton.removeAttribute('disabled');
@@ -1021,7 +1011,7 @@ EDITOR.prototype = {
         drawingcanvas.setStyle('height', page.height + 'px');
 
         // Update page select.
-        this.get_dialogue_element(SELECTOR.PAGESELECT).set('value', this.currentpage);
+        Y.one(SELECTOR.PAGESELECT).set('value', this.currentpage);
 
         this.resize(); // Internally will call 'redraw', after checking the dialogue size.
     },
@@ -1039,9 +1029,9 @@ EDITOR.prototype = {
             previousbutton,
             nextbutton;
 
-        pageselect = this.get_dialogue_element(SELECTOR.PAGESELECT);
+        pageselect = Y.one(SELECTOR.PAGESELECT);
 
-        var options = pageselect.all('option');
+        options = pageselect.all('option');
         if (options.size() <= 1) {
             for (i = 0; i < this.pages.length; i++) {
                 option = Y.Node.create('<option/>');
@@ -1056,8 +1046,8 @@ EDITOR.prototype = {
             this.change_page();
         }, this);
 
-        previousbutton = this.get_dialogue_element(SELECTOR.PREVIOUSBUTTON);
-        nextbutton = this.get_dialogue_element(SELECTOR.NEXTBUTTON);
+        previousbutton = Y.one(SELECTOR.PREVIOUSBUTTON);
+        nextbutton = Y.one(SELECTOR.NEXTBUTTON);
 
         previousbutton.on('click', this.previous_page, this);
         previousbutton.on('key', this.previous_page, 'down:13', this);
@@ -1101,7 +1091,7 @@ EDITOR.prototype = {
     move_canvas: function() {
         var drawingregion, x, y, i;
 
-        drawingregion = this.get_dialogue_element(SELECTOR.DRAWINGREGION);
+        drawingregion = Y.one(SELECTOR.DRAWINGREGION);
         x = parseInt(drawingregion.get('scrollLeft'), 10);
         y = parseInt(drawingregion.get('scrollTop'), 10);
 

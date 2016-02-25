@@ -85,7 +85,7 @@ if ($context->contextlevel == CONTEXT_COURSE) {
 
 } else if ($context->contextlevel == CONTEXT_USER) {
     require_login();
-    $pagename = get_string('manageinstances', 'repository');
+    $pagename = get_string("personalrepositories",'repository');
     //is the user looking at its own repository instances
     if ($USER->id != $context->instanceid){
         print_error('notyourinstances', 'repository');
@@ -135,16 +135,20 @@ if (!empty($instance)) {
     }
 }
 
-// Create navigation links.
+/// Create navigation links
 if (!empty($course)) {
-    $pageheading = $course->fullname;
+    $PAGE->navbar->add($pagename);
+    $fullname = $course->fullname;
 } else {
-    $pageheading = $pagename;
+    $fullname = fullname($user);
+    $strrepos = get_string('repositories', 'repository');
+    $PAGE->navbar->add($fullname, new moodle_url('/user/view.php', array('id'=>$user->id)));
+    $PAGE->navbar->add($strrepos);
 }
 
 // Display page header.
 $PAGE->set_title($pagename);
-$PAGE->set_heading($pageheading);
+$PAGE->set_heading($fullname);
 
 $return = true;
 if (!empty($edit) || !empty($new)) {

@@ -27,7 +27,7 @@
  * @extends M.assignfeedback_editpdf.annotation
  * @module moodle-assignfeedback_editpdf-editor
  */
-var ANNOTATIONHIGHLIGHT = function(config) {
+ANNOTATIONHIGHLIGHT = function(config) {
     ANNOTATIONHIGHLIGHT.superclass.constructor.apply(this, [config]);
 };
 

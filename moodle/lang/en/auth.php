@@ -1,4 +1,5 @@
 <?php
+
 // This file is part of Moodle - http://moodle.org/
 //
 // Moodle is free software: you can redistribute it and/or modify
@@ -17,7 +18,7 @@
 /**
  * Strings for component 'auth', language 'en', branch 'MOODLE_20_STABLE'
  *
- * @package   core_auth
+ * @package   auth
  * @copyright 1999 onwards Martin Dougiamas  {@link http://moodle.com}
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -79,7 +80,6 @@ $string['errorminpassworddigits'] = 'Passwords must have at least {$a} digit(s).
 $string['errorminpasswordlength'] = 'Passwords must be at least {$a} characters long.';
 $string['errorminpasswordlower'] = 'Passwords must have at least {$a} lower case letter(s).';
 $string['errorminpasswordnonalphanum'] = 'Passwords must have at least {$a} non-alphanumeric character(s).';
-$string['errorpasswordreused'] = 'This password has been used before, and is not permitted to be reused';
 $string['errorminpasswordupper'] = 'Passwords must have at least {$a} upper case letter(s).';
 $string['errorpasswordupdate'] = 'Error updating password, password not changed';
 $string['eventuserloggedin'] = 'User has logged in';
@@ -104,18 +104,13 @@ $string['informminpassworddigits'] = 'at least {$a} digit(s)';
 $string['informminpasswordlength'] = 'at least {$a} characters';
 $string['informminpasswordlower'] = 'at least {$a} lower case letter(s)';
 $string['informminpasswordnonalphanum'] = 'at least {$a} non-alphanumeric character(s)';
-$string['informminpasswordreuselimit'] = 'Passwords can be reused after {$a} changes';
 $string['informminpasswordupper'] = 'at least {$a} upper case letter(s)';
 $string['informpasswordpolicy'] = 'The password must have {$a}';
 $string['instructions'] = 'Instructions';
 $string['internal'] = 'Internal';
-$string['limitconcurrentlogins'] = 'Limit concurrent logins';
-$string['limitconcurrentlogins_desc'] = 'If enabled the number of concurrent browser logins for each user is restricted. The oldest session is terminated after reaching the limit, please note that users may lose all unsaved work. This setting is not compatible with single sign-on (SSO) authentication plugins.';
 $string['locked'] = 'Locked';
 $string['authloginviaemail'] = 'Allow log in via email';
 $string['authloginviaemail_desc'] = 'Allow users to use both username and email address (if unique) for site login.';
-$string['allowaccountssameemail'] = 'Allow accounts with same email';
-$string['allowaccountssameemail_desc'] = 'If enabled, more than one user account can share the same email address. This may result in security or privacy issues, for example with the password change confirmation email.';
 $string['md5'] = 'MD5 hash';
 $string['nopasswordchange'] = 'Password can not be changed';
 $string['nopasswordchangeforced'] = 'You cannot proceed without changing your password, however there is no available page for changing it. Please contact your Moodle Administrator.';
@@ -133,7 +128,6 @@ $string['recaptcha_help'] = 'The CAPTCHA is for preventing abuse from automated 
 
 If you are not sure what the words are, you can try getting another CAPTCHA or an audio CAPTCHA.';
 $string['recaptcha_link'] = 'auth/email';
-$string['security_question'] = 'Security question';
 $string['selfregistration'] = 'Self registration';
 $string['selfregistration_help'] = 'If an authentication plugin, such as email-based self-registration, is selected, then it enables potential users to register themselves and create accounts. This results in the possibility of spammers creating accounts in order to use forum posts, blog entries etc. for spam. To avoid this risk, self-registration should be disabled or limited by <em>Allowed email domains</em> setting.';
 $string['sha1'] = 'SHA-1 hash';

@@ -93,8 +93,8 @@ $THEME->layouts = array(
     ),
     // My public page.
     'mypublic' => array(
-        'file' => 'columns2.php',
-        'regions' => array('side-pre'),
+        'file' => 'columns3.php',
+        'regions' => array('side-pre', 'side-post'),
         'defaultregion' => 'side-pre',
     ),
     'login' => array(
@@ -163,3 +163,8 @@ if (core_useragent::is_ie() && !core_useragent::check_ie_version('9.0')) {
 }
 
 $THEME->hidefromselector = true;
+
+$THEME->blockrtlmanipulations = array(
+    'side-pre' => 'side-post',
+    'side-post' => 'side-pre'
+);

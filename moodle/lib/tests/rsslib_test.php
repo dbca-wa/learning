@@ -99,12 +99,7 @@ EOD;
      * Test retrieving a url which doesn't exist.
      */
     public function test_failurl() {
-        global $CFG;
-
-        // We do not want this in php error log.
-        $errorlevel = error_reporting($CFG->debug & ~E_USER_NOTICE);
-        $feed = new moodle_simplepie($this->getExternalTestFileUrl('/rsstest-which-doesnt-exist.xml'), self::TIMEOUT);
-        error_reporting($errorlevel);
+        $feed = @new moodle_simplepie($this->getExternalTestFileUrl('/rsstest-which-doesnt-exist.xml'), self::TIMEOUT); // We do not want this in php error log.
 
         $this->assertNotEmpty($feed->error());
     }

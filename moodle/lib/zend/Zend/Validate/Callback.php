@@ -14,7 +14,7 @@
  *
  * @category   Zend
  * @package    Zend_Validate
- * @copyright  Copyright (c) 2005-2015 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright  Copyright (c) 2005-2010 Zend Technologies USA Inc. (http://www.zend.com)
  * @license    http://framework.zend.com/license/new-bsd     New BSD License
  * @version    $Id$
  */
@@ -27,7 +27,7 @@ require_once 'Zend/Validate/Abstract.php';
 /**
  * @category   Zend
  * @package    Zend_Validate
- * @copyright  Copyright (c) 2005-2015 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright  Copyright (c) 2005-2010 Zend Technologies USA Inc. (http://www.zend.com)
  * @license    http://framework.zend.com/license/new-bsd     New BSD License
  */
 class Zend_Validate_Callback extends Zend_Validate_Abstract
@@ -49,7 +49,7 @@ class Zend_Validate_Callback extends Zend_Validate_Abstract
      */
     protected $_messageTemplates = array(
         self::INVALID_VALUE    => "'%value%' is not valid",
-        self::INVALID_CALLBACK => "An exception has been raised within the callback",
+        self::INVALID_CALLBACK => "Failure within the callback, exception returned",
     );
 
     /**
@@ -69,8 +69,10 @@ class Zend_Validate_Callback extends Zend_Validate_Abstract
     /**
      * Sets validator options
      *
-     * @param  mixed $callback
-     * @throws Zend_Validate_Exception
+     * @param  string|array $callback
+     * @param  mixed   $max
+     * @param  boolean $inclusive
+     * @return void
      */
     public function __construct($callback = null)
     {
@@ -105,7 +107,6 @@ class Zend_Validate_Callback extends Zend_Validate_Abstract
      * Sets the callback
      *
      * @param  string|array $callback
-     * @throws Zend_Validate_Exception
      * @return Zend_Validate_Callback Provides a fluent interface
      */
     public function setCallback($callback)
@@ -131,7 +132,7 @@ class Zend_Validate_Callback extends Zend_Validate_Abstract
     /**
      * Sets options for the callback
      *
-     * @param  mixed $options
+     * @param  mixed $max
      * @return Zend_Validate_Callback Provides a fluent interface
      */
     public function setOptions($options)

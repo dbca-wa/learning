@@ -17,7 +17,6 @@ Feature: A teacher can set one of 3 possible options for tracking read forum pos
       | student1 | C1 | student |
       | student2 | C1 | student |
     And I log in as "admin"
-    And I am on site homepage
     And I follow "Course 1"
     And I turn editing mode on
 
@@ -81,7 +80,7 @@ Feature: A teacher can set one of 3 possible options for tracking read forum pos
   Scenario: Tracking forum posts forced with user tracking on
     Given the following config values are set as admin:
       | forum_allowforcedreadtracking | 1 |
-    And I am on site homepage
+    And I follow "Home"
     And I follow "Course 1"
     Given I add a "Forum" to section "1" and I fill the form with:
       | Forum name | Test forum name |
@@ -104,7 +103,7 @@ Feature: A teacher can set one of 3 possible options for tracking read forum pos
   Scenario: Tracking forum posts forced with user tracking off
     Given the following config values are set as admin:
       | forum_allowforcedreadtracking | 1 |
-    And I am on site homepage
+    And I follow "Home"
     And I follow "Course 1"
     Given I add a "Forum" to section "1" and I fill the form with:
       | Forum name | Test forum name |
@@ -127,7 +126,7 @@ Feature: A teacher can set one of 3 possible options for tracking read forum pos
   Scenario: Tracking forum posts forced (with force disabled) with user tracking on
     Given the following config values are set as admin:
       | forum_allowforcedreadtracking | 1 |
-    And I am on site homepage
+    And I follow "Home"
     And I follow "Course 1"
     Given I add a "Forum" to section "1" and I fill the form with:
       | Forum name | Test forum name |
@@ -158,7 +157,7 @@ Feature: A teacher can set one of 3 possible options for tracking read forum pos
   Scenario: Tracking forum posts forced (with force disabled) with user tracking off
     Given the following config values are set as admin:
       | forum_allowforcedreadtracking | 1 |
-    And I am on site homepage
+    And I follow "Home"
     And I follow "Course 1"
     Given I add a "Forum" to section "1" and I fill the form with:
       | Forum name | Test forum name |

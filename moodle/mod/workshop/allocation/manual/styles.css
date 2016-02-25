@@ -4,15 +4,14 @@
 
 .path-mod-workshop .manual-allocator .allocations {
     margin: 0px auto;
-    width: 100%;
 }
 
-.path-mod-workshop .manual-allocator .allocations tbody tr:nth-of-type(odd) {
+.path-mod-workshop .manual-allocator .allocations .r0 {
     background-color: #eee;
 }
 
-.path-mod-workshop .manual-allocator .allocations tbody tr:nth-of-type(odd).highlightreviewerof,
-.path-mod-workshop .manual-allocator .allocations tbody tr:nth-of-type(odd).highlightreviewedby {
+.path-mod-workshop .manual-allocator .allocations .r0.highlightreviewerof,
+.path-mod-workshop .manual-allocator .allocations .r0.highlightreviewedby {
     background-color: inherit;
 }
 

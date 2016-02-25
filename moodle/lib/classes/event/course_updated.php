@@ -117,13 +117,4 @@ class course_updated extends base {
     protected function get_legacy_logdata() {
         return $this->legacylogdata;
     }
-
-    public static function get_objectid_mapping() {
-        return array('db' => 'course', 'restore' => 'course');
-    }
-
-    public static function get_other_mapping() {
-        // Nothing to map.
-        return false;
-    }
 }

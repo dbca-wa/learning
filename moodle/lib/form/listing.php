@@ -73,7 +73,7 @@ class MoodleQuickForm_listing extends HTML_QuickForm_input {
      * @param array $attributes (optional) Either a typical HTML attribute string or an associative array.
      * @param array $options set of options to initalize listing.
      */
-    public function __construct($elementName=null, $elementLabel=null, $attributes=null, $options=array()) {
+    function MoodleQuickForm_listing($elementName=null, $elementLabel=null, $attributes=null, $options=array()) {
 
        $this->_type = 'listing';
         if (!empty($options['items'])) {
@@ -89,14 +89,7 @@ class MoodleQuickForm_listing extends HTML_QuickForm_input {
         } else {
             $this->hideall = get_string('hide');
         }
-        parent::__construct($elementName, $elementLabel, $attributes);
-    }
-
-    /**
-     * Old syntax of class constructor for backward compatibility.
-     */
-    public function MoodleQuickForm_listing($elementName=null, $elementLabel=null, $attributes=null, $options=array()) {
-        self::__construct($elementName, $elementLabel, $attributes, $options);
+        parent::HTML_QuickForm_input($elementName, $elementLabel, $attributes);
     }
 
     /**

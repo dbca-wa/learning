@@ -138,9 +138,7 @@ if ($backup->get_stage() == backup_ui::STAGE_FINAL) {
     }
 
     // Get HTML from logger.
-    if ($CFG->debugdisplay) {
-        $loghtml = $logger->get_html();
-    }
+    $loghtml = $logger->get_html();
 
     // Hide the progress display and first backup step bar (the 'finished' step will show next).
     echo html_writer::end_div();

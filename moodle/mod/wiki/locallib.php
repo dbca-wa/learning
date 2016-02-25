@@ -908,7 +908,7 @@ function wiki_user_can_edit($subwiki) {
             // There is one wiki per group.
             //
             // Only members of subwiki group could edit that wiki
-            if (groups_is_member($subwiki->groupid)) {
+            if ($subwiki->groupid == groups_get_activity_group($cm)) {
                 // Only edit capability needed
                 return has_capability('mod/wiki:editpage', $context);
             } else { // User is not part of that group

@@ -73,7 +73,6 @@ class core_role_override_permissions_table_advanced extends core_role_capability
         }
 
         // One cell for each possible permission.
-        $content = '';
         foreach ($this->displaypermissions as $perm => $permname) {
             $strperm = $this->strperms[$permname];
             $extraclass = '';
@@ -84,8 +83,8 @@ class core_role_override_permissions_table_advanced extends core_role_capability
             if ($this->permissions[$capability->name] == $perm) {
                 $checked = 'checked="checked" ';
             }
-            $content .= '<td class="' . $permname . $extraclass . '">';
-            $content .= '<label><input type="radio" name="' . $capability->name .
+            echo '<td class="' . $permname . $extraclass . '">';
+            echo '<label><input type="radio" name="' . $capability->name .
                 '" value="' . $perm . '" ' . $checked . $disabled . '/> ';
             if ($perm == CAP_INHERIT) {
                 $inherited = $this->parentpermissions[$capability->name];
@@ -96,9 +95,8 @@ class core_role_override_permissions_table_advanced extends core_role_capability
                 }
                 $strperm .= ' (' . $inherited . ')';
             }
-            $content .= '<span class="note">' . $strperm . '</span>';
-            $content .= '</label></td>';
+            echo '<span class="note">' . $strperm . '</span>';
+            echo '</label></td>';
         }
-        return $content;
     }
 }

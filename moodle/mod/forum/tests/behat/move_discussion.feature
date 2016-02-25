@@ -37,5 +37,3 @@ Feature: A teacher can move discussions between forums
     When I set the field "jump" to "Test forum 2"
     And I press "Move"
     Then I should see "This discussion has been moved to 'Test forum 2'."
-    And I press "Move"
-    And I should see "Discussion 1"

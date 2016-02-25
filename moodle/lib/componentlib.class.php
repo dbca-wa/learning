@@ -190,7 +190,7 @@ class component_installer {
      *               be expanded (default='' = moodledataitself)
      * @return object
      */
-    public function __construct($sourcebase, $zippath, $zipfilename, $md5filename='', $destpath='') {
+    function component_installer ($sourcebase, $zippath, $zipfilename, $md5filename='', $destpath='') {
 
         $this->sourcebase   = $sourcebase;
         $this->zippath      = $zippath;
@@ -204,13 +204,6 @@ class component_installer {
         $this->cachedmd5components = array();
 
         $this->check_requisites();
-    }
-
-    /**
-     * Old syntax of class constructor. Deprecated in PHP7.
-     */
-    public function component_installer($sourcebase, $zippath, $zipfilename, $md5filename='', $destpath='') {
-        self::__construct($sourcebase, $zippath, $zipfilename, $md5filename, $destpath);
     }
 
     /**

@@ -111,8 +111,5 @@ class course_searched extends \core\event\base {
         }
     }
 
-    public static function get_other_mapping() {
-        return false;
-    }
 }
 

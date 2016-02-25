@@ -33,9 +33,14 @@ if ($CFG->mnet_dispatcher_mode === 'off') {
 // Content type for output is not html:
 header('Content-type: text/xml; charset=utf-8');
 
-$rawpostdata = file_get_contents("php://input");
-mnet_debug("RAW POST DATA", 2);
-mnet_debug($rawpostdata, 2);
+// PHP 5.2.2: $HTTP_RAW_POST_DATA not populated bug:
+// http://bugs.php.net/bug.php?id=41293
+if (empty($HTTP_RAW_POST_DATA)) {
+    $HTTP_RAW_POST_DATA = file_get_contents('php://input');
+}
+
+mnet_debug("HTTP_RAW_POST_DATA", 2);
+mnet_debug($HTTP_RAW_POST_DATA, 2);
 
 if (!isset($_SERVER)) {
     exit(mnet_server_fault(712, get_string('phperror', 'mnet')));
@@ -48,7 +53,7 @@ $remoteclient = new mnet_remote_client();
 set_mnet_remote_client($remoteclient);
 
 try {
-    $plaintextmessage = mnet_server_strip_encryption($rawpostdata);
+    $plaintextmessage = mnet_server_strip_encryption($HTTP_RAW_POST_DATA);
     $xmlrpcrequest = mnet_server_strip_signature($plaintextmessage);
 } catch (Exception $e) {
     mnet_debug('encryption strip exception thrown: ' . $e->getMessage());

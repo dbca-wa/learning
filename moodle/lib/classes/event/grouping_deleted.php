@@ -97,8 +97,4 @@ class grouping_deleted extends base {
         $this->data['edulevel'] = self::LEVEL_OTHER;
         $this->data['objecttable'] = 'groupings';
     }
-
-    public static function get_objectid_mapping() {
-        return array('db' => 'groupings', 'restore' => 'grouping');
-    }
 }

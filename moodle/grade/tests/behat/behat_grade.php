@@ -97,8 +97,7 @@ class behat_grade extends behat_base {
     }
 
     /**
-     * Sets a calculated manual grade item. Needs a table with item name - idnumber relation.
-     * The step requires you to be in the 'Gradebook setup' page.
+     * Sets a calculated manual grade item. Needs a table with item name - idnumber relation. The step requires you to be in categories and items page.
      *
      * @Given /^I set "(?P<calculation_string>(?:[^"]|\\")*)" calculation for grade item "(?P<grade_item_string>(?:[^"]|\\")*)" with idnumbers:$/
      * @param string $calculation The calculation.
@@ -157,7 +156,7 @@ class behat_grade extends behat_base {
 
     /**
      * Sets a calculated manual grade category total. Needs a table with item name - idnumber relation.
-     * The step requires you to be in the 'Gradebook setup' page.
+     * The step requires you to be in categories and items page.
      *
      * @Given /^I set "(?P<calculation_string>(?:[^"]|\\")*)" calculation for grade category "(?P<grade_item_string>(?:[^"]|\\")*)" with idnumbers:$/
      * @param string $calculation The calculation.

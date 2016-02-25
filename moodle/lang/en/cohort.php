@@ -1,4 +1,5 @@
 <?php
+
 // This file is part of Moodle - http://moodle.org/
 //
 // Moodle is free software: you can redistribute it and/or modify
@@ -17,7 +18,7 @@
 /**
  * Strings for component 'cohort', language 'en', branch 'MOODLE_20_STABLE'
  *
- * @package    core_cohort
+ * @package    moodlecore
  * @subpackage cohort
  * @copyright  2010 Petr Skoda (info@skodak.org)
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later

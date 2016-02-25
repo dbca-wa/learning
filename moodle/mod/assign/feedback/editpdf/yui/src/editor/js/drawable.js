@@ -26,7 +26,7 @@
  * @param M.assignfeedback_editpdf.editor editor
  * @class drawable
  */
-var DRAWABLE = function(editor) {
+DRAWABLE = function(editor) {
 
     /**
      * Reference to M.assignfeedback_editpdf.editor.
@@ -100,7 +100,7 @@ var DRAWABLE = function(editor) {
     this.store_position = function(container, x, y) {
         var drawingregion, scrollx, scrolly;
 
-        drawingregion = this.editor.get_dialogue_element(SELECTOR.DRAWINGREGION);
+        drawingregion = Y.one(SELECTOR.DRAWINGREGION);
         scrollx = parseInt(drawingregion.get('scrollLeft'), 10);
         scrolly = parseInt(drawingregion.get('scrollTop'), 10);
         container.setData('x', x + scrollx);

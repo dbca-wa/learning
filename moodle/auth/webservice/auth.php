@@ -35,16 +35,9 @@ class auth_plugin_webservice extends auth_plugin_base {
     /**
      * Constructor.
      */
-    public function __construct() {
+    function auth_plugin_webservice() {
         $this->authtype = 'webservice';
         $this->config = get_config('auth/webservice');
-    }
-
-    /**
-     * Old syntax of class constructor for backward compatibility.
-     */
-    public function auth_plugin_webservice() {
-        self::__construct();
     }
 
     /**

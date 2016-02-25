@@ -46,7 +46,7 @@ class Less_Exception_Chunk extends Less_Exception_Parser{
 	 * We don't actually need the chunks
 	 *
 	 */
-	protected function Chunks(){
+	function Chunks(){
 		$level = 0;
 		$parenLevel = 0;
 		$lastMultiCommentEndBrace = null;
@@ -173,12 +173,12 @@ class Less_Exception_Chunk extends Less_Exception_Parser{
 		//$this->emitChunk(true);
 	}
 
-	public function CharCode($pos){
+	function CharCode($pos){
 		return ord($this->input[$pos]);
 	}
 
 
-	public function fail( $msg, $index = null ){
+	function fail( $msg, $index = null ){
 
 		if( !$index ){
 			$this->index = $this->parserCurrentIndex;

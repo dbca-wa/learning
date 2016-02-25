@@ -108,8 +108,7 @@ Y.extend(FetchLogs, Y.Base, {
      * @method updateLogTable
      */
     updateLogTable: function(tid, response) {
-        // Hide loading icon, give sometime to people to actually see it. We should do it, event in case of an error.
-        Y.later(600, this, 'hideLoadingIcon');
+        Y.later(600, this, 'hideLoadingIcon'); // Hide loading icon, give sometime to people to actually see it. We should do it, event in case of an error.
         var responseobject;
         // Attempt to parse the response into an object.
         try {
@@ -135,8 +134,7 @@ Y.extend(FetchLogs, Y.Base, {
             if (firstTr) {
                 tbody.insertBefore(logs, firstTr);
             }
-            // @Todo, when no data is present our library should generate an empty table. so data can be added
-            // dynamically (MDL-44525).
+            // @Todo, when no data is present our library should generate an empty table. so data can be added dynamically (MDL-44525).
 
             // Let us chop off some data from end of table to prevent really long pages.
             var oldChildren = tbody.get('children').slice(this.get('perpage'));

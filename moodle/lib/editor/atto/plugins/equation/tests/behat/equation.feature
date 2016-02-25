@@ -5,8 +5,7 @@ Feature: Atto equation editor
   @javascript
   Scenario: Create an equation
     Given I log in as "admin"
-    When I follow "Profile" in the user menu
-    And I follow "Edit profile"
+    When I navigate to "Edit profile" node in "My profile settings"
     And I set the field "Description" to "<p>Equation test</p>"
     # Set field on the bottom of page, so equation editor dialogue is visible.
     And I expand all fieldsets
@@ -18,14 +17,12 @@ Feature: Atto equation editor
     And I click on "\infty" "button"
     And I click on "Save equation" "button"
     And I click on "Update profile" "button"
-    And I follow "Profile" in the user menu
     Then "\infty" "text" should exist
 
   @javascript
   Scenario: Edit an equation
     Given I log in as "admin"
-    When I follow "Profile" in the user menu
-    And I follow "Edit profile"
+    When I navigate to "Edit profile" node in "My profile settings"
     And I set the field "Description" to "<p>\( \pi \)</p>"
     # Set field on the bottom of page, so equation editor dialogue is visible.
     And I expand all fieldsets

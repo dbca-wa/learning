@@ -154,24 +154,16 @@ if (!empty($messagebody) && !$edit && !$deluser && ($preview || $send)) {
             echo '<input type="submit" name="edit" value="'.get_string('update').'" /></p>';
             echo "\n</form>";
         } else if (!empty($send)) {
-            $fails = array();
+            $good = 1;
             foreach ($SESSION->emailto[$id] as $user) {
-                if (!message_post_message($USER, $user, $messagebody, $format)) {
-                    $user->fullname = fullname($user);
-                    $fails[] = get_string('messagedselecteduserfailed', 'moodle', $user);
-                };
+                $good = $good && message_post_message($USER, $user, $messagebody, $format);
             }
-            if (empty($fails)) {
+            if (!empty($good)) {
                 echo $OUTPUT->heading(get_string('messagedselectedusers'));
                 unset($SESSION->emailto[$id]);
                 unset($SESSION->emailselect[$id]);
             } else {
-                echo $OUTPUT->heading(get_string('messagedselectedcountusersfailed', 'moodle', count($fails)));
-                echo '<ul>';
-                foreach ($fails as $f) {
-                        echo '<li>', $f, '</li>';
-                }
-                echo '</ul>';
+                echo $OUTPUT->heading(get_string('messagedselectedusersfailed'));
             }
             echo '<p align="center"><a href="index.php?id='.$id.'">'.get_string('backtoparticipants').'</a></p>';
         }
@@ -194,12 +186,6 @@ if (count($SESSION->emailto[$id])) {
     require("message.html");
 }
 
-$PAGE->requires->yui_module('moodle-core-formchangechecker',
-        'M.core_formchangechecker.init',
-        array(array(
-            'formid' => 'theform'
-        ))
-);
-$PAGE->requires->string_for_js('changesmadereallygoaway', 'moodle');
-
 echo $OUTPUT->footer();
+
+

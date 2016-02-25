@@ -163,9 +163,6 @@ function testing_error($errorcode, $text = '') {
 
     // do not write to error stream because we need the error message in PHP exec result from web ui
     echo($text."\n");
-    if (isset($_SERVER['REMOTE_ADDR'])) {
-        header('HTTP/1.1 500 Internal Server Error');
-    }
     exit($errorcode);
 }
 
@@ -230,7 +227,7 @@ function testing_update_composer_dependencies() {
     }
 
     // Update composer dependencies.
-    passthru("php composer.phar install", $code);
+    passthru("php composer.phar update", $code);
     if ($code != 0) {
         exit($code);
     }

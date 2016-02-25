@@ -25,7 +25,7 @@ class Less_Tree_Extend extends Less_Tree{
 	/**
 	 * @param integer $index
 	 */
-    public function __construct($selector, $option, $index){
+	function __construct($selector, $option, $index){
 		static $i = 0;
 		$this->selector = $selector;
 		$this->option = $option;
@@ -46,18 +46,18 @@ class Less_Tree_Extend extends Less_Tree{
 		$this->parent_ids = array($this->object_id);
 	}
 
-    public function accept( $visitor ){
+	function accept( $visitor ){
 		$this->selector = $visitor->visitObj( $this->selector );
 	}
 
-    public function compile( $env ){
+	function compile( $env ){
 		Less_Parser::$has_extends = true;
 		$this->selector = $this->selector->compile($env);
 		return $this;
 		//return new Less_Tree_Extend( $this->selector->compile($env), $this->option, $this->index);
 	}
 
-    public function findSelfSelectors( $selectors ){
+	function findSelfSelectors( $selectors ){
 		$selfElements = array();
 
 

@@ -524,7 +524,7 @@ abstract class backup_controller_dbops extends backup_dbops {
      */
     public static function backup_get_original_course_info($courseid) {
         global $DB;
-        return $DB->get_record('course', array('id' => $courseid), 'fullname, shortname, startdate, format');
+        return $DB->get_record('course', array('id' => $courseid), 'fullname, shortname, startdate');
     }
 
     /**
@@ -574,8 +574,7 @@ abstract class backup_controller_dbops extends backup_dbops {
             'backup_auto_userscompletion'    => 'userscompletion',
             'backup_auto_logs'               => 'logs',
             'backup_auto_histories'          => 'grade_histories',
-            'backup_auto_questionbank'       => 'questionbank',
-            'backup_auto_groups'             => 'groups'
+            'backup_auto_questionbank'       => 'questionbank'
         );
         $plan = $controller->get_plan();
         foreach ($settings as $config => $settingname) {
@@ -613,8 +612,7 @@ abstract class backup_controller_dbops extends backup_dbops {
             'backup_general_userscompletion'    => 'userscompletion',
             'backup_general_logs'               => 'logs',
             'backup_general_histories'          => 'grade_histories',
-            'backup_general_questionbank'       => 'questionbank',
-            'backup_general_groups'             => 'groups'
+            'backup_general_questionbank'       => 'questionbank'
         );
         $plan = $controller->get_plan();
         foreach ($settings as $config=>$settingname) {

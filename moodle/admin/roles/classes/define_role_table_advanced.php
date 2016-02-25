@@ -422,12 +422,6 @@ class core_role_define_role_table_advanced extends core_role_capability_table_wi
         } else {
             // Updating role.
             $DB->update_record('role', $this->role);
-
-            // This will ensure the course contacts cache is purged so name changes get updated in
-            // the UI. It would be better to do this only when we know that fields affected are
-            // updated. But thats getting into the weeds of the coursecat cache and role edits
-            // should not be that frequent, so here is the ugly brutal approach.
-            coursecat::role_assignment_changed($this->role->id, context_system::instance());
         }
 
         // Assignable contexts.
@@ -634,7 +628,6 @@ class core_role_define_role_table_advanced extends core_role_capability_table_wi
 
     protected function add_permission_cells($capability) {
         // One cell for each possible permission.
-        $content = '';
         foreach ($this->displaypermissions as $perm => $permname) {
             $strperm = $this->strperms[$permname];
             $extraclass = '';
@@ -645,12 +638,11 @@ class core_role_define_role_table_advanced extends core_role_capability_table_wi
             if ($this->permissions[$capability->name] == $perm) {
                 $checked = 'checked="checked" ';
             }
-            $content .= '<td class="' . $permname . $extraclass . '">';
-            $content .= '<label><input type="radio" name="' . $capability->name .
+            echo '<td class="' . $permname . $extraclass . '">';
+            echo '<label><input type="radio" name="' . $capability->name .
                 '" value="' . $perm . '" ' . $checked . '/> ';
-            $content .= '<span class="note">' . $strperm . '</span>';
-            $content .= '</label></td>';
+            echo '<span class="note">' . $strperm . '</span>';
+            echo '</label></td>';
         }
-        return $content;
     }
 }

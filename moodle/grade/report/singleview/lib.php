@@ -107,7 +107,7 @@ class gradereport_singleview extends grade_report {
      */
     public function output() {
         global $OUTPUT;
-        return $OUTPUT->container($this->screen->html(), 'reporttable');
+        return $OUTPUT->box($this->screen->html());
     }
 }
 

@@ -40,7 +40,7 @@ if ($return === 'management') {
 $PAGE->set_url($url);
 
 // Check permissions.
-require_login(null, false);
+require_login();
 if (isguestuser()) {
     print_error('guestsarenotallowed', '', $returnurl);
 }

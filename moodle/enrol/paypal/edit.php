@@ -76,7 +76,6 @@ if ($mform->is_cancelled()) {
         $instance->enrolenddate   = $data->enrolenddate;
         $instance->timemodified   = time();
         $DB->update_record('enrol', $instance);
-        \core\event\enrol_instance_updated::create_from_record($instance)->trigger();
 
         if ($reset) {
             $context->mark_dirty();

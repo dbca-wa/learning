@@ -61,18 +61,12 @@ class HTML_QuickForm_file extends HTML_QuickForm_input
      * @since     1.0
      * @access    public
      */
-    public function __construct($elementName=null, $elementLabel=null, $attributes=null) {
-        parent::__construct($elementName, $elementLabel, $attributes);
+    function HTML_QuickForm_file($elementName=null, $elementLabel=null, $attributes=null)
+    {
+        HTML_QuickForm_input::HTML_QuickForm_input($elementName, $elementLabel, $attributes);
         $this->setType('file');
     } //end constructor
-
-    /**
-     * Old syntax of class constructor for backward compatibility.
-     */
-    public function HTML_QuickForm_file($elementName=null, $elementLabel=null, $attributes=null) {
-        self::__construct($elementName, $elementLabel, $attributes);
-    }
-
+    
     // }}}
     // {{{ setSize()
 
@@ -182,7 +176,8 @@ class HTML_QuickForm_file extends HTML_QuickForm_input
                 return $this->onQuickFormEvent('updateValue', null, $caller);
                 break;
             case 'createElement':
-                static::__construct($arg[0], $arg[1], $arg[2], $arg[3], $arg[4]);
+                $className = get_class($this);
+                $this->$className($arg[0], $arg[1], $arg[2]);
                 break;
         }
         return true;

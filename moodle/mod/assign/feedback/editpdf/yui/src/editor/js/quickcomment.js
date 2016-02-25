@@ -25,7 +25,7 @@
  * @namespace M.assignfeedback_editpdf
  * @class quickcomment
  */
-var QUICKCOMMENT = function(id, rawtext, width, colour) {
+QUICKCOMMENT = function(id, rawtext, width, colour) {
 
     /**
      * Quick comment text.

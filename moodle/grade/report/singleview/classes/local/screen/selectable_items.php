@@ -41,12 +41,6 @@ interface selectable_items {
     public function description();
 
     /**
-     * Get the label for the select box that chooses items for this page.
-     * @return string
-     */
-    public function select_label();
-
-    /**
      * Get the list of options to show.
      * @return array
      */

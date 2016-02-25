@@ -18,7 +18,7 @@ class Less_Tree_Expression extends Less_Tree{
 		$this->parens = $parens;
 	}
 
-    public function accept( $visitor ){
+	function accept( $visitor ){
 		$this->value = $visitor->visitArray( $this->value );
 	}
 
@@ -71,7 +71,7 @@ class Less_Tree_Expression extends Less_Tree{
     /**
      * @see Less_Tree::genCSS
      */
-    public function genCSS( $output ){
+	function genCSS( $output ){
 		$val_len = count($this->value);
 		for( $i = 0; $i < $val_len; $i++ ){
 			$this->value[$i]->genCSS( $output );
@@ -81,7 +81,7 @@ class Less_Tree_Expression extends Less_Tree{
 		}
 	}
 
-    public function throwAwayComments() {
+	function throwAwayComments() {
 
 		if( is_array($this->value) ){
 			$new_value = array();

@@ -1,4 +1,5 @@
 <?php
+
 // This file is part of Moodle - http://moodle.org/
 //
 // Moodle is free software: you can redistribute it and/or modify
@@ -24,9 +25,9 @@
 
 require('../../config.php');
 
-$id = required_param('id', PARAM_INT); // Course id.
+$id = required_param('id', PARAM_INT); // course id
 
-$course = $DB->get_record('course', array('id' => $id), '*', MUST_EXIST);
+$course = $DB->get_record('course', array('id'=>$id), '*', MUST_EXIST);
 
 require_course_login($course, true);
 $PAGE->set_pagelayout('incourse');
@@ -88,10 +89,10 @@ foreach ($imscps as $imscp) {
         $printsection = '<span class="smallinfo">'.userdate($imscp->timemodified)."</span>";
     }
 
-    $class = $imscp->visible ? '' : 'class="dimmed"'; // Hidden modules are dimmed.
+    $class = $imscp->visible ? '' : 'class="dimmed"'; // hidden modules are dimmed
     $table->data[] = array (
         $printsection,
-        "<a $class href=\"view.php?id=$cm->id\">" . format_string($imscp->name)."</a>",
+        "<a $class href=\"view.php?id=$cm->id\">".format_string($imscp->name)."</a>",
         format_module_intro('imscp', $imscp, $cm->id));
 }
 

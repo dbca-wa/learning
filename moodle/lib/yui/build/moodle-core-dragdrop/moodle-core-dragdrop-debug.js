@@ -376,9 +376,8 @@ Y.extend(DRAGDROP, Y.Base, {
         // Build the list of drop targets.
         var droplist = Y.Node.create('<ul></ul>');
         droplist.addClass('dragdrop-keyboard-drag');
-        var listitem,
-            listlink,
-            listitemtext;
+        var listitem;
+        var listitemtext;
 
         // Search for possible drop targets.
         var droptargets = Y.all('.' + this.samenodeclass + ', .' + this.parentnodeclass);

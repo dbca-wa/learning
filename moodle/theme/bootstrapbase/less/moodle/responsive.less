@@ -336,7 +336,7 @@
 }
 @media (max-width : 767px) {
   .row-fluid .desktop-first-column {
-      clear: both;
+      clear: right;
   }
 }
 // Forms
@@ -429,19 +429,17 @@
         .nav > li > a:focus,
         .dropdown-menu a:hover,
         .dropdown-menu a:focus,
-        .dropdown-submenu a:hover,
         .dropdown-submenu a:focus,
+        .dropdown-submenu a:hover,
         .dropdown-submenu a:active,
         .dropdown-menu > li > a:hover,
         .dropdown-menu > li > a:focus,
-        .dropdown-submenu:hover > a,
-        .dropdown-submenu:focus > a
         {
             background-image: none;
             color: @grayDark;
         }
     }
-    .nav-collapse.in {
+    .nav-collapse.active {
         height: auto;
         .usermenu .moodle-actionmenu[data-enhanced] {
             .toggle-display {
@@ -475,7 +473,7 @@
     }
 
     .navbar {
-        .nav-collapse.in {
+        .nav-collapse.active {
             border-top: 1px solid @navbarBorder;
             &.pull-left,
             &.pull-right {
@@ -497,8 +495,7 @@
                 }
             }
 
-            .nav,
-            .nav .dropdown-menu {
+            .nav, .nav .dropdown-menu {
                 .dropdown-submenu {
                     .dropdown-toggle {
                         &:after {
@@ -548,7 +545,7 @@
     }
 
     .navbar-inverse {
-        .nav-collapse.in {
+        .nav-collapse.active {
             border-top-color: @navbarInverseBorder;
             .nav,
             .nav .dropdown-menu {
@@ -613,7 +610,7 @@
 
     .dir-rtl {
         .navbar {
-            .nav-collapse.in {
+            .nav-collapse.active {
                 > .nav {
                     margin: 0;
                     > li > a {

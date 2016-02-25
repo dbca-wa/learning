@@ -279,7 +279,7 @@ class ouwiki_line {
      * @param string $data Text data that makes up this 'line'. (May include line breaks etc.)
      * @param int $linepos Position number for first character in text
      */
-    public function __construct($data,$linepos) {
+    function ouwiki_line($data,$linepos) {
         // 1. Turn things we don't want into spaces (so that positioning stays same)
         
         // Whitespace replaced with space
@@ -319,14 +319,7 @@ class ouwiki_line {
             }
         }
     }
-
-    /**
-     * Old syntax of class constructor. Deprecated in PHP7.
-     */
-    public function ouwiki_line($data, $linepos) {
-        self::__construct($data, $linepos);
-    }
-
+    
     /**
      * @return string Normalised string representation of this line object
      */
@@ -375,16 +368,9 @@ class ouwiki_word {
     /** Start position in original xhtml */
     var $start;
     
-    public function __construct($word,$start) {
+    function ouwiki_word($word,$start) {
         $this->word=$word;
         $this->start=$start;
-    }
-
-    /**
-     * Old syntax of class constructor. Deprecated in PHP7.
-     */
-    public function ouwiki_word($word, $start) {
-        self::__construct($word, $start);
     }
 }
 
@@ -469,7 +455,7 @@ class ouwiki_changes {
      *   to indices in file2. All indices 1-based.
      * @param int $count2 Number of lines in file2
      */
-    public function __construct($diff,$count2) {
+    function ouwiki_changes($diff,$count2) {
         // Find deleted lines
         $this->deletes=self::internal_find_deletes($diff,$count2);
         
@@ -523,13 +509,6 @@ class ouwiki_changes {
             $this->changes[$lastrange]->file2count=$count2
                 -$this->changes[$lastrange]->file2start+1;
         }
-    }
-
-    /**
-     * Old syntax of class constructor. Deprecated in PHP7.
-     */
-    public function ouwiki_changes($diff, $count2) {
-        self::__construct($diff, $count2);
     }
 
     /**

@@ -27,10 +27,9 @@
 
 require_once(__DIR__ . '/../../behat/behat_base.php');
 
-use Behat\Behat\Context\Step\Given as Given;
-use Behat\Mink\Exception\ExpectationException as ExpectationException;
-use Behat\Mink\Exception\DriverException as DriverException;
-use Behat\Behat\Context\Step\When as When;
+use Behat\Behat\Context\Step\Given as Given,
+    Behat\Behat\Context\Step\When as When,
+    Behat\Mink\Exception\ExpectationException as ExpectationException;
 
 /**
  * Steps definitions to navigate through the navigation tree nodes.
@@ -135,30 +134,6 @@ class behat_navigation extends behat_base {
             throw new ExpectationException('The "' . $nodetext . '" node is expandable', $this->getSession());
         }
         return true;
-    }
-
-    /**
-     * Click on an entry in the user menu.
-     * @Given /^I follow "(?P<nodetext_string>(?:[^"]|\\")*)" in the user menu$/
-     *
-     * @param string $nodetext
-     * @return bool|void
-     */
-    public function i_follow_in_the_user_menu($nodetext) {
-        $steps = array();
-
-        if ($this->running_javascript()) {
-            // The user menu must be expanded when JS is enabled.
-            $xpath = "//div[@class='usermenu']//a[contains(concat(' ', @class, ' '), ' toggle-display ')]";
-            $steps[] = new When('I click on "'.$xpath.'" "xpath_element"');
-        }
-
-        // Now select the link.
-        // The CSS path is always present, with or without JS.
-        $csspath = ".usermenu [data-rel='menu-content']";
-        $steps[] = new When('I click on "'.$nodetext.'" "link" in the "'.$csspath.'" "css_element"');
-
-        return $steps;
     }
 
     /**
@@ -287,6 +262,30 @@ class behat_navigation extends behat_base {
         }
 
         $nodetoclick->click();
+    }
+
+    /**
+     * Click on an entry in the user menu.
+     * @Given /^I follow "(?P<nodetext_string>(?:[^"]|\\")*)" in the user menu$/
+     *
+     * @param string $nodetext
+     * @return bool|void
+     */
+    public function i_follow_in_the_user_menu($nodetext) {
+        $steps = array();
+
+        if ($this->running_javascript()) {
+            // The user menu must be expanded when JS is enabled.
+            $xpath = "//div[@class='usermenu']//a[contains(concat(' ', @class, ' '), ' toggle-display ')]";
+            $steps[] = new When('I click on "'.$xpath.'" "xpath_element"');
+        }
+
+        // Now select the link.
+        // The CSS path is always present, with or without JS.
+        $csspath = ".usermenu [data-rel='menu-content']";
+        $steps[] = new When('I click on "'.$nodetext.'" "link" in the "'.$csspath.'" "css_element"');
+
+        return $steps;
     }
 
     /**

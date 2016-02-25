@@ -109,9 +109,7 @@ EditorAutosave.prototype = {
         var draftid = -1,
             form,
             optiontype = null,
-            options = this.get('filepickeroptions'),
-            params,
-            url;
+            options = this.get('filepickeroptions');
 
         if (!this.get('autosaveEnabled')) {
             // Autosave disabled for this instance.
@@ -145,7 +143,6 @@ EditorAutosave.prototype = {
             context: this,
             on: {
                 success: function(id,o) {
-                    var response_json;
                     if (typeof o.responseText !== "undefined" && o.responseText !== "") {
                         response_json = JSON.parse(o.responseText);
 
@@ -163,8 +160,7 @@ EditorAutosave.prototype = {
 
                         if (response_json.error || typeof response_json.result === 'undefined') {
                             Y.log('Error occurred recovering draft text: ' + response_json.error, 'debug', LOGNAME_AUTOSAVE);
-                            this.showMessage(M.util.get_string('errortextrecovery', 'editor_atto'),
-                                    NOTIFY_WARNING, RECOVER_MESSAGE_TIMEOUT);
+                            this.showMessage(M.util.get_string('errortextrecovery', 'editor_atto'), NOTIFY_WARNING, RECOVER_MESSAGE_TIMEOUT);
                         } else if (response_json.result !== this.textarea.get('value') &&
                                 response_json.result !== '') {
                             Y.log('Autosave text found - recover it.', 'debug', LOGNAME_AUTOSAVE);
@@ -174,8 +170,7 @@ EditorAutosave.prototype = {
                     }
                 },
                 failure: function() {
-                    this.showMessage(M.util.get_string('errortextrecovery', 'editor_atto'),
-                            NOTIFY_WARNING, RECOVER_MESSAGE_TIMEOUT);
+                    this.showMessage(M.util.get_string('errortextrecovery', 'editor_atto'), NOTIFY_WARNING, RECOVER_MESSAGE_TIMEOUT);
                 }
             }
         });
@@ -201,8 +196,8 @@ EditorAutosave.prototype = {
      */
     resetAutosave: function() {
         // Make an ajax request to reset the autosaved text.
-        var url = M.cfg.wwwroot + this.get('autosaveAjaxScript');
-        var params = {
+        url = M.cfg.wwwroot + this.get('autosaveAjaxScript');
+        params = {
             sesskey: M.cfg.sesskey,
             contextid: this.get('contextid'),
             action: 'reset',
@@ -233,8 +228,7 @@ EditorAutosave.prototype = {
         this.updateOriginal();
         this.lastText = text;
 
-        this.showMessage(M.util.get_string('textrecovered', 'editor_atto'),
-                NOTIFY_INFO, RECOVER_MESSAGE_TIMEOUT);
+        this.showMessage(M.util.get_string('textrecovered', 'editor_atto'), NOTIFY_INFO, RECOVER_MESSAGE_TIMEOUT);
 
         return this;
     },
@@ -246,7 +240,6 @@ EditorAutosave.prototype = {
      * @chainable
      */
     saveDraft: function() {
-        var url, params;
         // Only copy the text from the div to the textarea if the textarea is not currently visible.
         if (!this.editor.get('hidden')) {
             this.updateOriginal();
@@ -289,8 +282,7 @@ EditorAutosave.prototype = {
                         } else {
                             // All working.
                             this.lastText = newText;
-                            this.showMessage(M.util.get_string('autosavesucceeded', 'editor_atto'),
-                                    NOTIFY_INFO, SUCCESS_MESSAGE_TIMEOUT);
+                            this.showMessage(M.util.get_string('autosavesucceeded', 'editor_atto'), NOTIFY_INFO, SUCCESS_MESSAGE_TIMEOUT);
                         }
                     }
                 }

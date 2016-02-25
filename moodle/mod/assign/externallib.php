@@ -269,8 +269,7 @@ class mod_assign_external extends external_api {
      * @since  Moodle 2.4
      */
     public static function get_assignments($courseids = array(), $capabilities = array()) {
-        global $USER, $DB, $CFG;
-        require_once("$CFG->dirroot/mod/assign/locallib.php");
+        global $USER, $DB;
 
         $params = self::validate_parameters(
             self::get_assignments_parameters(),
@@ -337,9 +336,7 @@ class mod_assign_external extends external_api {
                      'm.maxattempts, ' .
                      'm.markingworkflow, ' .
                      'm.markingallocation, ' .
-                     'm.requiresubmissionstatement, '.
-                     'm.intro, '.
-                     'm.introformat';
+                     'm.requiresubmissionstatement';
         $coursearray = array();
         foreach ($courses as $id => $course) {
             $assignmentarray = array();
@@ -373,7 +370,7 @@ class mod_assign_external extends external_api {
                     }
                     $configrecords->close();
 
-                    $assignment = array(
+                    $assignmentarray[]= array(
                         'id' => $module->assignmentid,
                         'cmid' => $module->id,
                         'course' => $module->course,
@@ -401,34 +398,6 @@ class mod_assign_external extends external_api {
                         'requiresubmissionstatement' => $module->requiresubmissionstatement,
                         'configs' => $configarray
                     );
-
-                    // Return or not intro and file attachments depending on the plugin settings.
-                    $assign = new assign($context, null, null);
-
-                    if ($assign->show_intro()) {
-
-                        list($assignment['intro'], $assignment['introformat']) = external_format_text($module->intro,
-                            $module->introformat, $context->id, 'mod_assign', ASSIGN_INTROATTACHMENT_FILEAREA, 0);
-
-                        $fs = get_file_storage();
-                        if ($files = $fs->get_area_files($context->id, 'mod_assign', ASSIGN_INTROATTACHMENT_FILEAREA,
-                                                            0, 'timemodified', false)) {
-
-                            $assignment['introattachments'] = array();
-                            foreach ($files as $file) {
-                                $filename = $file->get_filename();
-
-                                $assignment['introattachments'][] = array(
-                                    'filename' => $filename,
-                                    'mimetype' => $file->get_mimetype(),
-                                    'fileurl'  => moodle_url::make_webservice_pluginfile_url(
-                                        $context->id, 'mod_assign', ASSIGN_INTROATTACHMENT_FILEAREA, 0, '/', $filename)->out(false)
-                                );
-                            }
-                        }
-                    }
-
-                    $assignmentarray[] = $assignment;
                 }
             }
             $coursearray[]= array(
@@ -481,19 +450,7 @@ class mod_assign_external extends external_api {
                 'markingworkflow' => new external_value(PARAM_INT, 'enable marking workflow'),
                 'markingallocation' => new external_value(PARAM_INT, 'enable marking allocation'),
                 'requiresubmissionstatement' => new external_value(PARAM_INT, 'student must accept submission statement'),
-                'configs' => new external_multiple_structure(self::get_assignments_config_structure(), 'configuration settings'),
-                'intro' => new external_value(PARAM_RAW,
-                    'assignment intro, not allways returned because it deppends on the activity configuration', VALUE_OPTIONAL),
-                'introformat' => new external_format_value('intro', VALUE_OPTIONAL),
-                'introattachments' => new external_multiple_structure(
-                    new external_single_structure(
-                        array (
-                            'filename' => new external_value(PARAM_FILE, 'file name'),
-                            'mimetype' => new external_value(PARAM_RAW, 'mime type'),
-                            'fileurl'  => new external_value(PARAM_URL, 'file download url')
-                        )
-                    ), 'intro attachments files', VALUE_OPTIONAL
-                )
+                'configs' => new external_multiple_structure(self::get_assignments_config_structure(), 'configuration settings')
             ), 'assignment information object');
     }
 
@@ -2049,71 +2006,5 @@ class mod_assign_external extends external_api {
      */
     public static function copy_previous_attempt_returns() {
         return new external_warnings();
-    }
-
-    /**
-     * Returns description of method parameters
-     *
-     * @return external_function_parameters
-     * @since Moodle 3.0
-     */
-    public static function view_grading_table_parameters() {
-        return new external_function_parameters(
-            array(
-                'assignid' => new external_value(PARAM_INT, 'assign instance id')
-            )
-        );
-    }
-
-    /**
-     * Trigger the grading_table_viewed event.
-     *
-     * @param int $assignid the assign instance id
-     * @return array of warnings and status result
-     * @since Moodle 3.0
-     * @throws moodle_exception
-     */
-    public static function view_grading_table($assignid) {
-        global $DB, $CFG;
-        require_once($CFG->dirroot . "/mod/assign/locallib.php");
-
-        $params = self::validate_parameters(self::view_grading_table_parameters(),
-                                            array(
-                                                'assignid' => $assignid
-                                            ));
-        $warnings = array();
-
-        // Request and permission validation.
-        $assign = $DB->get_record('assign', array('id' => $params['assignid']), 'id', MUST_EXIST);
-        list($course, $cm) = get_course_and_cm_from_instance($assign, 'assign');
-
-        $context = context_module::instance($cm->id);
-        self::validate_context($context);
-
-        require_capability('mod/assign:view', $context);
-
-        $assign = new assign($context, null, null);
-        $assign->require_view_grades();
-        \mod_assign\event\grading_table_viewed::create_from_assign($assign)->trigger();
-
-        $result = array();
-        $result['status'] = true;
-        $result['warnings'] = $warnings;
-        return $result;
-    }
-
-    /**
-     * Returns description of method result value
-     *
-     * @return external_description
-     * @since Moodle 3.0
-     */
-    public static function view_grading_table_returns() {
-        return new external_single_structure(
-            array(
-                'status' => new external_value(PARAM_BOOL, 'status: true if success'),
-                'warnings' => new external_warnings()
-            )
-        );
     }
 }

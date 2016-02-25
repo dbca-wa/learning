@@ -203,6 +203,7 @@ $ACCESSLIB_PRIVATE = new stdClass();
 $ACCESSLIB_PRIVATE->dirtycontexts    = null;    // Dirty contexts cache, loaded from DB once per page
 $ACCESSLIB_PRIVATE->accessdatabyuser = array(); // Holds the cache of $accessdata structure for users (including $USER)
 $ACCESSLIB_PRIVATE->rolepermissions  = array(); // role permissions cache - helps a lot with mem usage
+$ACCESSLIB_PRIVATE->capabilities     = null;    // detailed information about the capabilities
 
 /**
  * Clears accesslib's private caches. ONLY BE USED BY UNIT TESTS
@@ -240,6 +241,7 @@ function accesslib_clear_all_caches($resetcontexts) {
     $ACCESSLIB_PRIVATE->dirtycontexts    = null;
     $ACCESSLIB_PRIVATE->accessdatabyuser = array();
     $ACCESSLIB_PRIVATE->rolepermissions  = array();
+    $ACCESSLIB_PRIVATE->capabilities     = null;
 
     if ($resetcontexts) {
         context_helper::reset_caches();
@@ -432,7 +434,7 @@ function has_capability($capability, context $context, $user = null, $doanything
     // context path/depth must be valid
     if (empty($context->path) or $context->depth == 0) {
         // this should not happen often, each upgrade tries to rebuild the context paths
-        debugging('Context id '.$context->id.' does not have valid path, please use context_helper::build_all_paths()');
+        debugging('Context id '.$context->id.' does not have valid path, please use build_context_path()');
         if (is_siteadmin($userid)) {
             return true;
         } else {
@@ -1673,7 +1675,7 @@ function get_roles_with_capability($capability, $permission = null, $context = n
  * @return int new/existing id of the assignment
  */
 function role_assign($roleid, $userid, $contextid, $component = '', $itemid = 0, $timemodified = '') {
-    global $USER, $DB, $CFG;
+    global $USER, $DB;
 
     // first of all detect if somebody is using old style parameters
     if ($contextid === 0 or is_numeric($component)) {
@@ -1754,9 +1756,6 @@ function role_assign($roleid, $userid, $contextid, $component = '', $itemid = 0,
         reload_all_capabilities();
     }
 
-    require_once($CFG->libdir . '/coursecatlib.php');
-    coursecat::role_assignment_changed($roleid, $context);
-
     $event = \core\event\role_assigned::create(array(
         'context' => $context,
         'objectid' => $ra->roleid,
@@ -1814,7 +1813,6 @@ function role_unassign($roleid, $userid, $contextid, $component = '', $itemid = 
  */
 function role_unassign_all(array $params, $subcontexts = false, $includemanual = false) {
     global $USER, $CFG, $DB;
-    require_once($CFG->libdir . '/coursecatlib.php');
 
     if (!$params) {
         throw new coding_exception('Missing parameters in role_unsassign_all() call');
@@ -1865,7 +1863,6 @@ function role_unassign_all(array $params, $subcontexts = false, $includemanual =
             ));
             $event->add_record_snapshot('role_assignments', $ra);
             $event->trigger();
-            coursecat::role_assignment_changed($ra->roleid, $context);
         }
     }
     unset($ras);
@@ -1897,7 +1894,6 @@ function role_unassign_all(array $params, $subcontexts = false, $includemanual =
                             'other'=>array('id'=>$ra->id, 'component'=>$ra->component, 'itemid'=>$ra->itemid)));
                     $event->add_record_snapshot('role_assignments', $ra);
                     $event->trigger();
-                    coursecat::role_assignment_changed($ra->roleid, $context);
                 }
             }
         }
@@ -2536,14 +2532,7 @@ function load_capability_def($component) {
  */
 function get_cached_capabilities($component = 'moodle') {
     global $DB;
-    $caps = get_all_capabilities();
-    $componentcaps = array();
-    foreach ($caps as $cap) {
-        if ($cap['component'] == $component) {
-            $componentcaps[] = (object) $cap;
-        }
-    }
-    return $componentcaps;
+    return $DB->get_records('capabilities', array('component'=>$component));
 }
 
 /**
@@ -2562,12 +2551,12 @@ function get_default_capabilities($archetype) {
     $alldefs = array();
     $defaults = array();
     $components = array();
-    $allcaps = get_all_capabilities();
+    $allcaps = $DB->get_records('capabilities');
 
     foreach ($allcaps as $cap) {
-        if (!in_array($cap['component'], $components)) {
-            $components[] = $cap['component'];
-            $alldefs = array_merge($alldefs, load_capability_def($cap['component']));
+        if (!in_array($cap->component, $components)) {
+            $components[] = $cap->component;
+            $alldefs = array_merge($alldefs, load_capability_def($cap->component));
         }
     }
     foreach($alldefs as $name=>$def) {
@@ -2714,10 +2703,6 @@ function update_capabilities($component = 'moodle') {
         }
     }
 
-    // It is possible somebody directly modified the DB (according to accesslib_test anyway).
-    // So ensure our updating is based on fresh data.
-    cache::make('core', 'capabilities')->delete('core_capabilities');
-
     $cachedcaps = get_cached_capabilities($component);
     if ($cachedcaps) {
         foreach ($cachedcaps as $cachedcap) {
@@ -2752,9 +2737,6 @@ function update_capabilities($component = 'moodle') {
             }
         }
     }
-
-    // Flush the cached again, as we have changed DB.
-    cache::make('core', 'capabilities')->delete('core_capabilities');
 
     // Are there new capabilities in the file definition?
     $newcaps = array();
@@ -2806,9 +2788,6 @@ function update_capabilities($component = 'moodle') {
     // reset static caches
     accesslib_clear_all_caches(false);
 
-    // Flush the cached again, as we have changed DB.
-    cache::make('core', 'capabilities')->delete('core_capabilities');
-
     return true;
 }
 
@@ -2846,9 +2825,6 @@ function capabilities_cleanup($component, $newcapdef = null) {
                 }
             } // End if.
         }
-    }
-    if ($removedcount) {
-        cache::make('core', 'capabilities')->delete('core_capabilities');
     }
     return $removedcount;
 }
@@ -2970,34 +2946,21 @@ function is_inside_frontpage(context $context) {
 function get_capability_info($capabilityname) {
     global $ACCESSLIB_PRIVATE, $DB; // one request per page only
 
-    $caps = get_all_capabilities();
+    //TODO: MUC - this could be cached in shared memory, it would eliminate 1 query per page
 
-    if (!isset($caps[$capabilityname])) {
-        return null;
-    }
-
-    return (object) $caps[$capabilityname];
-}
-
-/**
- * Returns all capabilitiy records, preferably from MUC and not database.
- *
- * @return array All capability records indexed by capability name
- */
-function get_all_capabilities() {
-    global $DB;
-    $cache = cache::make('core', 'capabilities');
-    if (!$allcaps = $cache->get('core_capabilities')) {
-        $rs = $DB->get_recordset('capabilities');
-        $allcaps = array();
-        foreach ($rs as $capability) {
-            $capability->riskbitmask = (int) $capability->riskbitmask;
-            $allcaps[$capability->name] = (array) $capability;
+    if (empty($ACCESSLIB_PRIVATE->capabilities)) {
+        $ACCESSLIB_PRIVATE->capabilities = array();
+        $caps = $DB->get_records('capabilities', array(), '', 'id, name, captype, riskbitmask');
+        foreach ($caps as $cap) {
+            $capname = $cap->name;
+            unset($cap->id);
+            unset($cap->name);
+            $cap->riskbitmask = (int)$cap->riskbitmask;
+            $ACCESSLIB_PRIVATE->capabilities[$capname] = $cap;
         }
-        $rs->close();
-        $cache->set('core_capabilities', $allcaps);
     }
-    return $allcaps;
+
+    return isset($ACCESSLIB_PRIVATE->capabilities[$capabilityname]) ? $ACCESSLIB_PRIVATE->capabilities[$capabilityname] : null;
 }
 
 /**

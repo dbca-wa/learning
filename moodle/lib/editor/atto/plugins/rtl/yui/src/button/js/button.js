@@ -41,8 +41,7 @@ Y.namespace('M.atto_rtl').Button = Y.Base.create('button', Y.M.editor_atto.Edito
             title: direction,
             buttonName: direction,
             callback: this._toggleRTL,
-            callbackArgs: direction,
-            tags: '[dir=ltr]'
+            callbackArgs: direction
         });
 
         direction = 'rtl';
@@ -51,8 +50,7 @@ Y.namespace('M.atto_rtl').Button = Y.Base.create('button', Y.M.editor_atto.Edito
             title: direction,
             buttonName: direction,
             callback: this._toggleRTL,
-            callbackArgs: direction,
-            tags: '[dir=rtl]'
+            callbackArgs: direction
         });
     },
 
@@ -65,7 +63,7 @@ Y.namespace('M.atto_rtl').Button = Y.Base.create('button', Y.M.editor_atto.Edito
      */
     _toggleRTL: function(e, direction) {
         var host = this.get('host'),
-            sourceSelection = window.rangy.saveSelection(),
+            sourceSelection = rangy.saveSelection(),
             selection = host.getSelection(),
             newDirection = {
                 rtl: 'ltr',
@@ -84,7 +82,7 @@ Y.namespace('M.atto_rtl').Button = Y.Base.create('button', Y.M.editor_atto.Edito
             }
 
             // Change selection from the containing paragraph to the original one.
-            window.rangy.restoreSelection(sourceSelection);
+            rangy.restoreSelection(sourceSelection);
             // Mark the text as having been updated.
             this.markUpdated();
         }

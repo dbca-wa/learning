@@ -32,7 +32,7 @@ class _WikiDiffOp {
 class _WikiDiffOp_Copy extends _WikiDiffOp {
     var $type = 'copy';
 
-    public function __construct ($orig, $closing = false) {
+    function _WikiDiffOp_Copy ($orig, $closing = false) {
     	if (!is_array($closing))
     		$closing = $orig;
     	$this->orig = $orig;
@@ -47,7 +47,7 @@ class _WikiDiffOp_Copy extends _WikiDiffOp {
 class _WikiDiffOp_Delete extends _WikiDiffOp {
     var $type = 'delete';
 
-    public function __construct ($lines) {
+    function _WikiDiffOp_Delete ($lines) {
     	$this->orig = $lines;
     	$this->closing = false;
     }
@@ -60,7 +60,7 @@ class _WikiDiffOp_Delete extends _WikiDiffOp {
 class _WikiDiffOp_Add extends _WikiDiffOp {
     var $type = 'add';
 
-    public function __construct ($lines) {
+    function _WikiDiffOp_Add ($lines) {
     	$this->closing = $lines;
     	$this->orig = false;
     }
@@ -73,7 +73,7 @@ class _WikiDiffOp_Add extends _WikiDiffOp {
 class _WikiDiffOp_Change extends _WikiDiffOp {
     var $type = 'change';
 
-    public function __construct ($orig, $closing) {
+    function _WikiDiffOp_Change ($orig, $closing) {
     	$this->orig = $orig;
     	$this->closing = $closing;
     }
@@ -500,17 +500,10 @@ class WikiDiff
      *		  (Typically these are lines from a file.)
      * @param $to_lines array An array of strings.
      */
-    public function __construct($from_lines, $to_lines) {
+    function WikiDiff($from_lines, $to_lines) {
     	$eng = new _WikiDiffEngine;
     	$this->edits = $eng->diff($from_lines, $to_lines);
     	//$this->_check($from_lines, $to_lines);
-    }
-
-    /**
-     * Old syntax of class constructor for backward compatibility.
-     */
-    public function WikiDiff($from_lines, $to_lines) {
-        self::__construct($from_lines, $to_lines);
     }
 
     /**
@@ -657,13 +650,13 @@ extends WikiDiff
      * @param $mapped_to_lines array This array should
      *	have the same number of elements as $to_lines.
      */
-    public function __construct($from_lines, $to_lines,
+    function MappedWikiDiff($from_lines, $to_lines,
     					$mapped_from_lines, $mapped_to_lines) {
 
     	assert(sizeof($from_lines) == sizeof($mapped_from_lines));
     	assert(sizeof($to_lines) == sizeof($mapped_to_lines));
 
-        parent::__construct($mapped_from_lines, $mapped_to_lines);
+    	$this->WikiDiff($mapped_from_lines, $mapped_to_lines);
 
     	$xi = $yi = 0;
     	for ($i = 0; $i < sizeof($this->edits); $i++) {
@@ -844,7 +837,7 @@ class WikiDiffFormatter
 define('NBSP', '&#160;');			// iso-8859-x non-breaking space.
 
 class _WikiHWLDF_WordAccumulator {
-    public function __construct () {
+    function _WikiHWLDF_WordAccumulator () {
     	$this->_lines = array();
     	$this->_line = '';
     	$this->_group = '';
@@ -895,12 +888,12 @@ class _WikiHWLDF_WordAccumulator {
 
 class WordLevelWikiDiff extends MappedWikiDiff
 {
-    function __construct ($orig_lines, $closing_lines) {
+    function WordLevelWikiDiff ($orig_lines, $closing_lines) {
     	list ($orig_words, $orig_stripped) = $this->_split($orig_lines);
     	list ($closing_words, $closing_stripped) = $this->_split($closing_lines);
 
 
-        parent::__construct($orig_words, $closing_words,
+    	$this->MappedWikiDiff($orig_words, $closing_words,
     					  $orig_stripped, $closing_stripped);
     }
 
@@ -947,7 +940,7 @@ class TableWikiDiffFormatter extends WikiDiffFormatter
 {
     var $htmltable = array();
     
-    public function __construct() {
+    function TableWikiDiffFormatter() {
         $this->leading_context_lines = 2;
         $this->trailing_context_lines = 2;
     }

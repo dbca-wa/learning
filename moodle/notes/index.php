@@ -72,7 +72,6 @@ if ($userid) {
 } else {
     $filtertype = 'course';
     $filterselect = $course->id;
-    $user = $USER;
 }
 
 require_login($course);
@@ -88,31 +87,16 @@ require_capability('moodle/notes:view', $coursecontext);
 $systemcontext = context_system::instance();
 
 // Trigger event.
-note_view($coursecontext, $userid);
+$event = \core\event\notes_viewed::create(array(
+    'relateduserid' => $userid,
+    'context' => $coursecontext
+));
+$event->trigger();
 
 $strnotes = get_string('notes', 'notes');
-if ($userid && $course->id == SITEID) {
+if ($userid) {
     $PAGE->set_context(context_user::instance($user->id));
     $PAGE->navigation->extend_for_user($user);
-    // If we are looking at our own notes, then change focus to 'my notes'.
-    if ($userid == $USER->id) {
-        $notenode = $PAGE->navigation->find('notes', null)->make_inactive();
-    }
-
-    $notesurl = new moodle_url('/notes/index.php', array('user' => $userid));
-    $PAGE->navbar->add(get_string('notes', 'notes'), $notesurl);
-} else if ($course->id != SITEID) {
-    $notenode = $PAGE->navigation->find('currentcoursenotes', null)->make_inactive();
-    $participantsurl = new moodle_url('/user/view.php', array('id' => $userid, 'course' => $course->id));
-    $currentcoursenode = $PAGE->navigation->find('currentcourse', null);
-    $participantsnode = $currentcoursenode->find('participants', null);
-    $usernode = $participantsnode->add(fullname($user), $participantsurl);
-    $usernode->make_active();
-
-    $notesurl = new moodle_url('/notes/index.php', array('user' => $userid, 'course' => $courseid));
-    $PAGE->navbar->add(get_string('notes', 'notes'), $notesurl);
-
-    $PAGE->set_context(context_course::instance($courseid));
 } else {
     $link = null;
     if (has_capability('moodle/course:viewparticipants', $coursecontext)
@@ -123,21 +107,15 @@ if ($userid && $course->id == SITEID) {
 }
 
 $PAGE->set_pagelayout('incourse');
-$PAGE->set_title($course->fullname);
-if ($course->id == SITEID) {
-    $PAGE->set_heading(fullname($user));
-} else {
-    $PAGE->set_heading($course->fullname);
-}
+$PAGE->set_title($course->shortname . ': ' . $strnotes);
+$PAGE->set_heading($course->fullname);
 
 echo $OUTPUT->header();
-
-if ($course->id != SITEID) {
-    $headerinfo = array('heading' => fullname($user), 'user' => $user);
-    echo $OUTPUT->context_header($headerinfo, 2);
+if ($userid) {
+    echo $OUTPUT->heading(fullname($user).': '.$strnotes);
+} else {
+    echo $OUTPUT->heading(format_string($course->shortname, true, array('context' => $coursecontext)).': '.$strnotes);
 }
-
-echo $OUTPUT->heading($strnotes);
 
 $strsitenotes = get_string('sitenotes', 'notes');
 $strcoursenotes = get_string('coursenotes', 'notes');

@@ -108,9 +108,4 @@ class group_member_removed extends base {
             throw new \coding_exception('The \'relateduserid\' must be set.');
         }
     }
-
-    public static function get_objectid_mapping() {
-        return array('db' => 'groups', 'restore' => 'group');
-    }
-
 }

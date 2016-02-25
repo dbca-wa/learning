@@ -39,6 +39,7 @@ require_once($CFG->libdir.'/rsslib.php');
 
 // RSS feeds must be enabled site-wide.
 if (empty($CFG->enablerssfeeds)) {
+    debugging('DISABLED (admin variables)');
     rss_error();
 }
 
@@ -85,14 +86,14 @@ if ($token === "$inttoken") {
 
     if (empty($context)) {
         // This shouldnt happen. something bad is going on.
-        rss_error();
+        rss_error('rsserror');
     }
 
     // Make sure that $CFG->siteguest is set.
     if (empty($CFG->siteguest)) {
         if (!$guestid = $DB->get_field('user', 'id', array('username' => 'guest', 'mnethostid' => $CFG->mnet_localhost_id))) {
             // Guest does not exist yet, weird.
-            rss_error();
+            rss_error('rsserror');
         }
         set_config('siteguest', $guestid);
     }
@@ -110,7 +111,7 @@ if ($token === "$inttoken") {
     // Authenticate the user from the token.
     $userid = rss_get_userid_from_token($token);
     if (!$userid) {
-        rss_error('rsserrorauth', 'rss.xml', 0, '403 Forbidden');
+        rss_error('rsserrorauth');
     }
 }
 
@@ -130,12 +131,12 @@ try {
     $autologinguest = true;
     $setwantsurltome = true;
     $preventredirect = true;
-    require_course_login($course, $autologinguest, $cm, $setwantsurltome, $preventredirect);
+    require_login($course, $autologinguest, $cm, $setwantsurltome, $preventredirect);
 } catch (Exception $e) {
     if (isguestuser()) {
-        rss_error('rsserrorguest', 'rss.xml', 0, '403 Forbidden');
+        rss_error('rsserrorguest');
     } else {
-        rss_error('rsserrorauth', 'rss.xml', 0, '403 Forbidden');
+        rss_error('rsserrorauth');
     }
 }
 
@@ -176,15 +177,11 @@ send_file($pathname, 'rss.xml', 3600);   // Cached by browsers for 1 hour.
  * @category rss
  *
  * @param string $error the error type, default is rsserror
- * @param string $filename the name of the file to created
- * @param int $unused
- * @param string $statuscode http 1.1 statuscode indicicating the error
+ * @param string $filename the name of the file to create (NOT USED)
+ * @param int $lifetime UNSURE (NOT USED)
  * @uses exit
  */
-function rss_error($error='rsserror', $filename='rss.xml', $unused=0, $statuscode='404 Not Found') {
-    header("HTTP/1.1 $statuscode");
-    header('Content-Disposition: inline; filename="'.$filename.'"');
-    header('Content-Type: application/xml');
-    echo rss_geterrorxmlfile($error);
+function rss_error($error='rsserror', $filename='rss.xml', $lifetime=0) {
+    send_file(rss_geterrorxmlfile($error), $filename, $lifetime, false, true);
     exit;
 }

@@ -84,13 +84,14 @@ class block_glossary_random extends block_base {
             $limitfrom = 0;
             $limitnum = 1;
 
-            $orderby = 'timemodified ASC';
+            $BROWSE = 'timemodified';
 
             switch ($this->config->type) {
 
                 case BGR_RANDOMLY:
                     $i = rand(1,$numberofentries);
                     $limitfrom = $i-1;
+                    $SORT = 'ASC';
                     break;
 
                 case BGR_NEXTONE:
@@ -103,10 +104,11 @@ class block_glossary_random extends block_base {
                         $i = 1;
                     }
                     $limitfrom = $i-1;
+                    $SORT = 'ASC';
                     break;
 
                 case BGR_NEXTALPHA:
-                    $orderby = 'concept ASC';
+                    $BROWSE = 'concept';
                     if (isset($this->config->previous)) {
                         $i = $this->config->previous + 1;
                     } else {
@@ -116,19 +118,20 @@ class block_glossary_random extends block_base {
                         $i = 1;
                     }
                     $limitfrom = $i-1;
+                    $SORT = 'ASC';
                     break;
 
                 default:  // BGR_LASTMODIFIED
                     $i = $numberofentries;
                     $limitfrom = 0;
-                    $orderby = 'timemodified DESC, id DESC';
+                    $SORT = 'DESC';
                     break;
             }
 
             if ($entry = $DB->get_records_sql("SELECT id, concept, definition, definitionformat, definitiontrust
                                                  FROM {glossary_entries}
                                                 WHERE glossaryid = ? AND approved = 1
-                                             ORDER BY $orderby", array($this->config->glossary), $limitfrom, $limitnum)) {
+                                             ORDER BY $BROWSE $SORT", array($this->config->glossary), $limitfrom, $limitnum)) {
 
                 $entry = reset($entry);
 

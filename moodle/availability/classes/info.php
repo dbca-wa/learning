@@ -311,25 +311,17 @@ abstract class info {
      * @param int $courseid Target course id
      * @param \base_logger $logger Logger for any warnings
      * @param int $dateoffset Date offset to be added to any dates (0 = none)
-     * @param \base_task $task Restore task
      */
-    public function update_after_restore($restoreid, $courseid, \base_logger $logger,
-            $dateoffset, \base_task $task) {
+    public function update_after_restore($restoreid, $courseid, \base_logger $logger, $dateoffset) {
         $tree = $this->get_availability_tree();
         // Set static data for use by get_restore_date_offset function.
-        self::$restoreinfo = array('restoreid' => $restoreid, 'dateoffset' => $dateoffset,
-                'task' => $task);
+        self::$restoreinfo = array('restoreid' => $restoreid, 'dateoffset' => $dateoffset);
         $changed = $tree->update_after_restore($restoreid, $courseid, $logger,
                 $this->get_thing_name());
         if ($changed) {
             // Save modified data.
-            if ($tree->is_empty()) {
-                // If the tree is empty, but the tree has changed, remove this condition.
-                $this->set_in_database(null);
-            } else {
-                $structure = $tree->save();
-                $this->set_in_database(json_encode($structure));
-            }
+            $structure = $tree->save();
+            $this->set_in_database(json_encode($structure));
         }
     }
 
@@ -349,24 +341,6 @@ abstract class info {
             throw new coding_exception('Data not available for that restore id');
         }
         return self::$restoreinfo['dateoffset'];
-    }
-
-    /**
-     * Gets the restore task (specifically, the task that calls the
-     * update_after_restore method) for the current restore.
-     *
-     * @param string $restoreid Restore identifier
-     * @return \base_task Restore task
-     * @throws coding_exception If not in a restore (or not in that restore)
-     */
-    public static function get_restore_task($restoreid) {
-        if (!self::$restoreinfo) {
-            throw new coding_exception('Only valid during restore');
-        }
-        if (self::$restoreinfo['restoreid'] !== $restoreid) {
-            throw new coding_exception('Data not available for that restore id');
-        }
-        return self::$restoreinfo['task'];
     }
 
     /**
@@ -713,21 +687,11 @@ abstract class info {
      * that we can guarantee does not happen from within building the modinfo
      * object.
      *
-     * @param \renderable|string $inforenderable Info string or renderable
+     * @param string $info Info string
      * @param int|\stdClass $courseorid
      * @return string Correctly formatted info string
      */
-    public static function format_info($inforenderable, $courseorid) {
-        global $PAGE;
-
-        // Use renderer if required.
-        if (is_string($inforenderable)) {
-            $info = $inforenderable;
-        } else {
-            $renderer = $PAGE->get_renderer('core', 'availability');
-            $info = $renderer->render($inforenderable);
-        }
-
+    public static function format_info($info, $courseorid) {
         // Don't waste time if there are no special tags.
         if (strpos($info, '<AVAILABILITY_') === false) {
             return $info;

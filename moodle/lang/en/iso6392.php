@@ -1,4 +1,5 @@
 <?php
+
 // This file is part of Moodle - http://moodle.org/
 //
 // Moodle is free software: you can redistribute it and/or modify
@@ -22,10 +23,9 @@
  *  - array indexes are the ISO 639-2 "T" values (terminology)
  *  - some language names are shortened
  *
- * @package    core
- * @subpackage iso6392
- * @copyright  2010 onwards Martin Dougiamas  {@link http://moodle.com}
- * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @package   iso6392
+ * @copyright 2010 onwards Martin Dougiamas  {@link http://moodle.com}
+ * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 $string['aar'] = 'Afar';

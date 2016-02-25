@@ -84,21 +84,6 @@ class tool_generator_course_backend extends tool_generator_backend {
     private $shortname;
 
     /**
-     * @var string Course fullname.
-     */
-    private $fullname = "";
-
-    /**
-     * @var string Course summary.
-     */
-    private $summary = "";
-
-    /**
-     * @var string Course summary format, defaults to FORMAT_HTML.
-     */
-    private $summaryformat = FORMAT_HTML;
-
-    /**
      * @var testing_data_generator Data generator
      */
     protected $generator;
@@ -122,37 +107,10 @@ class tool_generator_course_backend extends tool_generator_backend {
      * @param int|bool $filesizelimit The max number of bytes for a generated file
      * @param bool $progress True if progress information should be displayed
      */
-    public function __construct(
-        $shortname,
-        $size,
-        $fixeddataset = false,
-        $filesizelimit = false,
-        $progress = true,
-        $fullname = null,
-        $summary = null,
-        $summaryformat = FORMAT_HTML) {
+    public function __construct($shortname, $size, $fixeddataset = false, $filesizelimit = false, $progress = true) {
 
         // Set parameters.
         $this->shortname = $shortname;
-
-        // We can't allow fullname to be set to an empty string.
-        if (empty($fullname)) {
-            $this->fullname = get_string(
-                'fullname',
-                'tool_generator',
-                array(
-                    'size' => get_string('shortsize_' . $size, 'tool_generator')
-                )
-            );
-        } else {
-            $this->fullname = $fullname;
-        }
-
-        // Summary, on the other hand, should be empty-able.
-        if (!is_null($summary)) {
-            $this->summary = $summary;
-            $this->summaryformat = $summaryformat;
-        }
 
         parent::__construct($size, $fixeddataset, $filesizelimit, $progress);
     }
@@ -252,15 +210,11 @@ class tool_generator_course_backend extends tool_generator_backend {
         $this->log('createcourse', $this->shortname);
         $courserecord = array(
             'shortname' => $this->shortname,
-            'fullname' => $this->fullname,
+            'fullname' => get_string('fullname', 'tool_generator',
+                array('size' => get_string('shortsize_' . $this->size, 'tool_generator'))),
             'numsections' => self::$paramsections[$this->size],
             'startdate' => usergetmidnight(time())
         );
-        if (strlen($this->summary) > 0) {
-            $courserecord['summary'] = $this->summary;
-            $courserecord['summary_format'] = $this->summaryformat;
-        }
-
         return $this->generator->create_course($courserecord, array('createsections' => true));
     }
 

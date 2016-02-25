@@ -86,9 +86,9 @@ require_capability('moodle/badges:manageownbadges', $context);
 
 $PAGE->set_context($context);
 
-$title = get_string('badges', 'badges');
+$title = get_string('mybadges', 'badges');
 $PAGE->set_title($title);
-$PAGE->set_heading(fullname($USER));
+$PAGE->set_heading($title);
 $PAGE->set_pagelayout('mydashboard');
 
 // Include JS files for backpack support.

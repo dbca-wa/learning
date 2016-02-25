@@ -118,16 +118,10 @@ class HTML_QuickForm_Renderer_Tableless extends HTML_QuickForm_Renderer_Default
     *
     * @access public
     */
-    public function __construct() {
-        parent::__construct();
+    function HTML_QuickForm_Renderer_Tableless()
+    {
+        $this->HTML_QuickForm_Renderer_Default();
     } // end constructor
-
-    /**
-     * Old syntax of class constructor for backward compatibility.
-     */
-    public function HTML_QuickForm_Renderer_Tableless() {
-        self::__construct();
-    }
 
    /**
     * Called when visiting a header element

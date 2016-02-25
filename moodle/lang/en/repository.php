@@ -1,4 +1,5 @@
 <?php
+
 // This file is part of Moodle - http://moodle.org/
 //
 // Moodle is free software: you can redistribute it and/or modify
@@ -17,7 +18,7 @@
 /**
  * Strings for component 'repository', language 'en', branch 'MOODLE_20_STABLE'
  *
- * @package   core_repository
+ * @package   repository
  * @copyright 1999 onwards Martin Dougiamas  {@link http://moodle.com}
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -111,7 +112,7 @@ $string['error'] = 'An unknown error occurred!';
 $string['errordoublereference'] = 'Unable to overwrite file with a shortcut/alias because shortcuts to this file already exist.';
 $string['errornotyourfile'] = 'You cannot pick file which is not added by your';
 $string['erroruniquename'] = 'Repository instance name should be unique';
-$string['errorpostmaxsize'] = 'The file you tried to upload is too large for the server to process.';
+$string['errorpostmaxsize'] = 'The uploaded file may exceed the post_max_size directive in php.ini.';
 $string['errorwhilecommunicatingwith'] = 'Error while communicating with the repository \'{$a}\'.';
 $string['errorwhiledownload'] = 'An error occurred while downloading the file: {$a}';
 $string['existingrepository'] = 'This repository already exists';
@@ -161,7 +162,6 @@ $string['makefileinternal'] = 'Make a copy of the file';
 $string['makefilelink'] = 'Link to the file directly';
 $string['makefilereference'] = 'Create an alias/shortcut to the file';
 $string['manage'] = 'Manage repositories';
-$string['manageinstances'] = 'Manage instances';
 $string['manageurl'] = 'Manage';
 $string['manageuserrepository'] = 'Manage individual repository';
 $string['moving'] = 'Moving';
@@ -186,6 +186,7 @@ $string['on'] = 'Enabled and visible';
 $string['overwrite'] = 'Overwrite';
 $string['overwriteall'] = 'Overwrite all';
 $string['path'] = 'Path';
+$string['personalrepositories'] = 'Available repository instances';
 $string['plugin'] = 'Repository plug-ins';
 $string['pluginerror'] = 'Errors in repository plugin.';
 $string['popup'] = 'Click "Login" button to login';
@@ -243,5 +244,6 @@ $string['wrongcontext'] = 'You cannot access to this context';
 $string['xhtmlerror'] = 'You are probably using an XHTML strict header. Certain YUI components don\'t work in this mode; please turn it off.';
 $string['ziped'] = 'Compress folder successfully';
 
-// Deprecated since Moodle 2.9.
-$string['personalrepositories'] = 'Available repository instances';
+// Deprecated since Moodle 2.8.
+
+$string['hidden'] = 'Hidden';

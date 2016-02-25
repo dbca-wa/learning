@@ -25,7 +25,7 @@
  * @namespace M.assignfeedback_editpdf
  * @class quickcommentlist
  */
-var QUICKCOMMENTLIST = function(editor) {
+QUICKCOMMENTLIST = function(editor) {
 
     /**
      * Reference to M.assignfeedback_editpdf.editor.

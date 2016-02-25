@@ -39,8 +39,7 @@ $users = $SESSION->bulk_users;
 $strnever = get_string('never');
 
 $cohorts = array(''=>get_string('choosedots'));
-$allcohorts = $DB->get_records('cohort', null, 'name');
-
+$allcohorts = $DB->get_records('cohort');
 foreach ($allcohorts as $c) {
     if (!empty($c->component)) {
         // external cohorts can not be modified

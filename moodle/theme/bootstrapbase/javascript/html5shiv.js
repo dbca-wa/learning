@@ -1,10 +1,10 @@
 /**
-* @preserve HTML5 Shiv 3.7.3 | @afarkas @jdalton @jon_neal @rem | MIT/GPL2 Licensed
+* @preserve HTML5 Shiv v3.6.2 | @afarkas @jdalton @jon_neal @rem | MIT/GPL2 Licensed
 */
 ;(function(window, document) {
 /*jshint evil:true */
   /** version */
-  var version = '3.7.3';
+  var version = '3.6.2';
 
   /** Preset options */
   var options = window.html5 || {};
@@ -82,25 +82,7 @@
     return typeof elements == 'string' ? elements.split(' ') : elements;
   }
 
-  /**
-   * Extends the built-in list of html5 elements
-   * @memberOf html5
-   * @param {String|Array} newElements whitespace separated list or array of new element names to shiv
-   * @param {Document} ownerDocument The context document.
-   */
-  function addElements(newElements, ownerDocument) {
-    var elements = html5.elements;
-    if(typeof elements != 'string'){
-      elements = elements.join(' ');
-    }
-    if(typeof newElements != 'string'){
-      newElements = newElements.join(' ');
-    }
-    html5.elements = elements +' '+ newElements;
-    shivDocument(ownerDocument);
-  }
-
-   /**
+    /**
    * Returns the data associated to the given document
    * @private
    * @param {Document} ownerDocument The document.
@@ -121,7 +103,7 @@
    * returns a shived element for the given nodeName and document
    * @memberOf html5
    * @param {String} nodeName name of the element
-   * @param {Document|DocumentFragment} ownerDocument The context document.
+   * @param {Document} ownerDocument The context document.
    * @returns {Object} The shived element.
    */
   function createElement(nodeName, ownerDocument, data){
@@ -151,7 +133,7 @@
     //   a 403 response, will cause the tab/window to crash
     // * Script elements appended to fragments will execute when their `src`
     //   or `text` property is set
-    return node.canHaveChildren && !reSkip.test(nodeName) && !node.tagUrn ? data.frag.appendChild(node) : node;
+    return node.canHaveChildren && !reSkip.test(nodeName) ? data.frag.appendChild(node) : node;
   }
 
   /**
@@ -205,7 +187,7 @@
       'var n=f.cloneNode(),c=n.createElement;' +
       'h.shivMethods&&(' +
         // unroll the `createElement` calls
-        getElements().join().replace(/[\w\-:]+/g, function(nodeName) {
+        getElements().join().replace(/\w+/g, function(nodeName) {
           data.createElem(nodeName);
           data.frag.createElement(nodeName);
           return 'c("' + nodeName + '")';
@@ -231,7 +213,7 @@
     if (html5.shivCSS && !supportsHtml5Styles && !data.hasCSS) {
       data.hasCSS = !!addStyleSheet(ownerDocument,
         // corrects block display not defined in IE6/7/8/9
-        'article,aside,dialog,figcaption,figure,footer,header,hgroup,main,nav,section{display:block}' +
+        'article,aside,figcaption,figure,footer,header,hgroup,main,nav,section{display:block}' +
         // adds styling not present in IE6/7/8/9
         'mark{background:#FF0;color:#000}' +
         // hides non-rendered elements
@@ -262,7 +244,7 @@
      * @memberOf html5
      * @type Array|String
      */
-    'elements': options.elements || 'abbr article aside audio bdi canvas data datalist details dialog figcaption figure footer header hgroup main mark meter nav output picture progress section summary template time video',
+    'elements': options.elements || 'abbr article aside audio bdi canvas data datalist details figcaption figure footer header hgroup main mark meter nav output progress section summary template time video',
 
     /**
      * current version of html5shiv
@@ -305,10 +287,7 @@
     createElement: createElement,
 
     //creates a shived documentFragment
-    createDocumentFragment: createDocumentFragment,
-
-    //extends list of elements
-    addElements: addElements
+    createDocumentFragment: createDocumentFragment
   };
 
   /*--------------------------------------------------------------------------*/
@@ -319,8 +298,4 @@
   // shiv the document
   shivDocument(document);
 
-  if(typeof module == 'object' && module.exports){
-    module.exports = html5;
-  }
-
-}(typeof window !== "undefined" ? window : this, document));
+}(this, document));

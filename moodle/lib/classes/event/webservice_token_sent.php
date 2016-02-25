@@ -73,9 +73,4 @@ class webservice_token_sent extends base {
         $this->data['edulevel'] = self::LEVEL_OTHER;
         $this->data['objecttable'] = 'external_tokens';
     }
-
-    public static function get_objectid_mapping() {
-        // Webservices are not included in backups.
-        return array('db' => 'external_tokens', 'restore' => base::NOT_MAPPED);
-    }
 }

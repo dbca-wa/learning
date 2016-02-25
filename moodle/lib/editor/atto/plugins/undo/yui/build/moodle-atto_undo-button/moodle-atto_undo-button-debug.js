@@ -25,6 +25,8 @@ YUI.add('moodle-atto_undo-button', function (Y, NAME) {
  * @module moodle-atto_undo-button
  */
 
+var LOGNAME = 'moodle-atto_undo-button';
+
 /**
  * Atto text editor undo plugin.
  *
@@ -171,7 +173,7 @@ Y.namespace('M.atto_undo').Button = Y.Base.create('button', Y.M.editor_atto.Edit
             return this._undoStack[0];
         }
 
-        var last = this._undoStack.pop();
+        last = this._undoStack.pop();
         if (last === current) {
             // Oops, the latest undo step is the current content, we should unstack once more.
             // There is no need to do that in a loop as the same stack should never contain duplicates.

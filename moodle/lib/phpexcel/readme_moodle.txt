@@ -2,7 +2,7 @@ Description of PHPExcel 1.8.0 import into Moodle
 
 Steps:
  * download release package from https://github.com/PHPOffice/PHPExcel
- * copy contents of Classes directory
+ * copy Classes directory
  * update lib/thirdpartylibs.xml
  * apply changes
  * go to http://127.0.0.1/lib/tests/other/spreadsheettestpage.php
@@ -25,7 +25,6 @@ Changes:
    - PHPExcel/Writer/Excel5/Worksheet.php
    - PHPExcel/Writer/Excel5/Xf.php
    lib/excellib.class.php has been updated so that only 2007 excel spreadsheets will be produced.
- * MDL-52336 patch for PHP7 compatibility, after upgrade make sure that these changes are included and remove this line
 
 
 

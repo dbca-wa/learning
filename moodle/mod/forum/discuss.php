@@ -172,8 +172,14 @@ if ($move > 0 and confirm_sesskey()) {
     redirect($return.'&move=-1&sesskey='.sesskey());
 }
 
-// Trigger discussion viewed event.
-forum_discussion_view($modcontext, $forum, $discussion);
+$params = array(
+    'context' => $modcontext,
+    'objectid' => $discussion->id,
+);
+$event = \mod_forum\event\discussion_viewed::create($params);
+$event->add_record_snapshot('forum_discussions', $discussion);
+$event->add_record_snapshot('forum', $forum);
+$event->trigger();
 
 unset($SESSION->fromdiscussion);
 
@@ -266,7 +272,7 @@ if (!$canreply and $forum->type !== 'news') {
 }
 
 // Output the links to neighbour discussions.
-$neighbours = forum_get_discussion_neighbours($cm, $discussion, $forum);
+$neighbours = forum_get_discussion_neighbours($cm, $discussion);
 $neighbourlinks = $renderer->neighbouring_discussion_navigation($neighbours['prev'], $neighbours['next']);
 echo $neighbourlinks;
 
@@ -325,7 +331,7 @@ if ($forum->type != 'single'
         if (!empty($forummenu)) {
             echo '<div class="movediscussionoption">';
             $select = new url_select($forummenu, '',
-                    array('/mod/forum/discuss.php?d=' . $discussion->id => get_string("movethisdiscussionto", "forum")),
+                    array(''=>get_string("movethisdiscussionto", "forum")),
                     'forummenu', get_string('move'));
             echo $OUTPUT->render($select);
             echo "</div>";

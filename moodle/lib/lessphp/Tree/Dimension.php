@@ -24,7 +24,7 @@ class Less_Tree_Dimension extends Less_Tree{
 		}
     }
 
-    public function accept( $visitor ){
+	function accept( $visitor ){
 		$this->unit = $visitor->visitObj( $this->unit );
 	}
 
@@ -147,11 +147,11 @@ class Less_Tree_Dimension extends Less_Tree{
 		}
 	}
 
-    public function unify() {
+	function unify() {
 		return $this->convertTo(array('length'=> 'px', 'duration'=> 's', 'angle' => 'rad' ));
 	}
 
-    public function convertTo($conversions) {
+    function convertTo($conversions) {
 		$value = $this->value;
 		$unit = clone $this->unit;
 

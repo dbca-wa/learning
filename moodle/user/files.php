@@ -41,13 +41,13 @@ if (empty($returnurl)) {
 $context = context_user::instance($USER->id);
 require_capability('moodle/user:manageownfiles', $context);
 
-$title = get_string('privatefiles');
+$title = get_string('myfiles');
 $struser = get_string('user');
 
 $PAGE->set_url('/user/files.php');
 $PAGE->set_context($context);
 $PAGE->set_title($title);
-$PAGE->set_heading(fullname($USER));
+$PAGE->set_heading($title);
 $PAGE->set_pagelayout('mydashboard');
 $PAGE->set_pagetype('user-files');
 

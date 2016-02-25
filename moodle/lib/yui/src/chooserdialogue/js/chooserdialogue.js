@@ -250,7 +250,7 @@ Y.extend(CHOOSERDIALOGUE, Y.Base, {
         newheight = newheight - (15 + 15 + 40 + 40);
         dialogue.setStyle('maxHeight', newheight + 'px');
 
-        var dialogueheight = bb.getStyle('height');
+        dialogueheight = bb.getStyle('height');
         if (dialogueheight.match(/.*px$/)) {
             dialogueheight = dialogueheight.replace(/px$/, '');
         } else {

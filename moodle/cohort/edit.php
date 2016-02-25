@@ -116,18 +116,15 @@ if ($hide && $cohort->id && confirm_sesskey()) {
     redirect($returnurl);
 }
 
-$editoroptions = array('maxfiles' => EDITOR_UNLIMITED_FILES,
-    'maxbytes' => $SITE->maxbytes, 'context' => $context);
+$editoroptions = array('maxfiles'=>0, 'context'=>$context);
 if ($cohort->id) {
     // Edit existing.
-    $cohort = file_prepare_standard_editor($cohort, 'description', $editoroptions,
-            $context, 'cohort', 'description', $cohort->id);
+    $cohort = file_prepare_standard_editor($cohort, 'description', $editoroptions, $context);
     $strheading = get_string('editcohort', 'cohort');
 
 } else {
     // Add new.
-    $cohort = file_prepare_standard_editor($cohort, 'description', $editoroptions,
-            $context, 'cohort', 'description', null);
+    $cohort = file_prepare_standard_editor($cohort, 'description', $editoroptions, $context);
     $strheading = get_string('addcohort', 'cohort');
 }
 
@@ -141,30 +138,12 @@ if ($editform->is_cancelled()) {
     redirect($returnurl);
 
 } else if ($data = $editform->get_data()) {
-    $oldcontextid = $context->id;
-    $editoroptions['context'] = $context = context::instance_by_id($data->contextid);
+    $data = file_postupdate_standard_editor($data, 'description', $editoroptions, $context);
 
     if ($data->id) {
-        if ($data->contextid != $oldcontextid) {
-            // Cohort was moved to another context.
-            get_file_storage()->move_area_files_to_new_context($oldcontextid, $context->id,
-                    'cohort', 'description', $data->id);
-        }
-        $data = file_postupdate_standard_editor($data, 'description', $editoroptions,
-                $context, 'cohort', 'description', $data->id);
         cohort_update_cohort($data);
     } else {
-        $data->descriptionformat = $data->description_editor['format'];
-        $data->description = $description = $data->description_editor['text'];
-        $data->id = cohort_add_cohort($data);
-        $editoroptions['context'] = $context = context::instance_by_id($data->contextid);
-        $data = file_postupdate_standard_editor($data, 'description', $editoroptions,
-                $context, 'cohort', 'description', $data->id);
-        if ($description != $data->description) {
-            $updatedata = (object)array('id' => $data->id,
-                'description' => $data->description, 'contextid' => $context->id);
-            cohort_update_cohort($updatedata);
-        }
+        cohort_add_cohort($data);
     }
 
     if ($returnurl->get_param('showall') || $returnurl->get_param('contextid') == $data->contextid) {

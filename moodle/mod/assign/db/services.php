@@ -144,15 +144,6 @@ $functions = array(
                 'classpath' => 'mod/assign/externallib.php',
                 'description' => 'Reveal the identities for a blind marking assignment',
                 'type' => 'write'
-        ),
-
-        'mod_assign_view_grading_table' => array(
-                'classname'     => 'mod_assign_external',
-                'methodname'    => 'view_grading_table',
-                'classpath'     => 'mod/assign/externallib.php',
-                'description'   => 'Trigger the grading_table_viewed event.',
-                'type'          => 'write',
-                'capabilities'  => 'mod/assign:view, mod/assign:viewgrades'
-        ),
+        )
 
 );

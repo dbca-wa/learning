@@ -80,8 +80,9 @@ class HTML_QuickForm_element extends HTML_Common
      * @access    public
      * @return    void
      */
-    public function __construct($elementName=null, $elementLabel=null, $attributes=null) {
-        parent::__construct($attributes);
+    function HTML_QuickForm_element($elementName=null, $elementLabel=null, $attributes=null)
+    {
+        HTML_Common::HTML_Common($attributes);
         if (isset($elementName)) {
             $this->setName($elementName);
         }
@@ -89,13 +90,6 @@ class HTML_QuickForm_element extends HTML_Common
             $this->setLabel($elementLabel);
         }
     } //end constructor
-
-    /**
-     * Old syntax of class constructor for backward compatibility.
-     */
-    public function HTML_QuickForm_element($elementName=null, $elementLabel=null, $attributes=null) {
-        self::__construct($elementName, $elementLabel, $attributes);
-    }
     
     // }}}
     // {{{ apiVersion()
@@ -365,7 +359,8 @@ class HTML_QuickForm_element extends HTML_Common
     {
         switch ($event) {
             case 'createElement':
-                static::__construct($arg[0], $arg[1], $arg[2], $arg[3], $arg[4]);
+                $className = get_class($this);
+                $this->$className($arg[0], $arg[1], $arg[2], $arg[3], $arg[4]);
                 break;
             case 'addElement':
                 $this->onQuickFormEvent('createElement', $arg, $caller);

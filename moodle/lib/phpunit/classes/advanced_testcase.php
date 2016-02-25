@@ -32,7 +32,7 @@
  * @copyright  2012 Petr Skoda {@link http://skodak.org}
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-abstract class advanced_testcase extends base_testcase {
+abstract class advanced_testcase extends PHPUnit_Framework_TestCase {
     /** @var bool automatically reset everything? null means log changes */
     private $resetAfterTest;
 
@@ -88,14 +88,7 @@ abstract class advanced_testcase extends base_testcase {
                 trigger_error('Unexpected debugging() call detected.', E_USER_NOTICE);
             }
 
-        } catch (Exception $ex) {
-            $e = $ex;
-        } catch (Throwable $ex) {
-            // Engine errors in PHP7 throw exceptions of type Throwable (this "catch" will be ignored in PHP5).
-            $e = $ex;
-        }
-
-        if (isset($e)) {
+        } catch (Exception $e) {
             // cleanup after failed expectation
             self::resetAllData();
             throw $e;
@@ -492,9 +485,6 @@ abstract class advanced_testcase extends base_testcase {
         unset($user->access);
         unset($user->preference);
 
-        // Enusre session is empty, as it may contain caches and user specific info.
-        \core\session\manager::init_empty_session();
-
         \core\session\manager::set_user($user);
     }
 
@@ -514,19 +504,6 @@ abstract class advanced_testcase extends base_testcase {
      */
     public static function setGuestUser() {
         self::setUser(1);
-    }
-
-    /**
-     * Change server and default php timezones.
-     *
-     * @param string $servertimezone timezone to set in $CFG->timezone (not validated)
-     * @param string $defaultphptimezone timezone to fake default php timezone (must be valid)
-     */
-    public static function setTimezone($servertimezone = 'Australia/Perth', $defaultphptimezone = 'Australia/Perth') {
-        global $CFG;
-        $CFG->timezone = $servertimezone;
-        core_date::phpunit_override_default_php_timezone($defaultphptimezone);
-        core_date::set_default_server_timezone();
     }
 
     /**

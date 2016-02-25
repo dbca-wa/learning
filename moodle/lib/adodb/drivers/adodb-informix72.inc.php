@@ -1,8 +1,6 @@
 <?php
 /*
-@version   v5.20.1  06-Dec-2015
-@copyright (c) 2000-2013 John Lim. All rights reserved.
-@copyright (c) 2014      Damien Regad, Mark Newnham and the ADOdb community
+V5.19  23-Apr-2014  (c) 2000-2014 John Lim. All rights reserved.
   Released under both BSD license and Lesser GPL library license.
   Whenever there is any discrepancy between the two licenses,
   the BSD license will take precedence.
@@ -56,7 +54,7 @@ class ADODB_informix72 extends ADOConnection {
 	var $sysTimeStamp = 'CURRENT';
 	var $cursorType = IFX_SCROLL; // IFX_SCROLL or IFX_HOLD or 0
 
-	function __construct()
+	function ADODB_informix72()
 	{
 		// alternatively, use older method:
 		//putenv("DBDATE=Y4MD-");
@@ -393,14 +391,14 @@ class ADORecordset_informix72 extends ADORecordSet {
 	var $canSeek = true;
 	var $_fieldprops = false;
 
-	function __construct($id,$mode=false)
+	function ADORecordset_informix72($id,$mode=false)
 	{
 		if ($mode === false) {
 			global $ADODB_FETCH_MODE;
 			$mode = $ADODB_FETCH_MODE;
 		}
 		$this->fetchMode = $mode;
-		return parent::__construct($id);
+		return $this->ADORecordSet($id);
 	}
 
 

@@ -315,7 +315,7 @@ class helper {
         // Edit.
         if ($course->can_edit()) {
             $actions[] = array(
-                'url' => new \moodle_url('/course/edit.php', array('id' => $course->id, 'returnto' => 'catmanage')),
+                'url' => new \moodle_url('/course/edit.php', array('id' => $course->id)),
                 'icon' => new \pix_icon('t/edit', \get_string('edit')),
                 'attributes' => array('class' => 'action-edit')
             );

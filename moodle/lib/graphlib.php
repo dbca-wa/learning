@@ -1173,7 +1173,7 @@ class graph {
       return array('min' => $min, 'max' => $max);
     }
 
-    public function __construct() {
+    function graph() {
       if (func_num_args() == 2) {
         $this->parameter['width']  = func_get_arg(0);
         $this->parameter['height'] = func_get_arg(1);
@@ -1188,13 +1188,6 @@ class graph {
       $this->init_colours();
 
       //ImageColorTransparent($this->image, $this->colour['white']); // colour for transparency
-    }
-
-    /**
-     * Old syntax of class constructor. Deprecated in PHP7.
-     */
-    public function graph() {
-        self::__construct();
     }
 
     /**

@@ -13,13 +13,13 @@ class Less_Tree_Attribute extends Less_Tree{
 	public $value;
 	public $type = 'Attribute';
 
-    public function __construct($key, $op, $value){
+	function __construct($key, $op, $value){
 		$this->key = $key;
 		$this->op = $op;
 		$this->value = $value;
 	}
 
-    public function compile($env){
+	function compile($env){
 
 		$key_obj = is_object($this->key);
 		$val_obj = is_object($this->value);
@@ -37,11 +37,11 @@ class Less_Tree_Attribute extends Less_Tree{
     /**
      * @see Less_Tree::genCSS
      */
-    public function genCSS( $output ){
+	function genCSS( $output ){
 		$output->add( $this->toCSS() );
 	}
 
-    public function toCSS(){
+	function toCSS(){
 		$value = $this->key;
 
 		if( $this->op ){

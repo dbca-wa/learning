@@ -237,12 +237,12 @@ function scorm_parse($scorm, $full) {
                 // Sorry - localsync disabled.
                 return;
             }
-            if ($scorm->reference !== '') {
+            if ($scorm->reference !== '' and (!$full or $scorm->sha1hash !== sha1($scorm->reference))) {
                 $fs->delete_area_files($context->id, 'mod_scorm', 'package');
                 $filerecord = array('contextid' => $context->id, 'component' => 'mod_scorm', 'filearea' => 'package',
                                     'itemid' => 0, 'filepath' => '/');
-                if ($packagefile = $fs->create_file_from_url($filerecord, $scorm->reference, array('calctimeout' => true), true)) {
-                    $newhash = $packagefile->get_contenthash();
+                if ($packagefile = $fs->create_file_from_url($filerecord, $scorm->reference, array('calctimeout' => true))) {
+                    $newhash = sha1($scorm->reference);
                 } else {
                     $newhash = null;
                 }
@@ -495,6 +495,13 @@ function scorm_insert_track($userid, $scormid, $scoid, $attempt, $element, $valu
                         $track->value = $objectivesatisfiedstatus;
                         $track->timemodified = time();
                         $id = $DB->insert_record('scorm_scoes_track', $track);
+                        ob_start();
+                        $filepath = $CFG->dataroot."\\temp\\tempfile.txt";
+                        $fh = fopen($filepath, "a+");
+                        var_dump($track);
+                        $string = ob_get_clean();
+                        fwrite($fh, $string);
+                        fclose($fh);
                     }
                 }
             }
@@ -812,9 +819,8 @@ function scorm_get_last_completed_attempt($scormid, $userid) {
     $sql = "SELECT MAX(attempt)
               FROM {scorm_scoes_track}
              WHERE userid = ? AND scormid = ?
-               AND (".$DB->sql_compare_text('value')." = ".$DB->sql_compare_text('?')." OR ".
-                      $DB->sql_compare_text('value')." = ".$DB->sql_compare_text('?').")";
-    $lastattempt = $DB->get_field_sql($sql, array($userid, $scormid, 'completed', 'passed'));
+               AND (value='completed' OR value='passed')";
+    $lastattempt = $DB->get_field_sql($sql, array($userid, $scormid));
     if (empty($lastattempt)) {
         return '1';
     } else {
@@ -841,15 +847,7 @@ function scorm_get_all_attempts($scormid, $userid) {
     return $attemptids;
 }
 
-/**
- * Displays the entry form and toc if required.
- *
- * @param  stdClass $user   user object
- * @param  stdClass $scorm  scorm object
- * @param  string   $action base URL for the organizations select box
- * @param  stdClass $cm     course module object
- */
-function scorm_print_launch ($user, $scorm, $action, $cm) {
+function scorm_view_display ($user, $scorm, $action, $cm) {
     global $CFG, $DB, $PAGE, $OUTPUT, $COURSE;
 
     if ($scorm->updatefreq == SCORM_UPDATE_EVERYTIME) {
@@ -1445,7 +1443,7 @@ function scorm_get_toc_object($user, $scorm, $currentorg='', $scoid='', $mode='n
 
     if (!empty($organizationsco)) {
         $result[0] = $organizationsco;
-        $result[0]->isvisible = 'true';
+        $result[0]->isvisible = true;
         $result[0]->statusicon = '';
         $result[0]->url = '';
     }
@@ -1465,7 +1463,7 @@ function scorm_get_toc_object($user, $scorm, $currentorg='', $scoid='', $mode='n
         }
         foreach ($scoes as $sco) {
             if (!isset($sco->isvisible)) {
-                $sco->isvisible = 'true';
+                $sco->isvisible = true;
             }
 
             if (empty($sco->title)) {
@@ -1478,7 +1476,7 @@ function scorm_get_toc_object($user, $scorm, $currentorg='', $scoid='', $mode='n
                 $sco->prereq = empty($sco->prerequisites) || scorm_eval_prerequisites($sco->prerequisites, $usertracks);
             }
 
-            if ($sco->isvisible === 'true') {
+            if ($sco->isvisible) {
                 if (!empty($sco->launch)) {
                     if (empty($scoid) && ($mode != 'normal')) {
                         $scoid = $sco->id;
@@ -1668,95 +1666,94 @@ function scorm_format_toc_for_treeview($user, $scorm, $scoes, $usertracks, $cmid
     $prevsco = '';
     if (!empty($scoes)) {
         foreach ($scoes as $sco) {
-
-            if ($sco->isvisible === 'false') {
-                continue;
-            }
-
             $result->toc .= html_writer::start_tag('li');
             $scoid = $sco->id;
 
-            $score = '';
+            $sco->isvisible = true;
 
-            if (isset($usertracks[$sco->identifier])) {
-                $viewscore = has_capability('mod/scorm:viewscores', context_module::instance($cmid));
-                if (isset($usertracks[$sco->identifier]->score_raw) && $viewscore) {
-                    if ($usertracks[$sco->identifier]->score_raw != '') {
-                        $score = '('.get_string('score', 'scorm').':&nbsp;'.$usertracks[$sco->identifier]->score_raw.')';
+            if ($sco->isvisible) {
+                $score = '';
+
+                if (isset($usertracks[$sco->identifier])) {
+                    $viewscore = has_capability('mod/scorm:viewscores', context_module::instance($cmid));
+                    if (isset($usertracks[$sco->identifier]->score_raw) && $viewscore) {
+                        if ($usertracks[$sco->identifier]->score_raw != '') {
+                            $score = '('.get_string('score', 'scorm').':&nbsp;'.$usertracks[$sco->identifier]->score_raw.')';
+                        }
                     }
                 }
-            }
 
-            if (!empty($sco->prereq)) {
-                if ($sco->id == $scoid) {
-                    $result->prerequisites = true;
-                }
+                if (!empty($sco->prereq)) {
+                    if ($sco->id == $scoid) {
+                        $result->prerequisites = true;
+                    }
 
-                if (!empty($prevsco) && scorm_version_check($scorm->version, SCORM_13) && !empty($prevsco->hidecontinue)) {
-                    if ($sco->scormtype == 'sco') {
-                        $result->toc .= html_writer::span($sco->statusicon.'&nbsp;'.format_string($sco->title));
-                    } else {
-                        $result->toc .= html_writer::span('&nbsp;'.format_string($sco->title));
-                    }
-                } else if ($toclink == TOCFULLURL) {
-                    $url = $CFG->wwwroot.'/mod/scorm/player.php?'.$sco->url;
-                    if (!empty($sco->launch)) {
-                        if ($sco->scormtype == 'sco') {
-                            $result->toc .= $sco->statusicon.'&nbsp;';
-                            $result->toc .= html_writer::link($url, format_string($sco->title)).$score;
-                        } else {
-                            $result->toc .= '&nbsp;'.html_writer::link($url, format_string($sco->title),
-                                                                        array('data-scoid' => $sco->id)).$score;
-                        }
-                    } else {
-                        if ($sco->scormtype == 'sco') {
-                            $result->toc .= $sco->statusicon.'&nbsp;'.format_string($sco->title).$score;
-                        } else {
-                            $result->toc .= '&nbsp;'.format_string($sco->title).$score;
-                        }
-                    }
-                } else {
-                    if (!empty($sco->launch)) {
-                        if ($sco->scormtype == 'sco') {
-                            $result->toc .= html_writer::tag('a', $sco->statusicon.'&nbsp;'.
-                                                                format_string($sco->title).'&nbsp;'.$score,
-                                                                array('data-scoid' => $sco->id, 'title' => $sco->url));
-                        } else {
-                            $result->toc .= html_writer::tag('a', '&nbsp;'.format_string($sco->title).'&nbsp;'.$score,
-                                                                array('data-scoid' => $sco->id, 'title' => $sco->url));
-                        }
-                    } else {
+                    if (!empty($prevsco) && scorm_version_check($scorm->version, SCORM_13) && !empty($prevsco->hidecontinue)) {
                         if ($sco->scormtype == 'sco') {
                             $result->toc .= html_writer::span($sco->statusicon.'&nbsp;'.format_string($sco->title));
                         } else {
                             $result->toc .= html_writer::span('&nbsp;'.format_string($sco->title));
                         }
+                    } else if ($toclink == TOCFULLURL) {
+                        $url = $CFG->wwwroot.'/mod/scorm/player.php?'.$sco->url;
+                        if (!empty($sco->launch)) {
+                            if ($sco->scormtype == 'sco') {
+                                $result->toc .= $sco->statusicon.'&nbsp;';
+                                $result->toc .= html_writer::link($url, format_string($sco->title)).$score;
+                            } else {
+                                $result->toc .= '&nbsp;'.html_writer::link($url, format_string($sco->title),
+                                                                            array('data-scoid' => $sco->id)).$score;
+                            }
+                        } else {
+                            if ($sco->scormtype == 'sco') {
+                                $result->toc .= $sco->statusicon.'&nbsp;'.format_string($sco->title).$score;
+                            } else {
+                                $result->toc .= '&nbsp;'.format_string($sco->title).$score;
+                            }
+                        }
+                    } else {
+                        if (!empty($sco->launch)) {
+                            if ($sco->scormtype == 'sco') {
+                                $result->toc .= html_writer::tag('a', $sco->statusicon.'&nbsp;'.
+                                                                    format_string($sco->title).'&nbsp;'.$score,
+                                                                    array('data-scoid' => $sco->id, 'title' => $sco->url));
+                            } else {
+                                $result->toc .= html_writer::tag('a', '&nbsp;'.format_string($sco->title).'&nbsp;'.$score,
+                                                                    array('data-scoid' => $sco->id, 'title' => $sco->url));
+                            }
+                        } else {
+                            if ($sco->scormtype == 'sco') {
+                                $result->toc .= html_writer::span($sco->statusicon.'&nbsp;'.format_string($sco->title));
+                            } else {
+                                $result->toc .= html_writer::span('&nbsp;'.format_string($sco->title));
+                            }
+                        }
+                    }
+
+                } else {
+                    if ($play) {
+                        if ($sco->scormtype == 'sco') {
+                            $result->toc .= html_writer::span($sco->statusicon.'&nbsp;'.format_string($sco->title));
+                        } else {
+                            $result->toc .= '&nbsp;'.format_string($sco->title).html_writer::end_span();
+                        }
+                    } else {
+                        if ($sco->scormtype == 'sco') {
+                            $result->toc .= $sco->statusicon.'&nbsp;'.format_string($sco->title);
+                        } else {
+                            $result->toc .= '&nbsp;'.format_string($sco->title);
+                        }
                     }
                 }
 
             } else {
-                if ($play) {
-                    if ($sco->scormtype == 'sco') {
-                        $result->toc .= html_writer::span($sco->statusicon.'&nbsp;'.format_string($sco->title));
-                    } else {
-                        $result->toc .= '&nbsp;'.format_string($sco->title).html_writer::end_span();
-                    }
-                } else {
-                    if ($sco->scormtype == 'sco') {
-                        $result->toc .= $sco->statusicon.'&nbsp;'.format_string($sco->title);
-                    } else {
-                        $result->toc .= '&nbsp;'.format_string($sco->title);
-                    }
-                }
+                $result->toc .= "&nbsp;".format_string($sco->title);
             }
 
             if (!empty($sco->children)) {
                 $result->toc .= html_writer::start_tag('ul');
                 $childresult = scorm_format_toc_for_treeview($user, $scorm, $sco->children, $usertracks, $cmid,
                                                                 $toclink, $currentorg, $attempt, $play, $organizationsco, true);
-
-                // Is any of the children incomplete?
-                $sco->incomplete = $childresult->incomplete;
                 $result->toc .= $childresult->toc;
                 $result->toc .= html_writer::end_tag('ul');
                 $result->toc .= html_writer::end_tag('li');
@@ -2034,7 +2031,6 @@ function scorm_check_launchable_sco($scorm, $scoid) {
  * @param  boolean $checkviewreportcap Check the scorm:viewreport cap
  * @param  stdClass  $context          Module context, required if $checkviewreportcap is set to true
  * @return array                       status (available or not and possible warnings)
- * @since  Moodle 3.0
  */
 function scorm_get_availability_status($scorm, $checkviewreportcap = false, $context = null) {
     $open = true;
@@ -2074,7 +2070,6 @@ function scorm_get_availability_status($scorm, $checkviewreportcap = false, $con
  * @param  boolean $checkviewreportcap Check the scorm:viewreport cap
  * @param  stdClass  $context          Module context, required if $checkviewreportcap is set to true
  * @throws moodle_exception
- * @since  Moodle 3.0
  */
 function scorm_require_available($scorm, $checkviewreportcap = false, $context = null) {
 

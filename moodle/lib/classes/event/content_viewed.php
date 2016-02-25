@@ -126,9 +126,5 @@ abstract class content_viewed extends base {
             throw new \coding_exception('The \'content\' value must be set in other.');
         }
     }
-
-    public static function get_other_mapping() {
-        return false;
-    }
 }
 

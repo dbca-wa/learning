@@ -1,8 +1,6 @@
 <?php
-/**
-  @version   v5.20.1  06-Dec-2015
-  @copyright (c) 2000-2013 John Lim (jlim#natsoft.com). All rights reserved.
-  @copyright (c) 2014      Damien Regad, Mark Newnham and the ADOdb community
+/*
+  V5.19  23-Apr-2014  (c) 2000-2012 (jlim#natsoft.com). All rights reserved.
 
   This is a version of the ADODB driver for DB2.  It uses the 'ibm_db2' PECL extension
   for PHP (http://pecl.php.net/package/ibm_db2), which in turn requires DB2 V8.2.2 or
@@ -63,7 +61,7 @@ class ADODB_db2 extends ADOConnection {
         return ADOConnection::GetOne('VALUES IDENTITY_VAL_LOCAL()');
     }
 
-	function __construct()
+	function ADODB_db2()
 	{
 		$this->_haserrorfunctions = ADODB_PHPVER >= 0x4050;
 	}
@@ -136,7 +134,7 @@ class ADODB_db2 extends ADOConnection {
 	}
 
 	// format and return date string in database timestamp format
-	function DBTimeStamp($ts, $isfld = false)
+	function DBTimeStamp($ts)
 	{
 		if (empty($ts) && $ts !== 0) return 'null';
 		if (is_string($ts)) $ts = ADORecordSet::UnixTimeStamp($ts);
@@ -235,13 +233,13 @@ class ADODB_db2 extends ADOConnection {
 		return true;
 	}
 
-	function DropSequence($seqname = 'adodbseq')
+	function DropSequence($seqname)
 	{
 		if (empty($this->_dropSeqSQL)) return false;
 		return $this->Execute(sprintf($this->_dropSeqSQL,$seqname));
 	}
 
-	function SelectLimit($sql, $nrows = -1, $offset = -1, $inputArr = false, $secs2cache = 0)
+	function SelectLimit($sql,$nrows=-1,$offset=-1,$inputArr=false)
 	{
 		$nrows = (integer) $nrows;
 		if ($offset <= 0) {
@@ -335,7 +333,7 @@ class ADODB_db2 extends ADOConnection {
 		return $ret;
 	}
 
-	function MetaPrimaryKeys($table, $owner = false)
+	function MetaPrimaryKeys($table)
 	{
 	global $ADODB_FETCH_MODE;
 
@@ -411,7 +409,7 @@ class ADODB_db2 extends ADOConnection {
 	}
 
 
-	function MetaTables($ttype = false, $schema = false, $mask = false)
+	function MetaTables($ttype=false,$schema=false)
 	{
 	global $ADODB_FETCH_MODE;
 
@@ -728,7 +726,7 @@ class ADORecordSet_db2 extends ADORecordSet {
 	var $dataProvider = "db2";
 	var $useFetchArray;
 
-	function __construct($id,$mode=false)
+	function ADORecordSet_db2($id,$mode=false)
 	{
 		if ($mode === false) {
 			global $ADODB_FETCH_MODE;
@@ -795,7 +793,7 @@ class ADORecordSet_db2 extends ADORecordSet {
 		$this->fetchMode = $savem;
 
 		if ($this->fetchMode & ADODB_FETCH_ASSOC) {
-			$this->fields = $this->GetRowAssoc();
+			$this->fields = $this->GetRowAssoc(ADODB_ASSOC_CASE);
 		}
 
 		$results = array();
@@ -817,7 +815,7 @@ class ADORecordSet_db2 extends ADORecordSet {
 			$this->fields = @db2_fetch_array($this->_queryID);
 			if ($this->fields) {
 				if ($this->fetchMode & ADODB_FETCH_ASSOC) {
-					$this->fields = $this->GetRowAssoc();
+					$this->fields = $this->GetRowAssoc(ADODB_ASSOC_CASE);
 				}
 				return true;
 			}
@@ -833,7 +831,7 @@ class ADORecordSet_db2 extends ADORecordSet {
 		$this->fields = db2_fetch_array($this->_queryID);
 		if ($this->fields) {
 			if ($this->fetchMode & ADODB_FETCH_ASSOC) {
-				$this->fields = $this->GetRowAssoc();
+				$this->fields = $this->GetRowAssoc(ADODB_ASSOC_CASE);
 			}
 			return true;
 		}

@@ -29,7 +29,7 @@ class Less_Tree_Element extends Less_Tree{
 		$this->currentFileInfo = $currentFileInfo;
 	}
 
-    public function accept( $visitor ){
+	function accept( $visitor ){
 		if( $this->value_is_object ){ //object or string
 			$this->value = $visitor->visitObj( $this->value );
 		}

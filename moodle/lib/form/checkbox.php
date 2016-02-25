@@ -52,15 +52,8 @@ class MoodleQuickForm_checkbox extends HTML_QuickForm_checkbox{
      * @param mixed $attributes (optional) Either a typical HTML attribute string
      *              or an associative array
      */
-    public function __construct($elementName=null, $elementLabel=null, $text='', $attributes=null) {
-        parent::__construct($elementName, $elementLabel, $text, $attributes);
-    }
-
-    /**
-     * Old syntax of class constructor for backward compatibility.
-     */
-    public function MoodleQuickForm_checkbox($elementName=null, $elementLabel=null, $text='', $attributes=null) {
-        self::__construct($elementName, $elementLabel, $text, $attributes);
+    function MoodleQuickForm_checkbox($elementName=null, $elementLabel=null, $text='', $attributes=null) {
+        parent::HTML_QuickForm_checkbox($elementName, $elementLabel, $text, $attributes);
     }
 
     /**

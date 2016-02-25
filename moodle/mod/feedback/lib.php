@@ -2938,6 +2938,7 @@ function feedback_send_email($cm, $feedback, $course, $userid) {
 
         $strfeedbacks = get_string('modulenameplural', 'feedback');
         $strfeedback  = get_string('modulename', 'feedback');
+        $strcompleted  = get_string('completed', 'feedback');
 
         if ($feedback->anonymous == FEEDBACK_ANONYMOUS_NO) {
             $printusername = fullname($user);
@@ -2954,9 +2955,7 @@ function feedback_send_email($cm, $feedback, $course, $userid) {
                             'userid='.$userid.'&'.
                             'do_show=showentries';
 
-            $a = array('username' => $info->username, 'feedbackname' => $feedback->name);
-
-            $postsubject = get_string('feedbackcompleted', 'feedback', $a);
+            $postsubject = $strcompleted.': '.$info->username.' -> '.$feedback->name;
             $posttext = feedback_send_email_text($info, $course);
 
             if ($teacher->mailformat == 1) {
@@ -3017,6 +3016,7 @@ function feedback_send_email_anonym($cm, $feedback, $course) {
 
         $strfeedbacks = get_string('modulenameplural', 'feedback');
         $strfeedback  = get_string('modulename', 'feedback');
+        $strcompleted  = get_string('completed', 'feedback');
         $printusername = get_string('anonymous_user', 'feedback');
 
         foreach ($teachers as $teacher) {
@@ -3025,9 +3025,7 @@ function feedback_send_email_anonym($cm, $feedback, $course) {
             $info->feedback = format_string($feedback->name, true);
             $info->url = $CFG->wwwroot.'/mod/feedback/show_entries_anonym.php?id='.$cm->id;
 
-            $a = array('username' => $info->username, 'feedbackname' => $feedback->name);
-
-            $postsubject = get_string('feedbackcompleted', 'feedback', $a);
+            $postsubject = $strcompleted.': '.$info->username.' -> '.$feedback->name;
             $posttext = feedback_send_email_text($info, $course);
 
             if ($teacher->mailformat == 1) {

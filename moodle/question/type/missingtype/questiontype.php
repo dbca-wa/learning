@@ -26,7 +26,6 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-require_once($CFG->dirroot . '/question/type/questiontypebase.php');
 
 /**
  * Missing question type class

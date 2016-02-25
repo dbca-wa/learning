@@ -39,8 +39,4 @@ class qbehaviour_immediatecbm_type extends qbehaviour_deferredcbm_type {
     public function get_unused_display_options() {
         return array();
     }
-
-    public function can_questions_finish_during_the_attempt() {
-        return true;
-    }
 }

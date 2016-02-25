@@ -110,35 +110,29 @@ class auth_plugin_db extends auth_plugin_base {
 
             $authdb = $this->db_init();
 
-            $rs = $authdb->Execute("SELECT {$this->config->fieldpass}
+            if ($this->config->passtype === 'md5') {   // Re-format password accordingly.
+                $extpassword = md5($extpassword);
+            } else if ($this->config->passtype === 'sha1') {
+                $extpassword = sha1($extpassword);
+            }
+
+            $rs = $authdb->Execute("SELECT *
                                       FROM {$this->config->table}
-                                     WHERE {$this->config->fielduser} = '".$this->ext_addslashes($extusername)."'");
+                                     WHERE {$this->config->fielduser} = '".$this->ext_addslashes($extusername)."'
+                                           AND {$this->config->fieldpass} = '".$this->ext_addslashes($extpassword)."'");
             if (!$rs) {
                 $authdb->Close();
                 debugging(get_string('auth_dbcantconnect','auth_db'));
                 return false;
             }
 
-            if ($rs->EOF) {
+            if (!$rs->EOF) {
+                $rs->Close();
                 $authdb->Close();
-                return false;
-            }
-
-            $fields = array_change_key_case($rs->fields, CASE_LOWER);
-            $fromdb = $fields[strtolower($this->config->fieldpass)];
-            $rs->Close();
-            $authdb->Close();
-
-            if ($this->config->passtype === 'plaintext') {
-                return ($fromdb == $extpassword);
-            } else if ($this->config->passtype === 'md5') {
-                return (strtolower($fromdb) == md5($extpassword));
-            } else if ($this->config->passtype === 'sha1') {
-                return (strtolower($fromdb) == sha1($extpassword));
-            } else if ($this->config->passtype === 'saltedcrypt') {
-                require_once($CFG->libdir.'/password_compat/lib/password.php');
-                return password_verify($extpassword, $fromdb);
+                return true;
             } else {
+                $rs->Close();
+                $authdb->Close();
                 return false;
             }
 
@@ -178,15 +172,7 @@ class auth_plugin_db extends auth_plugin_base {
      */
     function db_attributes() {
         $moodleattributes = array();
-        // If we have custom fields then merge them with user fields.
-        $customfields = $this->get_custom_user_profile_fields();
-        if (!empty($customfields) && !empty($this->userfields)) {
-            $userfields = array_merge($this->userfields, $customfields);
-        } else {
-            $userfields = $this->userfields;
-        }
-
-        foreach ($userfields as $field) {
+        foreach ($this->userfields as $field) {
             if (!empty($this->config->{"field_map_$field"})) {
                 $moodleattributes[$field] = $this->config->{"field_map_$field"};
             }
@@ -624,10 +610,6 @@ class auth_plugin_db extends auth_plugin_base {
                 continue;
             }
             $nuvalue = $newuser->$key;
-            // Support for textarea fields.
-            if (isset($nuvalue['text'])) {
-                $nuvalue = $nuvalue['text'];
-            }
             if ($nuvalue != $value) {
                 $update[] = $this->config->{"field_map_$key"}."='".$this->ext_addslashes(core_text::convert($nuvalue, 'utf-8', $this->config->extencoding))."'";
             }

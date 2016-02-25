@@ -31,18 +31,15 @@ class enrol_cohort_edit_form extends moodleform {
     function definition() {
         global $CFG, $DB;
 
-        $mform = $this->_form;
+        $mform  = $this->_form;
 
         list($instance, $plugin, $course) = $this->_customdata;
         $coursecontext = context_course::instance($course->id);
 
         $enrol = enrol_get_plugin('cohort');
 
-        $groups = array(0 => get_string('none'));
-        if (has_capability('moodle/course:managegroups', $coursecontext)) {
-            $groups[COHORT_CREATE_GROUP] = get_string('creategroup', 'enrol_cohort');
-        }
 
+        $groups = array(0 => get_string('none'));
         foreach (groups_get_all_groups($course->id) as $group) {
             $groups[$group->id] = format_string($group->name, true, array('context'=>$coursecontext));
         }
@@ -100,23 +97,10 @@ class enrol_cohort_edit_form extends moodleform {
         if ($instance->id) {
             $this->add_action_buttons(true);
         } else {
-            $this->add_add_buttons();
+            $this->add_action_buttons(true, get_string('addinstance', 'enrol'));
         }
 
         $this->set_data($instance);
-    }
-
-    /**
-     * Adds buttons on create new method form
-     */
-    protected function add_add_buttons() {
-        $mform = $this->_form;
-        $buttonarray = array();
-        $buttonarray[0] = $mform->createElement('submit', 'submitbutton', get_string('addinstance', 'enrol'));
-        $buttonarray[1] = $mform->createElement('submit', 'submitbuttonnext', get_string('addinstanceanother', 'enrol'));
-        $buttonarray[2] = $mform->createElement('cancel');
-        $mform->addGroup($buttonarray, 'buttonar', '', array(' '), false);
-        $mform->closeHeaderBefore('buttonar');
     }
 
     function validation($data, $files) {

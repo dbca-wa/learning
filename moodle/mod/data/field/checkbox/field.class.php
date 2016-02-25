@@ -26,32 +26,20 @@ class data_field_checkbox extends data_field_base {
 
     var $type = 'checkbox';
 
-    function display_add_field($recordid = 0, $formdata = null) {
-        global $CFG, $DB, $OUTPUT;
+    function display_add_field($recordid=0) {
+        global $CFG, $DB;
 
         $content = array();
 
-        if ($formdata) {
-            $fieldname = 'field_' . $this->field->id;
-            $content = $formdata->$fieldname;
-        } else if ($recordid) {
+        if ($recordid) {
             $content = $DB->get_field('data_content', 'content', array('fieldid'=>$this->field->id, 'recordid'=>$recordid));
             $content = explode('##', $content);
         } else {
             $content = array();
         }
 
-        $str = '<div title="' . s($this->field->description) . '">';
-        $str .= '<fieldset><legend><span class="accesshide">'.$this->field->name;
-        if ($this->field->required) {
-            $str .= '$nbsp;' . get_string('requiredelement', 'form');
-            $str .= '</span></legend>';
-            $image = html_writer::img($OUTPUT->pix_url('req'), get_string('requiredelement', 'form'),
-                                     array('class' => 'req', 'title' => get_string('requiredelement', 'form')));
-            $str .= html_writer::div($image, 'inline-req');
-        } else {
-            $str .= '</span></legend>';
-        }
+        $str = '<div title="'.s($this->field->description).'">';
+        $str .= '<fieldset><legend><span class="accesshide">'.$this->field->name.'</span></legend>';
 
         $i = 0;
         foreach (explode("\n", $this->field->param1) as $checkbox) {
@@ -61,7 +49,7 @@ class data_field_checkbox extends data_field_base {
             }
             $str .= '<input type="hidden" name="field_' . $this->field->id . '[]" value="" />';
             $str .= '<input type="checkbox" id="field_'.$this->field->id.'_'.$i.'" name="field_' . $this->field->id . '[]" ';
-            $str .= 'value="' . s($checkbox) . '" class="mod-data-input" ';
+            $str .= 'value="' . s($checkbox) . '" ';
 
             if (array_search($checkbox, $content) !== false) {
                 $str .= 'checked />';
@@ -97,7 +85,6 @@ class data_field_checkbox extends data_field_base {
             } else {
                 $str .= html_writer::checkbox('f_'.$this->field->id.'[]', s($checkbox), false, $checkbox);
             }
-            $str .= html_writer::empty_tag('br');
             $found = true;
         }
         if (!$found) {
@@ -224,22 +211,5 @@ class data_field_checkbox extends data_field_base {
         return implode('##', $vals);
     }
 
-    /**
-     * Check whether any boxes in the checkbox where checked.
-     *
-     * @param mixed $value The submitted values
-     * @param mixed $name
-     * @return bool
-     */
-    function notemptyfield($value, $name) {
-        $found = false;
-        foreach ($value as $checkboxitem) {
-            if (!empty($checkboxitem)) {
-                $found = true;
-                break;
-            }
-        }
-        return $found;
-    }
-
 }
+

@@ -102,10 +102,7 @@ class chapter_printed extends \core\event\base {
     protected function init() {
         $this->data['crud'] = 'r';
         $this->data['edulevel'] = self::LEVEL_PARTICIPATING;
-        $this->data['objecttable'] = 'book_chapters';
+        $this->data['objecttable'] = 'book';
     }
 
-    public static function get_objectid_mapping() {
-        return array('db' => 'book_chapters', 'restore' => 'book_chapter');
-    }
 }

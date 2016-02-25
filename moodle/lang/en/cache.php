@@ -20,7 +20,7 @@
  * This file is part of Moodle's cache API, affectionately called MUC.
  * It contains the components that are requried in order to use caching.
  *
- * @package    core_cache
+ * @package    core
  * @category   cache
  * @copyright  2012 Sam Hemelryk
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -37,25 +37,23 @@ $string['caching'] = 'Caching';
 $string['cacheadmin'] = 'Cache administration';
 $string['cacheconfig'] = 'Configuration';
 $string['cachedef_calendar_subscriptions'] = 'Calendar subscriptions';
-$string['cachedef_capabilities'] = 'System capabilities list';
 $string['cachedef_config'] = 'Config settings';
 $string['cachedef_coursecat'] = 'Course categories lists for particular user';
 $string['cachedef_coursecatrecords'] = 'Course categories records';
 $string['cachedef_coursecontacts'] = 'List of course contacts';
 $string['cachedef_coursecattree'] = 'Course categories tree';
 $string['cachedef_coursemodinfo'] = 'Accumulated information about modules and sections for each course';
-$string['cachedef_completion'] = 'Activity completion status';
 $string['cachedef_databasemeta'] = 'Database meta information';
 $string['cachedef_eventinvalidation'] = 'Event invalidation';
 $string['cachedef_externalbadges'] = 'External badges for particular user';
 $string['cachedef_suspended_userids'] = 'List of suspended users per course';
+$string['cachedef_gradecondition'] = 'User grades cached for evaluating conditional availability';
 $string['cachedef_groupdata'] = 'Course group information';
 $string['cachedef_htmlpurifier'] = 'HTML Purifier - cleaned content';
 $string['cachedef_langmenu'] = 'List of available languages';
 $string['cachedef_locking'] = 'Locking';
 $string['cachedef_navigation_expandcourse'] = 'Navigation expandable courses';
 $string['cachedef_observers'] = 'Event observers';
-$string['cachedef_plugin_functions'] = 'Plugins available callbacks';
 $string['cachedef_plugin_manager'] = 'Plugin info manager';
 $string['cachedef_questiondata'] = 'Question definitions';
 $string['cachedef_repositories'] = 'Repositories instances data';
@@ -101,8 +99,9 @@ $string['invalidlock'] = 'Invalid lock';
 $string['invalidplugin'] = 'Invalid plugin';
 $string['invalidstore'] = 'Invalid cache store provided';
 $string['lockdefault'] = 'Default';
-$string['locking'] = 'Locking';
-$string['locking_help'] = 'Locking is a mechanism that restricts access to cached data to one process at a time to prevent the data from being overwritten. The locking method determines how the lock is acquired and checked.';
+$string['lockingmeans'] = 'Locking mechanism';
+$string['lockmethod'] = 'Lock method';
+$string['lockmethod_help'] = 'This is the method used for locking when required of this store.';
 $string['lockname'] = 'Name';
 $string['locknamedesc'] = 'The name must be unique and can only consist of the characters: a-zA-Z_';
 $string['locknamenotunique'] = 'The name you have selected is not unique. Please select a unique name.';
@@ -171,8 +170,3 @@ $string['unsupportedmode'] = 'Unsupported mode';
 $string['untestable'] = 'Untestable';
 $string['userinputsharingkey'] = 'Custom key for sharing';
 $string['userinputsharingkey_help'] = 'Enter your own private key here. When you set up other stores on other sites you wish to share data with make sure you set the exact same key there.';
-
-// Deprecated since 2.9.
-$string['lockingmeans'] = 'Locking mechanism';
-$string['lockmethod'] = 'Lock method';
-$string['lockmethod_help'] = 'This is the method used for locking when required of this store.';

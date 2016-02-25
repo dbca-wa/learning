@@ -228,7 +228,7 @@ abstract class wiki_markup_parser extends generic_parser {
                 }
                 break;
             default:
-                continue 2;
+                continue;
             }
             $number = "$currentsection[0]";
             if (!empty($currentsection[1])) {
@@ -237,9 +237,7 @@ abstract class wiki_markup_parser extends generic_parser {
                     $number .= ".$currentsection[2]";
                 }
             }
-            $toc .= parser_utils::h('p', $number . ". " .
-               parser_utils::h('a', str_replace(array('[[', ']]'), '', $header[1]), array('href' => "#toc-$i")),
-               array('class' => 'wiki-toc-section-' . $header[0] . " wiki-toc-section"));
+            $toc .= parser_utils::h('p', $number . ". " . parser_utils::h('a', $header[1], array('href' => "#toc-$i")), array('class' => 'wiki-toc-section-' . $header[0] . " wiki-toc-section"));
             $i++;
         }
 

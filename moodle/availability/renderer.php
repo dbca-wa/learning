@@ -40,25 +40,22 @@ class core_availability_renderer extends plugin_renderer_base {
      *
      * This function will not be called unless there are at least two messages.
      *
-     * @param core_availability_multiple_messages $renderable Multiple messages
+     * @param bool $root True if this is a root-level list for an activity
+     * @param bool $andoperator True if the messages are being combined as AND
+     * @param bool $roothidden True if the root level should use 'hidden' message
+     * @param array $messages Messages to render
      * @return string Combined HTML
      */
-    public function render_core_availability_multiple_messages(
-            core_availability_multiple_messages $renderable) {
+    public function multiple_messages($root, $andoperator, $roothidden, array $messages) {
         // Get initial message.
-        $out = get_string('list_' . ($renderable->root ? 'root_' : '') .
-                ($renderable->andoperator ? 'and' : 'or') . ($renderable->treehidden ? '_hidden' : ''),
+        $out = get_string('list_' . ($root ? 'root_' : '') .
+                ($andoperator ? 'and' : 'or') . ($roothidden ? '_hidden' : ''),
                 'availability');
 
         // Make the list.
         $out .= html_writer::start_tag('ul');
-        foreach ($renderable->items as $item) {
-            if (is_string($item)) {
-                $str = $item;
-            } else {
-                $str = $this->render($item);
-            }
-            $out .= html_writer::tag('li', $str);
+        foreach ($messages as $message) {
+            $out .= html_writer::tag('li', $message);
         }
         $out .= html_writer::end_tag('ul');
         return $out;

@@ -386,10 +386,6 @@ class assign_submission_status implements renderable {
     public $maxattempts = -1;
     /** @var string gradingstatus */
     public $gradingstatus = '';
-    /** @var bool preventsubmissionnotingroup */
-    public $preventsubmissionnotingroup = 0;
-    /** @var array usergroups */
-    public $usergroups = array();
 
 
     /**
@@ -423,8 +419,6 @@ class assign_submission_status implements renderable {
      * @param string $attemptreopenmethod - The method of reopening student attempts.
      * @param int $maxattempts - How many attempts can a student make?
      * @param string $gradingstatus - The submission status (ie. Graded, Not Released etc).
-     * @param bool $preventsubmissionnotingroup - Prevent submission if user is not in a group
-     * @param array $usergroups - Array containing all groups the user is assigned to
      */
     public function __construct($allowsubmissionsfromdate,
                                 $alwaysshowdescription,
@@ -453,9 +447,7 @@ class assign_submission_status implements renderable {
                                 $gradingcontrollerpreview,
                                 $attemptreopenmethod,
                                 $maxattempts,
-                                $gradingstatus,
-                                $preventsubmissionnotingroup,
-                                $usergroups) {
+                                $gradingstatus) {
         $this->allowsubmissionsfromdate = $allowsubmissionsfromdate;
         $this->alwaysshowdescription = $alwaysshowdescription;
         $this->submission = $submission;
@@ -484,8 +476,6 @@ class assign_submission_status implements renderable {
         $this->attemptreopenmethod = $attemptreopenmethod;
         $this->maxattempts = $maxattempts;
         $this->gradingstatus = $gradingstatus;
-        $this->preventsubmissionnotingroup = $preventsubmissionnotingroup;
-        $this->usergroups = $usergroups;
     }
 }
 
@@ -652,8 +642,6 @@ class assign_grading_summary implements renderable {
     public $coursemoduleid = 0;
     /** @var boolean teamsubmission - Are team submissions enabled for this assignment */
     public $teamsubmission = false;
-    /** @var boolean warnofungroupedusers - Do we need to warn people that there are users without groups */
-    public $warnofungroupedusers = false;
 
     /**
      * constructor
@@ -678,8 +666,7 @@ class assign_grading_summary implements renderable {
                                 $duedate,
                                 $coursemoduleid,
                                 $submissionsneedgradingcount,
-                                $teamsubmission,
-                                $warnofungroupedusers) {
+                                $teamsubmission) {
         $this->participantcount = $participantcount;
         $this->submissiondraftsenabled = $submissiondraftsenabled;
         $this->submissiondraftscount = $submissiondraftscount;
@@ -690,7 +677,6 @@ class assign_grading_summary implements renderable {
         $this->coursemoduleid = $coursemoduleid;
         $this->submissionsneedgradingcount = $submissionsneedgradingcount;
         $this->teamsubmission = $teamsubmission;
-        $this->warnofungroupedusers = $warnofungroupedusers;
     }
 }
 
@@ -788,7 +774,7 @@ class assign_files implements renderable {
 
         if (!empty($CFG->enableportfolios)) {
             require_once($CFG->libdir . '/portfoliolib.php');
-            if (count($files) >= 1 && !empty($sid) &&
+            if (count($files) >= 1 &&
                     has_capability('mod/assign:exportownsubmission', $this->context)) {
                 $button = new portfolio_add_button();
                 $callbackparams = array('cmid' => $this->cm->id,
@@ -823,7 +809,6 @@ class assign_files implements renderable {
         foreach ($dir['files'] as $file) {
             $file->portfoliobutton = '';
             if (!empty($CFG->enableportfolios)) {
-                require_once($CFG->libdir . '/portfoliolib.php');
                 $button = new portfolio_add_button();
                 if (has_capability('mod/assign:exportownsubmission', $this->context)) {
                     $portfolioparams = array('cmid' => $this->cm->id, 'fileid' => $file->get_id());

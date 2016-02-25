@@ -118,7 +118,6 @@ if ($update and confirm_sesskey()) {
     $xmlrpcclient = new webservice_xmlrpc_client($serverurl, $registeredhub->token);
     try {
         $result = $xmlrpcclient->call($function, $params);
-        $registrationmanager->update_registeredhub($registeredhub); // To update timemodified.
     } catch (Exception $e) {
         $error = $OUTPUT->notification(get_string('errorregistration', 'hub', $e->getMessage()));
     }
@@ -178,15 +177,10 @@ if (!empty($error)) {
     echo $error;
 }
 
-// Some Moodle.org registration explanation.
+//some Moodle.org resitration explanation
 if ($huburl == HUB_MOODLEORGHUBURL) {
     if (!empty($registeredhub->token)) {
-        if ($registeredhub->timemodified == 0) {
-            $registrationmessage = get_string('pleaserefreshregistrationunknown', 'admin');
-        } else {
-            $lastupdated = userdate($registeredhub->timemodified, get_string('strftimedate', 'langconfig'));
-            $registrationmessage = get_string('pleaserefreshregistration', 'admin', $lastupdated);
-        }
+        $registrationmessage = get_string('pleaserefreshregistration', 'admin');
     } else {
         $registrationmessage = get_string('registrationwarning', 'admin');
     }

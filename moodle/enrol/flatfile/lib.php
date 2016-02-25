@@ -161,6 +161,11 @@ class enrol_flatfile_plugin extends enrol_plugin {
         }
     }
 
+    public function cron() {
+        $trace = new text_progress_trace();
+        $this->sync($trace);
+    }
+
     /**
      * Execute synchronisation.
      * @param progress_trace

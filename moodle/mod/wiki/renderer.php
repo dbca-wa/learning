@@ -349,8 +349,7 @@ class mod_wiki_renderer extends plugin_renderer_base {
                     echo $this->output->container_start('wiki_right');
                     $name = 'uid';
                     $selected = $subwiki->userid;
-                    echo $this->output->single_select($baseurl, $name, $options, $selected, null, null,
-                        array('label' => get_string('user') . ':'));
+                    echo $this->output->single_select($baseurl, $name, $options, $selected, null);
                     echo $this->output->container_end();
                 }
                 return;
@@ -399,8 +398,7 @@ class mod_wiki_renderer extends plugin_renderer_base {
                 echo $this->output->container_start('wiki_right');
                 $name = 'groupanduser';
                 $selected = $subwiki->groupid . '-' . $subwiki->userid;
-                echo $this->output->single_select($baseurl, $name, $options, $selected, null, null,
-                    array('label' => get_string('user') . ':'));
+                echo $this->output->single_select($baseurl, $name, $options, $selected, null);
                 echo $this->output->container_end();
 
                 return;
@@ -437,8 +435,7 @@ class mod_wiki_renderer extends plugin_renderer_base {
                 echo $this->output->container_start('wiki_right');
                 $name = 'groupanduser';
                 $selected = $subwiki->groupid . '-' . $subwiki->userid;
-                echo $this->output->single_select($baseurl, $name, $options, $selected, null, null,
-                    array('label' => get_string('user') . ':'));
+                echo $this->output->single_select($baseurl, $name, $options, $selected, null);
                 echo $this->output->container_end();
 
                 return;

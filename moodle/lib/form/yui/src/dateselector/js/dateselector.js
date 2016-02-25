@@ -118,7 +118,7 @@ M.form.dateselector = {
             ];
 
             // Change the alignment if this is an RTL language.
-            if (window.right_to_left()) {
+            if (right_to_left()) {
                 alignpoints = [
                     Y.WidgetPositionAlign.BR,
                     Y.WidgetPositionAlign.TR

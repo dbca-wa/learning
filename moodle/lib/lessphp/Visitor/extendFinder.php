@@ -12,7 +12,7 @@ class Less_Visitor_extendFinder extends Less_Visitor{
 	public $allExtendsStack;
 	public $foundExtends;
 
-	public function __construct(){
+	function __construct(){
 		$this->contexts = array();
 		$this->allExtendsStack = array(array());
 		parent::__construct();
@@ -21,21 +21,21 @@ class Less_Visitor_extendFinder extends Less_Visitor{
 	/**
 	 * @param Less_Tree_Ruleset $root
 	 */
-    public function run($root){
+	function run($root){
 		$root = $this->visitObj($root);
 		$root->allExtends =& $this->allExtendsStack[0];
 		return $root;
 	}
 
-    public function visitRule($ruleNode, &$visitDeeper ){
+	function visitRule($ruleNode, &$visitDeeper ){
 		$visitDeeper = false;
 	}
 
-    public function visitMixinDefinition( $mixinDefinitionNode, &$visitDeeper ){
+	function visitMixinDefinition( $mixinDefinitionNode, &$visitDeeper ){
 		$visitDeeper = false;
 	}
 
-    public function visitRuleset($rulesetNode){
+	function visitRuleset($rulesetNode){
 
 		if( $rulesetNode->root ){
 			return;
@@ -71,7 +71,7 @@ class Less_Visitor_extendFinder extends Less_Visitor{
 		$this->contexts[] = $rulesetNode->selectors;
 	}
 
-    public function allExtendsStackPush($rulesetNode, $selectorPath, $extend, &$j){
+	function allExtendsStackPush($rulesetNode, $selectorPath, $extend, &$j){
 		$this->foundExtends = true;
 		$extend = clone $extend;
 		$extend->findSelfSelectors( $selectorPath );
@@ -86,27 +86,27 @@ class Less_Visitor_extendFinder extends Less_Visitor{
 	}
 
 
-    public function visitRulesetOut( $rulesetNode ){
+	function visitRulesetOut( $rulesetNode ){
 		if( !is_object($rulesetNode) || !$rulesetNode->root ){
 			array_pop($this->contexts);
 		}
 	}
 
-    public function visitMedia( $mediaNode ){
+	function visitMedia( $mediaNode ){
 		$mediaNode->allExtends = array();
 		$this->allExtendsStack[] =& $mediaNode->allExtends;
 	}
 
-    public function visitMediaOut(){
+	function visitMediaOut(){
 		array_pop($this->allExtendsStack);
 	}
 
-    public function visitDirective( $directiveNode ){
+	function visitDirective( $directiveNode ){
 		$directiveNode->allExtends = array();
 		$this->allExtendsStack[] =& $directiveNode->allExtends;
 	}
 
-    public function visitDirectiveOut(){
+	function visitDirectiveOut(){
 		array_pop($this->allExtendsStack);
 	}
 }

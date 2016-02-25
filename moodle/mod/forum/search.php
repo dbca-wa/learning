@@ -46,9 +46,7 @@ $fromyear = optional_param('fromyear', 0, PARAM_INT);      // Starting date
 $fromhour = optional_param('fromhour', 0, PARAM_INT);      // Starting date
 $fromminute = optional_param('fromminute', 0, PARAM_INT);      // Starting date
 if ($timefromrestrict) {
-    $calendartype = \core_calendar\type_factory::get_calendar_instance();
-    $gregorianfrom = $calendartype->convert_to_gregorian($fromyear, $frommonth, $fromday);
-    $datefrom = make_timestamp($gregorianfrom['year'], $gregorianfrom['month'], $gregorianfrom['day'], $fromhour, $fromminute);
+    $datefrom = make_timestamp($fromyear, $frommonth, $fromday, $fromhour, $fromminute);
 } else {
     $datefrom = optional_param('datefrom', 0, PARAM_INT);      // Starting date
 }
@@ -60,9 +58,7 @@ $toyear = optional_param('toyear', 0, PARAM_INT);      // Ending date
 $tohour = optional_param('tohour', 0, PARAM_INT);      // Ending date
 $tominute = optional_param('tominute', 0, PARAM_INT);      // Ending date
 if ($timetorestrict) {
-    $calendartype = \core_calendar\type_factory::get_calendar_instance();
-    $gregorianto = $calendartype->convert_to_gregorian($toyear, $tomonth, $today);
-    $dateto = make_timestamp($gregorianto['year'], $gregorianto['month'], $gregorianto['day'], $tohour, $tominute);
+    $dateto = make_timestamp($toyear, $tomonth, $today, $tohour, $tominute);
 } else {
     $dateto = optional_param('dateto', 0, PARAM_INT);      // Ending date
 }
@@ -295,11 +291,6 @@ foreach ($posts as $post) {
 
     // Prepare a link to the post in context, to be displayed after the forum post.
     $fulllink = "<a href=\"discuss.php?d=$post->discussion#p$post->id\">".get_string("postincontext", "forum")."</a>";
-
-    // Message is now html format.
-    if ($post->messageformat != FORMAT_HTML) {
-        $post->messageformat = FORMAT_HTML;
-    }
 
     // Now pring the post.
     forum_print_post($post, $discussion, $forum, $cm, $course, false, false, false,

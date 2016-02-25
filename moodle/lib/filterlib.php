@@ -17,9 +17,9 @@
 /**
  * Library functions for managing text filter plugins.
  *
- * @package   core
- * @copyright 1999 onwards Martin Dougiamas  {@link http://moodle.com}
- * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @package    core_filter
+ * @copyright  1999 onwards Martin Dougiamas  {@link http://moodle.com}
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 defined('MOODLE_INTERNAL') || die();
@@ -48,38 +48,34 @@ define('TEXTFILTER_EXCL_SEPARATOR', '-%-');
  *
  * This class is a singleton.
  *
+ * @package    core_filter
  * @copyright  1999 onwards Martin Dougiamas  {@link http://moodle.com}
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class filter_manager {
     /**
-     * @var moodle_text_filter[][] This list of active filters, by context, for filtering content.
-     * An array contextid => ordered array of filter name => filter objects.
+     * @var array This list of active filters, by context, for filtering content.
+     * An array contextid => array of filter objects.
      */
     protected $textfilters = array();
 
     /**
-     * @var moodle_text_filter[][] This list of active filters, by context, for filtering strings.
-     * An array contextid => ordered array of filter name => filter objects.
+     * @var array This list of active filters, by context, for filtering strings.
+     * An array contextid => array of filter objects.
      */
     protected $stringfilters = array();
 
     /** @var array Exploded version of $CFG->stringfilters. */
     protected $stringfilternames = array();
 
-    /** @var filter_manager Holds the singleton instance. */
+    /** @var object Holds the singleton instance. */
     protected static $singletoninstance;
 
-    /**
-     * Constructor. Protected. Use {@link instance()} instead.
-     */
     protected function __construct() {
         $this->stringfilternames = filter_get_string_filters();
     }
 
     /**
-     * Factory method. Use this to get the filter manager.
-     *
      * @return filter_manager the singleton instance.
      */
     public static function instance() {
@@ -116,7 +112,7 @@ class filter_manager {
     /**
      * Load all the filters required by this context.
      *
-     * @param context $context the context.
+     * @param object $context
      */
     protected function load_filters($context) {
         $filters = filter_get_active_in_context($context);
@@ -127,9 +123,9 @@ class filter_manager {
             if (is_null($filter)) {
                 continue;
             }
-            $this->textfilters[$context->id][$filtername] = $filter;
+            $this->textfilters[$context->id][] = $filter;
             if (in_array($filtername, $this->stringfilternames)) {
-                $this->stringfilters[$context->id][$filtername] = $filter;
+                $this->stringfilters[$context->id][] = $filter;
             }
         }
     }
@@ -160,29 +156,23 @@ class filter_manager {
     }
 
     /**
-     * Apply a list of filters to some content.
+     * @todo Document this function
      * @param string $text
-     * @param moodle_text_filter[] $filterchain array filter name => filter object.
-     * @param array $options options passed to the filters.
-     * @param array $skipfilters of filter names. Any filters that should not be applied to this text.
+     * @param array $filterchain
+     * @param array $options options passed to the filters
      * @return string $text
      */
-    protected function apply_filter_chain($text, $filterchain, array $options = array(),
-            array $skipfilters = null) {
-        foreach ($filterchain as $filtername => $filter) {
-            if ($skipfilters !== null && in_array($filtername, $skipfilters)) {
-                continue;
-            }
+    protected function apply_filter_chain($text, $filterchain, array $options = array()) {
+        foreach ($filterchain as $filter) {
             $text = $filter->filter($text, $options);
         }
         return $text;
     }
 
     /**
-     * Get all the filters that apply to a given context for calls to format_text.
-     *
-     * @param context $context
-     * @return moodle_text_filter[] A text filter
+     * @todo Document this function
+     * @param object $context
+     * @return object A text filter
      */
     protected function get_text_filters($context) {
         if (!isset($this->textfilters[$context->id])) {
@@ -192,10 +182,9 @@ class filter_manager {
     }
 
     /**
-     * Get all the filters that apply to a given context for calls to format_string.
-     *
-     * @param context $context the context.
-     * @return moodle_text_filter[] A text filter
+     * @todo Document this function
+     * @param object $context
+     * @return object A string filter
      */
     protected function get_string_filters($context) {
         if (!isset($this->stringfilters[$context->id])) {
@@ -208,14 +197,12 @@ class filter_manager {
      * Filter some text
      *
      * @param string $text The text to filter
-     * @param context $context the context.
+     * @param object $context
      * @param array $options options passed to the filters
-     * @param array $skipfilters of filter names. Any filters that should not be applied to this text.
      * @return string resulting text
      */
-    public function filter_text($text, $context, array $options = array(),
-            array $skipfilters = null) {
-        $text = $this->apply_filter_chain($text, $this->get_text_filters($context), $options, $skipfilters);
+    public function filter_text($text, $context, array $options = array()) {
+        $text = $this->apply_filter_chain($text, $this->get_text_filters($context), $options);
         // <nolink> tags removed for XHTML compatibility
         $text = str_replace(array('<nolink>', '</nolink>'), '', $text);
         return $text;
@@ -225,7 +212,7 @@ class filter_manager {
      * Filter a piece of string
      *
      * @param string $string The text to filter
-     * @param context $context the context.
+     * @param context $context
      * @return string resulting string
      */
     public function filter_string($string, $context) {
@@ -233,15 +220,11 @@ class filter_manager {
     }
 
     /**
-     * @deprecated Since Moodle 3.0 MDL-50491. This was used by the old text filtering system, but no more.
-     * @todo MDL-50632 This will be deleted in Moodle 3.2.
-     * @param context $context the context.
-     * @return string the hash.
+     * @todo Document this function
+     * @param context $context
+     * @return object A string filter
      */
     public function text_filtering_hash($context) {
-        debugging('filter_manager::text_filtering_hash() is deprecated. ' .
-                'It was an internal part of the old format_text caching, ' .
-                'and should not have been called from other code.', DEBUG_DEVELOPER);
         $filters = $this->get_text_filters($context);
         $hashes = array();
         foreach ($filters as $filter) {
@@ -274,49 +257,57 @@ class filter_manager {
     }
 }
 
-
 /**
  * Filter manager subclass that does nothing. Having this simplifies the logic
  * of format_text, etc.
  *
- * @copyright 1999 onwards Martin Dougiamas  {@link http://moodle.com}
- * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @todo Document this class
+ *
+ * @package    core_filter
+ * @copyright  1999 onwards Martin Dougiamas  {@link http://moodle.com}
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class null_filter_manager {
-    public function filter_text($text, $context, array $options = array(),
-            array $skipfilters = null) {
+    /**
+     * @return string
+     */
+    public function filter_text($text, $context, $options) {
         return $text;
     }
 
+    /**
+     * @return string
+     */
     public function filter_string($string, $context) {
         return $string;
     }
 
+    /**
+     * @return string
+     */
     public function text_filtering_hash() {
-        debugging('filter_manager::text_filtering_hash() is deprecated. ' .
-                'It was an internal part of the old format_text caching, ' .
-                'and should not have been called from other code.', DEBUG_DEVELOPER);
         return '';
     }
 }
 
-
 /**
- * Filter manager subclass that tracks how much work it does.
+ * Filter manager subclass that tacks how much work it does.
  *
- * @copyright 1999 onwards Martin Dougiamas  {@link http://moodle.com}
- * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @todo Document this class
+ *
+ * @package    core_filter
+ * @copyright  1999 onwards Martin Dougiamas  {@link http://moodle.com}
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class performance_measuring_filter_manager extends filter_manager {
-    /** @var int number of filter objects created. */
+    /** @var int */
     protected $filterscreated = 0;
-
-    /** @var int number of calls to filter_text. */
     protected $textsfiltered = 0;
-
-    /** @var int number of calls to filter_string. */
     protected $stringsfiltered = 0;
 
+    /**
+     * Unloads all filters and other cached information
+     */
     protected function unload_all_filters() {
         parent::unload_all_filters();
         $this->filterscreated = 0;
@@ -324,25 +315,40 @@ class performance_measuring_filter_manager extends filter_manager {
         $this->stringsfiltered = 0;
     }
 
+    /**
+     * @param string $filtername
+     * @param object $context
+     * @param mixed $localconfig
+     * @return mixed
+     */
     protected function make_filter_object($filtername, $context, $localconfig) {
         $this->filterscreated++;
         return parent::make_filter_object($filtername, $context, $localconfig);
     }
 
-    public function filter_text($text, $context, array $options = array(),
-            array $skipfilters = null) {
+    /**
+     * @param string $text
+     * @param object $context
+     * @param array $options options passed to the filters
+     * @return mixed
+     */
+    public function filter_text($text, $context, array $options = array()) {
         $this->textsfiltered++;
-        return parent::filter_text($text, $context, $options, $skipfilters);
+        return parent::filter_text($text, $context, $options);
     }
 
+    /**
+     * @param string $string
+     * @param object $context
+     * @return mixed
+     */
     public function filter_string($string, $context) {
         $this->stringsfiltered++;
         return parent::filter_string($string, $context);
     }
 
     /**
-     * Return performance information, in the form required by {@link get_performance_info()}.
-     * @return array the performance info.
+     * @return array
      */
     public function get_performance_summary() {
         return array(array(
@@ -359,18 +365,17 @@ class performance_measuring_filter_manager extends filter_manager {
     }
 }
 
-
 /**
  * Base class for text filters. You just need to override this class and
  * implement the filter method.
  *
- * @copyright 1999 onwards Martin Dougiamas  {@link http://moodle.com}
- * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @package    core_filter
+ * @copyright  1999 onwards Martin Dougiamas  {@link http://moodle.com}
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 abstract class moodle_text_filter {
-    /** @var context The context we are in. */
+    /** @var object The context we are in. */
     protected $context;
-
     /** @var array Any local configuration for this filter in this context. */
     protected $localconfig;
 
@@ -386,14 +391,9 @@ abstract class moodle_text_filter {
     }
 
     /**
-     * @deprecated Since Moodle 3.0 MDL-50491. This was used by the old text filtering system, but no more.
-     * @todo MDL-50632 This will be deleted in Moodle 3.2.
      * @return string The class name of the current class
      */
     public function hash() {
-        debugging('moodle_text_filter::hash() is deprecated. ' .
-                'It was an internal part of the old format_text caching, ' .
-                'and should not have been called from other code.', DEBUG_DEVELOPER);
         return __CLASS__;
     }
 
@@ -425,14 +425,15 @@ abstract class moodle_text_filter {
     public abstract function filter($text, array $options = array());
 }
 
-
 /**
  * This is just a little object to define a phrase and some instructions
  * for how to process it.  Filters can create an array of these to pass
  * to the filter_phrases function below.
  *
- * @copyright 1999 onwards Martin Dougiamas  {@link http://moodle.com}
- * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @package    core
+ * @subpackage filter
+ * @copyright  1999 onwards Martin Dougiamas  {@link http://moodle.com}
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  **/
 class filterobject {
     /** @var string */
@@ -463,7 +464,7 @@ class filterobject {
      * @param bool $fullmatch
      * @param mixed $replacementphrase
      */
-    public function __construct($phrase, $hreftagbegin = '<span class="highlight">',
+    function filterobject($phrase, $hreftagbegin = '<span class="highlight">',
                                    $hreftagend = '</span>',
                                    $casesensitive = false,
                                    $fullmatch = false,

@@ -85,7 +85,7 @@ define('URL_MATCH_EXACT', 2);
  * Add quotes to HTML characters.
  *
  * Returns $var with HTML characters (like "<", ">", etc.) properly quoted.
- * Related function {@link p()} simply prints the output of this function.
+ * This function is very similar to {@link p()}
  *
  * @param string $var the string potentially containing HTML characters
  * @return string
@@ -106,14 +106,17 @@ function s($var) {
  * Add quotes to HTML characters.
  *
  * Prints $var with HTML characters (like "<", ">", etc.) properly quoted.
- * This function simply calls & displays {@link s()}.
+ * This function simply calls {@link s()}
  * @see s()
  *
+ * @todo Remove obsolete param $obsolete if not used anywhere
+ *
  * @param string $var the string potentially containing HTML characters
+ * @param boolean $obsolete no longer used.
  * @return string
  */
-function p($var) {
-    echo s($var);
+function p($var, $obsolete = false) {
+    echo s($var, $obsolete);
 }
 
 /**
@@ -155,6 +158,24 @@ function strip_querystring($url) {
         return substr($url, 0, $commapos);
     } else {
         return $url;
+    }
+}
+
+/**
+ * Returns the URL of the HTTP_REFERER, less the querystring portion if required.
+ *
+ * @param boolean $stripquery if true, also removes the query part of the url.
+ * @return string The resulting referer or empty string.
+ */
+function get_referer($stripquery=true) {
+    if (isset($_SERVER['HTTP_REFERER'])) {
+        if ($stripquery) {
+            return strip_querystring($_SERVER['HTTP_REFERER']);
+        } else {
+            return $_SERVER['HTTP_REFERER'];
+        }
+    } else {
+        return '';
     }
 }
 
@@ -218,6 +239,9 @@ function is_https() {
 
 /**
  * Returns the cleaned local URL of the HTTP_REFERER less the URL query string parameters if required.
+ *
+ * If you need to get an external referer, you can do so by using clean_param($_SERVER['HTTP_REFERER'], PARAM_URL)
+ * and optionally stripquerystring().
  *
  * @param bool $stripquery if true, also removes the query part of the url.
  * @return string The resulting referer or empty string.
@@ -683,7 +707,7 @@ class moodle_url {
     public function set_slashargument($path, $parameter = 'file', $supported = null) {
         global $CFG;
         if (is_null($supported)) {
-            $supported = !empty($CFG->slasharguments);
+            $supported = $CFG->slasharguments;
         }
 
         if ($supported) {
@@ -1205,13 +1229,8 @@ function format_text($text, $format = FORMAT_MOODLE, $options = null, $courseidd
     if ($options['filter']) {
         $filtermanager = filter_manager::instance();
         $filtermanager->setup_page_for_filters($PAGE, $context); // Setup global stuff filters may have.
-        $filteroptions = array(
-            'originalformat' => $format,
-            'noclean' => $options['noclean'],
-        );
     } else {
         $filtermanager = new null_filter_manager();
-        $filteroptions = array();
     }
 
     switch ($format) {
@@ -1219,7 +1238,10 @@ function format_text($text, $format = FORMAT_MOODLE, $options = null, $courseidd
             if (!$options['noclean']) {
                 $text = clean_text($text, FORMAT_HTML, $options);
             }
-            $text = $filtermanager->filter_text($text, $context, $filteroptions);
+            $text = $filtermanager->filter_text($text, $context, array(
+                'originalformat' => FORMAT_HTML,
+                'noclean' => $options['noclean']
+            ));
             break;
 
         case FORMAT_PLAIN:
@@ -1242,7 +1264,10 @@ function format_text($text, $format = FORMAT_MOODLE, $options = null, $courseidd
             if (!$options['noclean']) {
                 $text = clean_text($text, FORMAT_HTML, $options);
             }
-            $text = $filtermanager->filter_text($text, $context, $filteroptions);
+            $text = $filtermanager->filter_text($text, $context, array(
+                'originalformat' => FORMAT_MARKDOWN,
+                'noclean' => $options['noclean']
+            ));
             break;
 
         default:  // FORMAT_MOODLE or anything else.
@@ -1250,7 +1275,10 @@ function format_text($text, $format = FORMAT_MOODLE, $options = null, $courseidd
             if (!$options['noclean']) {
                 $text = clean_text($text, FORMAT_HTML, $options);
             }
-            $text = $filtermanager->filter_text($text, $context, $filteroptions);
+            $text = $filtermanager->filter_text($text, $context, array(
+                'originalformat' => $format,
+                'noclean' => $options['noclean']
+            ));
             break;
     }
     if ($options['filter']) {
@@ -1354,9 +1382,6 @@ function format_string($string, $striplinks = true, $options = null) {
     } else if (is_numeric($options['context'])) {
         $options['context'] = context::instance_by_id($options['context']);
     }
-    if (!isset($options['filter'])) {
-        $options['filter'] = true;
-    }
 
     if (!$options['context']) {
         // We did not find any context? weird.
@@ -1375,7 +1400,7 @@ function format_string($string, $striplinks = true, $options = null) {
     // Regular expression moved to its own method for easier unit testing.
     $string = replace_ampersands_not_followed_by_entity($string);
 
-    if (!empty($CFG->filterall) && $options['filter']) {
+    if (!empty($CFG->filterall)) {
         $filtermanager = filter_manager::instance();
         $filtermanager->setup_page_for_filters($PAGE, $options['context']); // Setup global stuff filters may have.
         $string = $filtermanager->filter_string($string, $options['context']);
@@ -1850,20 +1875,13 @@ function markdown_to_html($text) {
  * @return string plain text equivalent of the HTML.
  */
 function html_to_text($html, $width = 75, $dolinks = true) {
+
     global $CFG;
 
-    require_once($CFG->libdir .'/html2text/lib.php');
+    require_once($CFG->libdir .'/html2text.php');
 
-    $options = array(
-        'width'     => $width,
-        'do_links'  => 'table',
-    );
-
-    if (empty($dolinks)) {
-        $options['do_links'] = 'none';
-    }
-    $h2t = new core_html2text($html, $options);
-    $result = $h2t->getText();
+    $h2t = new html2text($html, false, $dolinks, $width);
+    $result = $h2t->get_text();
 
     return $result;
 }
@@ -3575,7 +3593,7 @@ function get_formatted_help_string($identifier, $component, $ajax = false, $a = 
 /**
  * Renders a hidden password field so that browsers won't incorrectly autofill password fields with the user's password.
  *
- * @since 3.0
+ * @since 2.8.8
  * @return string HTML to prevent password autofill
  */
 function prevent_form_autofill_password() {

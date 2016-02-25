@@ -176,6 +176,11 @@ class manager {
      * @return array
      */
     protected static function get_observing_classes(\core\event\base $event) {
+        $observers = array('\core\event\base', '\\'.get_class($event));
+        return $observers;
+
+        // Note if we ever decide to observe events by parent class name use the following code instead.
+        /*
         $classname = get_class($event);
         $observers = array('\\'.$classname);
         while ($classname = get_parent_class($classname)) {
@@ -184,6 +189,7 @@ class manager {
         $observers = array_reverse($observers, false);
 
         return $observers;
+        */
     }
 
     /**

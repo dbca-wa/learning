@@ -42,9 +42,10 @@ class plagiarism_plugin {
     }
 
     /**
-     * hook to allow plagiarism specific information to be displayed beside a submission
+     * hook to allow plagiarism specific information to be displayed beside a submission 
      * @param array  $linkarraycontains all relevant information for the plugin to generate a link
      * @return string
+     * 
      */
     public function get_links($linkarray) {
         return '';

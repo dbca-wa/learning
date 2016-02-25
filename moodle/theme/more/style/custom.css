@@ -1,6 +1,6 @@
 /* Custom CSS
 -------------------------*/
-div.logo {
+a.logo {
     background: url([[setting:logo]]) no-repeat 0 0;
     display: block;
     float: left;
@@ -10,7 +10,7 @@ div.logo {
     width: 100%;
 }
 
-.dir-rtl div.logo {
+.dir-rtl a.logo {
     background: url([[setting:logo]]) no-repeat 100% 0;
     display: block;
     float: right;

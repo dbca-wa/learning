@@ -17,7 +17,8 @@
 /**
  * Handlers for tool_messageinbound.
  *
- * @package    tool_messageinbound
+ * @package    task
+ * @category   tool_messageinbound
  * @copyright  2014 Andrew Nicols
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */

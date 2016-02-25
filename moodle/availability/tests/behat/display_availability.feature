@@ -41,7 +41,6 @@ Feature: display_availability
   Scenario: Activity availability display
     # Set up.
     Given I log in as "teacher1"
-    And I am on site homepage
     And I follow "Course 1"
     And I turn editing mode on
 
@@ -104,7 +103,6 @@ Feature: display_availability
     # Change to student view.
     Given I log out
     And I log in as "student1"
-    And I am on site homepage
     And I follow "Course 1"
 
     # Page 1 display still there but should be dimmed and not a link.
@@ -125,7 +123,6 @@ Feature: display_availability
   Scenario: Section availability display
     # Set up.
     Given I log in as "teacher1"
-    And I am on site homepage
     And I follow "Course 1"
     And I turn editing mode on
 
@@ -149,7 +146,7 @@ Feature: display_availability
     And I press "Save changes"
 
     # This is necessary because otherwise it fails in Chrome, see MDL-44959
-    And I am on site homepage
+    And I am on homepage
     And I follow "Course 1"
 
     # Add Pages to each section.
@@ -174,7 +171,6 @@ Feature: display_availability
     # Change to student view.
     Given I log out
     And I log in as "student1"
-    And I am on site homepage
     And I follow "Course 1"
 
     # The contents of both sections should be hidden.

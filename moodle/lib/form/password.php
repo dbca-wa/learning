@@ -49,7 +49,7 @@ class MoodleQuickForm_password extends HTML_QuickForm_password{
      * @param mixed $attributes (optional) Either a typical HTML attribute string
      *              or an associative array
      */
-    public function __construct($elementName=null, $elementLabel=null, $attributes=null) {
+    function MoodleQuickForm_password($elementName=null, $elementLabel=null, $attributes=null) {
         global $CFG;
         // no standard mform in moodle should allow autocomplete of passwords
         if (empty($attributes)) {
@@ -62,14 +62,7 @@ class MoodleQuickForm_password extends HTML_QuickForm_password{
             }
         }
 
-        parent::__construct($elementName, $elementLabel, $attributes);
-    }
-
-    /**
-     * Old syntax of class constructor for backward compatibility.
-     */
-    public function MoodleQuickForm_password($elementName=null, $elementLabel=null, $attributes=null) {
-        self::__construct($elementName, $elementLabel, $attributes);
+        parent::HTML_QuickForm_password($elementName, $elementLabel, $attributes);
     }
 
     /**

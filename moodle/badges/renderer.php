@@ -479,9 +479,9 @@ class core_badges_renderer extends plugin_renderer_base {
                     get_string('downloadall'), 'POST', array('class' => 'activatebadge'));
 
         // Local badges.
-        $localhtml = html_writer::start_tag('div', array('id' => 'issued-badge-table', 'class' => 'generalbox'));
+        $localhtml = html_writer::start_tag('fieldset', array('id' => 'issued-badge-table', 'class' => 'generalbox'));
         $heading = get_string('localbadges', 'badges', format_string($SITE->fullname, true, array('context' => context_system::instance())));
-        $localhtml .= $this->output->heading_with_help($heading, 'localbadgesh', 'badges');
+        $localhtml .= html_writer::tag('legend', $this->output->heading_with_help($heading, 'localbadgesh', 'badges'));
         if ($badges->badges) {
             $downloadbutton = $this->output->heading(get_string('badgesearned', 'badges', $badges->totalcount), 4, 'activatebadge');
             $downloadbutton .= $downloadall;
@@ -491,13 +491,13 @@ class core_badges_renderer extends plugin_renderer_base {
         } else {
             $localhtml .= $searchform . $this->output->notification(get_string('nobadges', 'badges'));
         }
-        $localhtml .= html_writer::end_tag('div');
+        $localhtml .= html_writer::end_tag('fieldset');
 
         // External badges.
         $externalhtml = "";
         if (!empty($CFG->badges_allowexternalbackpack)) {
-            $externalhtml .= html_writer::start_tag('div', array('class' => 'generalbox'));
-            $externalhtml .= $this->output->heading_with_help(get_string('externalbadges', 'badges'), 'externalbadges', 'badges');
+            $externalhtml .= html_writer::start_tag('fieldset', array('class' => 'generalbox'));
+            $externalhtml .= html_writer::tag('legend', $this->output->heading_with_help(get_string('externalbadges', 'badges'), 'externalbadges', 'badges'));
             if (!is_null($backpack)) {
                 if ($backpack->totalcollections == 0) {
                     $externalhtml .= get_string('nobackpackcollections', 'badges', $backpack);
@@ -513,7 +513,7 @@ class core_badges_renderer extends plugin_renderer_base {
                 $externalhtml .= get_string('externalconnectto', 'badges', $mybackpack->out());
             }
 
-            $externalhtml .= html_writer::end_tag('div');
+            $externalhtml .= html_writer::end_tag('fieldset');
         }
 
         return $localhtml . $externalhtml;
@@ -704,86 +704,41 @@ class core_badges_renderer extends plugin_renderer_base {
         return null;
     }
 
-    /**
-     * Returns information about badge criteria in a list form.
-     *
-     * @param badge $badge Badge objects
-     * @param string $short Indicates whether to print full info about this badge
-     * @return string $output HTML string to output
-     */
+    // Prints badge criteria.
     public function print_badge_criteria(badge $badge, $short = '') {
+        $output = "";
         $agg = $badge->get_aggregation_methods();
         if (empty($badge->criteria)) {
             return get_string('nocriteria', 'badges');
-        }
-
-        $overalldescr = '';
-        $overall = $badge->criteria[BADGE_CRITERIA_TYPE_OVERALL];
-        if (!$short && !empty($overall->description)) {
-            $overalldescr = $this->output->box(
-                format_text($overall->description, $overall->descriptionformat, array('context' => $badge->get_context())),
-                'criteria-description'
-                );
-        }
-
-        // Get the condition string.
-        if (count($badge->criteria) == 2) {
-            $condition = '';
+        } else if (count($badge->criteria) == 2) {
             if (!$short) {
-                $condition = get_string('criteria_descr', 'badges');
+                $output .= get_string('criteria_descr', 'badges');
             }
         } else {
-            $condition = get_string('criteria_descr_' . $short . BADGE_CRITERIA_TYPE_OVERALL, 'badges',
-                                      core_text::strtoupper($agg[$badge->get_aggregation_method()]));
+            $output .= get_string('criteria_descr_' . $short . BADGE_CRITERIA_TYPE_OVERALL, 'badges',
+                                    core_text::strtoupper($agg[$badge->get_aggregation_method()]));
         }
-
-        unset($badge->criteria[BADGE_CRITERIA_TYPE_OVERALL]);
-
         $items = array();
-        // If only one criterion left, make sure its description goe to the top.
-        if (count($badge->criteria) == 1) {
-            $c = reset($badge->criteria);
-            if (!$short && !empty($c->description)) {
-                $overalldescr = $this->output->box(
-                    format_text($c->description, $c->descriptionformat, array('context' => $badge->get_context())),
-                    'criteria-description'
-                    );
-            }
+        unset($badge->criteria[BADGE_CRITERIA_TYPE_OVERALL]);
+        foreach ($badge->criteria as $type => $c) {
             if (count($c->params) == 1) {
-                $items[] = get_string('criteria_descr_single_' . $short . $c->criteriatype , 'badges') .
-                           $c->get_details($short);
+                $items[] = get_string('criteria_descr_single_' . $short . $type , 'badges') . $c->get_details($short);
             } else {
-                $items[] = get_string('criteria_descr_' . $short . $c->criteriatype, 'badges',
-                        core_text::strtoupper($agg[$badge->get_aggregation_method($c->criteriatype)])) .
-                        $c->get_details($short);
-            }
-        } else {
-            foreach ($badge->criteria as $type => $c) {
-                $criteriadescr = '';
-                if (!$short && !empty($c->description)) {
-                    $criteriadescr = $this->output->box(
-                        format_text($c->description, $c->descriptionformat, array('context' => $badge->get_context())),
-                        'criteria-description'
-                        );
-                }
-                if (count($c->params) == 1) {
-                    $items[] = get_string('criteria_descr_single_' . $short . $type , 'badges') .
-                               $c->get_details($short) . $criteriadescr;
-                } else {
-                    $items[] = get_string('criteria_descr_' . $short . $type , 'badges',
-                            core_text::strtoupper($agg[$badge->get_aggregation_method($type)])) .
-                            $c->get_details($short) .
-                            $criteriadescr;
-                }
+                $items[] = get_string('criteria_descr_' . $short . $type , 'badges',
+                        core_text::strtoupper($agg[$badge->get_aggregation_method($type)])) . $c->get_details($short);
             }
         }
-
-        return $overalldescr . $condition . html_writer::alist($items, array(), 'ul');;
+        $output .= html_writer::alist($items, array(), 'ul');
+        return $output;
     }
 
     // Prints criteria actions for badge editing.
     public function print_criteria_actions(badge $badge) {
-        $output = '';
+        $table = new html_table();
+        $table->attributes = array('class' => 'boxaligncenter', 'id' => 'badgeactions');
+        $table->colclasses = array('activatebadge');
+
+        $actions = array();
         if (!$badge->is_active() && !$badge->is_locked()) {
             $accepted = $badge->get_accepted_criteria();
             $potential = array_diff($accepted, array_keys($badge->criteria));
@@ -794,21 +749,16 @@ class core_badges_renderer extends plugin_renderer_base {
                         $select[$p] = get_string('criteria_' . $p, 'badges');
                     }
                 }
-                $output .= $this->output->single_select(
-                    new moodle_url('/badges/criteria_settings.php', array('badgeid' => $badge->id, 'add' => true)),
-                    'type',
-                    $select,
-                    '',
-                    array('' => 'choosedots'),
-                    null,
-                    array('label' => get_string('addbadgecriteria', 'badges'))
-                );
+                $actions[] = get_string('addbadgecriteria', 'badges');
+                $actions[] = $this->output->single_select(new moodle_url('/badges/criteria_settings.php',
+                        array('badgeid' => $badge->id, 'add' => true)), 'type', $select);
             } else {
-                $output .= $this->output->box(get_string('nothingtoadd', 'badges'), 'clearfix');
+                $actions[] = $this->output->box(get_string('nothingtoadd', 'badges'), 'clearfix');
             }
         }
 
-        return $output;
+        $table->data[] = $actions;
+        return html_writer::table($table);
     }
 
     // Renders a table with users who have earned the badge.

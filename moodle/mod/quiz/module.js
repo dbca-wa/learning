@@ -99,7 +99,7 @@ M.mod_quiz.timer = {
         // If time has expired, set the hidden form field that says time has expired and submit
         if (secondsleft < 0) {
             M.mod_quiz.timer.stop(null);
-            Y.one('#quiz-time-left').setContent(M.util.get_string('timesup', 'quiz'));
+            Y.one('#quiz-time-left').setContent(M.str.quiz.timesup);
             var input = Y.one('input[name=timeup]');
             input.set('value', 1);
             var form = input.ancestor('form');
@@ -141,7 +141,7 @@ M.mod_quiz.nav.update_flag_state = function(attemptid, questionid, newstate) {
     navlink.removeClass('flagged');
     if (newstate == 1) {
         navlink.addClass('flagged');
-        navlink.one('.accesshide .flagstate').setContent(M.util.get_string('flagged', 'question'));
+        navlink.one('.accesshide .flagstate').setContent(M.str.question.flagged);
     } else {
         navlink.one('.accesshide .flagstate').setContent('');
     }
@@ -256,7 +256,7 @@ M.mod_quiz.secure_window = {
     },
 
     prevent: function(e) {
-        alert(M.util.get_string('functiondisabledbysecuremode', 'quiz'));
+        alert(M.str.quiz.functiondisabledbysecuremode);
         e.halt();
     },
 

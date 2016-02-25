@@ -1,8 +1,6 @@
 <?php
 /*
-@version   v5.20.1  06-Dec-2015
-@copyright (c) 2000-2013 John Lim. All rights reserved.
-@copyright (c) 2014      Damien Regad, Mark Newnham and the ADOdb community
+V5.19  23-Apr-2014  (c) 2000-2014 John Lim. All rights reserved.
   Released under both BSD license and Lesser GPL library license.
   Whenever there is any discrepancy between the two licenses,
   the BSD license will take precedence.
@@ -28,7 +26,7 @@ class ADODB_oci8quercus extends ADODB_oci8 {
 	var $databaseType = 'oci8quercus';
 	var $dataProvider = 'oci8';
 
-	function __construct()
+	function ADODB_oci8quercus()
 	{
 	}
 
@@ -42,9 +40,9 @@ class ADORecordset_oci8quercus extends ADORecordset_oci8 {
 
 	var $databaseType = 'oci8quercus';
 
-	function __construct($queryID,$mode=false)
+	function ADORecordset_oci8quercus($queryID,$mode=false)
 	{
-		parent::__construct($queryID,$mode);
+		$this->ADORecordset_oci8($queryID,$mode);
 	}
 
 	function _FetchField($fieldOffset = -1)

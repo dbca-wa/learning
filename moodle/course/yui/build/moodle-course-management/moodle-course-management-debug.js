@@ -439,7 +439,7 @@ Console.prototype = {
     handleBulkSortByaction : function(e) {
         var sortcategoryby = this.get('categorylisting').one('#menuresortcategoriesby'),
             sortcourseby = this.get('categorylisting').one('#menuresortcoursesby'),
-            sortbybutton = this.get('categorylisting').one('input[name="bulksort"]'),
+            sortbybutton = this.get('categorylisting').one('input[name="bulksort"]');
             sortby = e;
 
         if (!sortby) {
@@ -567,7 +567,7 @@ Console.prototype = {
                 complete : callback
             },
             context : context,
-            data : args,
+            data : build_querystring(args),
             'arguments' : args
         });
     }
@@ -997,8 +997,7 @@ Item.prototype = {
         } else {
             // Aha it succeeded but this is the top item in the list. Pagination is in play!
             // Refresh to update the state of things.
-            Y.log(this.get('itemname') + ' cannot be moved up as its the top item on this page.',
-                    'info', 'moodle-course-management');
+            Y.log(this.get('itemname')+' cannot be moved up as its the top item on this page.', 'info', 'moodle-course-management');
             window.location.reload();
         }
     },
@@ -1066,8 +1065,7 @@ Item.prototype = {
         } else {
             // Aha it succeeded but this is the bottom item in the list. Pagination is in play!
             // Refresh to update the state of things.
-            Y.log(this.get('itemname') + ' cannot be moved down as its the top item on this page.',
-                    'info', 'moodle-course-management');
+            Y.log(this.get('itemname')+' cannot be moved down as its the top item on this page.', 'info', 'moodle-course-management');
             window.location.reload();
         }
     },
@@ -1461,8 +1459,7 @@ Category.prototype = {
             Y.log('Course was moved but the course listing could not be found to reflect this', 'warn', 'moodle-course-management');
             return false;
         }
-        Y.log('Moved the course (' + course.getName() + ') into this category (' + this.getName() + ')',
-            'debug', 'moodle-course-management');
+        Y.log('Moved the course ('+course.getName()+') into this category ('+this.getName()+')', 'info', 'moodle-course-management');
         this.highlight();
         if (course) {
             if (outcome.paginationtotals) {

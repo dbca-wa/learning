@@ -1,4 +1,5 @@
 <?php
+
 // This file is part of Moodle - http://moodle.org/
 //
 // Moodle is free software: you can redistribute it and/or modify
@@ -88,7 +89,6 @@ class mod_forum_external_testcase extends externallib_advanced_testcase {
         $discussion1 = self::getDataGenerator()->get_plugin_generator('mod_forum')->create_discussion($record);
         // Expect one discussion.
         $forum1->numdiscussions = 1;
-        $forum1->cancreatediscussions = true;
 
         $record = new stdClass();
         $record->course = $course2->id;
@@ -98,8 +98,6 @@ class mod_forum_external_testcase extends externallib_advanced_testcase {
         $discussion3 = self::getDataGenerator()->get_plugin_generator('mod_forum')->create_discussion($record);
         // Expect two discussions.
         $forum2->numdiscussions = 2;
-        // Default limited role, no create discussion capability enabled.
-        $forum2->cancreatediscussions = false;
 
         // Check the forum was correctly created.
         $this->assertEquals(2, $DB->count_records_select('forum', 'id = :forum1 OR id = :forum2',
@@ -158,13 +156,6 @@ class mod_forum_external_testcase extends externallib_advanced_testcase {
         $forums = external_api::clean_returnvalue(mod_forum_external::get_forums_by_courses_returns(), $forums);
         $this->assertCount(1, $forums);
         $this->assertEquals($expectedforums[$forum1->id], $forums[0]);
-        $this->assertTrue($forums[0]['cancreatediscussions']);
-
-        // Change the type of the forum, the user shouldn't be able to add discussions.
-        $DB->set_field('forum', 'type', 'news', array('id' => $forum1->id));
-        $forums = mod_forum_external::get_forums_by_courses();
-        $forums = external_api::clean_returnvalue(mod_forum_external::get_forums_by_courses_returns(), $forums);
-        $this->assertFalse($forums[0]['cancreatediscussions']);
 
         // Call for the second course we unenrolled the user from.
         $forums = mod_forum_external::get_forums_by_courses(array($course2->id));
@@ -383,7 +374,7 @@ class mod_forum_external_testcase extends externallib_advanced_testcase {
      * Test get forum posts
      */
     public function test_mod_forum_get_forum_discussion_posts() {
-        global $CFG, $PAGE;
+        global $CFG;
 
         $this->resetAfterTest(true);
 
@@ -451,7 +442,9 @@ class mod_forum_external_testcase extends externallib_advanced_testcase {
             'warnings' => array(),
         );
 
-        // User pictures are initially empty, we should get the links once the external function is called.
+        // Empty picture since it's a user deleted (user3).
+        $userpictureurl = '';
+
         $expectedposts['posts'][] = array(
             'id' => $discussion1reply2->id,
             'discussion' => $discussion1reply2->discussion,
@@ -472,8 +465,11 @@ class mod_forum_external_testcase extends externallib_advanced_testcase {
             'canreply' => true,
             'postread' => false,
             'userfullname' => fullname($user3),
-            'userpictureurl' => ''
+            'userpictureurl' => $userpictureurl
         );
+
+        $userpictureurl = moodle_url::make_webservice_pluginfile_url(
+            context_user::instance($discussion1reply1->userid)->id, 'user', 'icon', null, '/', 'f1')->out(false);
 
         $expectedposts['posts'][] = array(
             'id' => $discussion1reply1->id,
@@ -495,22 +491,13 @@ class mod_forum_external_testcase extends externallib_advanced_testcase {
             'canreply' => true,
             'postread' => false,
             'userfullname' => fullname($user2),
-            'userpictureurl' => ''
+            'userpictureurl' => $userpictureurl
         );
 
         // Test a discussion with two additional posts (total 3 posts).
         $posts = mod_forum_external::get_forum_discussion_posts($discussion1->id, 'modified', 'DESC');
         $posts = external_api::clean_returnvalue(mod_forum_external::get_forum_discussion_posts_returns(), $posts);
         $this->assertEquals(3, count($posts['posts']));
-
-        // Generate here the pictures because we need to wait to the external function to init the theme.
-        $userpicture = new user_picture($user3);
-        $userpicture->size = 1; // Size f1.
-        $expectedposts['posts'][0]['userpictureurl'] = $userpicture->get_url($PAGE)->out(false);
-
-        $userpicture = new user_picture($user2);
-        $userpicture->size = 1; // Size f1.
-        $expectedposts['posts'][1]['userpictureurl'] = $userpicture->get_url($PAGE)->out(false);
 
         // Unset the initial discussion post.
         array_pop($posts['posts']);
@@ -593,7 +580,7 @@ class mod_forum_external_testcase extends externallib_advanced_testcase {
      * Test get forum discussions paginated
      */
     public function test_mod_forum_get_forum_discussions_paginated() {
-        global $USER, $CFG, $DB, $PAGE;
+        global $USER, $CFG, $DB;
 
         $this->resetAfterTest(true);
 
@@ -667,8 +654,12 @@ class mod_forum_external_testcase extends externallib_advanced_testcase {
         // Create what we expect to be returned when querying the forums.
 
         $post1 = $DB->get_record('forum_posts', array('id' => $discussion1->firstpost), '*', MUST_EXIST);
+        $userpictureurl = moodle_url::make_webservice_pluginfile_url(
+                    context_user::instance($user1->id)->id, 'user', 'icon', null, '/', 'f1');
 
-        // User pictures are initially empty, we should get the links once the external function is called.
+        // We expect an empty URL since we deleted the user4.
+        $usermodifiedpictureurl = '';
+
         $expecteddiscussions = array(
                 'id' => $discussion1->firstpost,
                 'name' => $discussion1->name,
@@ -692,8 +683,8 @@ class mod_forum_external_testcase extends externallib_advanced_testcase {
                 'mailnow' => $post1->mailnow,
                 'userfullname' => fullname($user1),
                 'usermodifiedfullname' => fullname($user4),
-                'userpictureurl' => '',
-                'usermodifiedpictureurl' => '',
+                'userpictureurl' => $userpictureurl,
+                'usermodifiedpictureurl' => $usermodifiedpictureurl,
                 'numreplies' => 3,
                 'numunread' => 0
             );
@@ -705,16 +696,6 @@ class mod_forum_external_testcase extends externallib_advanced_testcase {
             'discussions' => array($expecteddiscussions),
             'warnings' => array()
         );
-
-        // Wait the theme to be loaded (the external_api call does that) to generate the user profiles.
-        $userpicture = new user_picture($user1);
-        $userpicture->size = 1; // Size f1.
-        $expectedreturn['discussions'][0]['userpictureurl'] = $userpicture->get_url($PAGE)->out(false);
-
-        $userpicture = new user_picture($user4);
-        $userpicture->size = 1; // Size f1.
-        $expectedreturn['discussions'][0]['usermodifiedpictureurl'] = $userpicture->get_url($PAGE)->out(false);
-
         $this->assertEquals($expectedreturn, $discussions);
 
         // Call without required view discussion capability.
@@ -781,233 +762,4 @@ class mod_forum_external_testcase extends externallib_advanced_testcase {
         $this->assertCount(0, $discussions['warnings']);
 
     }
-
-    /**
-     * Test add_discussion_post
-     */
-    public function test_add_discussion_post() {
-        global $CFG;
-
-        $this->resetAfterTest(true);
-
-        $user = self::getDataGenerator()->create_user();
-        $otheruser = self::getDataGenerator()->create_user();
-
-        self::setAdminUser();
-
-        // Create course to add the module.
-        $course = self::getDataGenerator()->create_course(array('groupmode' => VISIBLEGROUPS, 'groupmodeforce' => 0));
-
-        // Forum with tracking off.
-        $record = new stdClass();
-        $record->course = $course->id;
-        $forum = self::getDataGenerator()->create_module('forum', $record);
-        $cm = get_coursemodule_from_id('forum', $forum->cmid, 0, false, MUST_EXIST);
-        $forumcontext = context_module::instance($forum->cmid);
-
-        // Add discussions to the forums.
-        $record = new stdClass();
-        $record->course = $course->id;
-        $record->userid = $user->id;
-        $record->forum = $forum->id;
-        $discussion = self::getDataGenerator()->get_plugin_generator('mod_forum')->create_discussion($record);
-
-        // Try to post (user not enrolled).
-        self::setUser($user);
-        try {
-            mod_forum_external::add_discussion_post($discussion->firstpost, 'some subject', 'some text here...');
-            $this->fail('Exception expected due to being unenrolled from the course.');
-        } catch (moodle_exception $e) {
-            $this->assertEquals('requireloginerror', $e->errorcode);
-        }
-
-        $this->getDataGenerator()->enrol_user($user->id, $course->id);
-        $this->getDataGenerator()->enrol_user($otheruser->id, $course->id);
-
-        $post = mod_forum_external::add_discussion_post($discussion->firstpost, 'some subject', 'some text here...');
-        $post = external_api::clean_returnvalue(mod_forum_external::add_discussion_post_returns(), $post);
-
-        $posts = mod_forum_external::get_forum_discussion_posts($discussion->id);
-        $posts = external_api::clean_returnvalue(mod_forum_external::get_forum_discussion_posts_returns(), $posts);
-        // We receive the discussion and the post.
-        $this->assertEquals(2, count($posts['posts']));
-
-        $tested = false;
-        foreach ($posts['posts'] as $postel) {
-            if ($post['postid'] == $postel['id']) {
-                $this->assertEquals('some subject', $postel['subject']);
-                $this->assertEquals('some text here...', $postel['message']);
-                $tested = true;
-            }
-        }
-        $this->assertTrue($tested);
-
-        // Check not posting in groups the user is not member of.
-        $group = $this->getDataGenerator()->create_group(array('courseid' => $course->id));
-        groups_add_member($group->id, $otheruser->id);
-
-        $forum = self::getDataGenerator()->create_module('forum', $record, array('groupmode' => SEPARATEGROUPS));
-        $record->forum = $forum->id;
-        $record->userid = $otheruser->id;
-        $record->groupid = $group->id;
-        $discussion = self::getDataGenerator()->get_plugin_generator('mod_forum')->create_discussion($record);
-
-        try {
-            mod_forum_external::add_discussion_post($discussion->firstpost, 'some subject', 'some text here...');
-            $this->fail('Exception expected due to invalid permissions for posting.');
-        } catch (moodle_exception $e) {
-            // Expect debugging since we are switching context, and this is something WS_SERVER mode don't like.
-            $this->assertDebuggingCalled();
-            $this->assertEquals('nopostforum', $e->errorcode);
-        }
-
-    }
-
-    /*
-     * Test add_discussion. A basic test since all the API functions are already covered by unit tests.
-     */
-    public function test_add_discussion() {
-
-        $this->resetAfterTest(true);
-
-        // Create courses to add the modules.
-        $course = self::getDataGenerator()->create_course();
-
-        $user1 = self::getDataGenerator()->create_user();
-        $user2 = self::getDataGenerator()->create_user();
-
-        // First forum with tracking off.
-        $record = new stdClass();
-        $record->course = $course->id;
-        $record->type = 'news';
-        $forum = self::getDataGenerator()->create_module('forum', $record);
-
-        self::setUser($user1);
-        $this->getDataGenerator()->enrol_user($user1->id, $course->id);
-
-        try {
-            mod_forum_external::add_discussion($forum->id, 'the subject', 'some text here...');
-            $this->fail('Exception expected due to invalid permissions.');
-        } catch (moodle_exception $e) {
-            $this->assertEquals('cannotcreatediscussion', $e->errorcode);
-        }
-
-        self::setAdminUser();
-        $discussion = mod_forum_external::add_discussion($forum->id, 'the subject', 'some text here...');
-        $discussion = external_api::clean_returnvalue(mod_forum_external::add_discussion_returns(), $discussion);
-
-        $discussions = mod_forum_external::get_forum_discussions_paginated($forum->id);
-        $discussions = external_api::clean_returnvalue(mod_forum_external::get_forum_discussions_paginated_returns(), $discussions);
-
-        $this->assertCount(1, $discussions['discussions']);
-        $this->assertCount(0, $discussions['warnings']);
-
-        $this->assertEquals($discussion['discussionid'], $discussions['discussions'][0]['discussion']);
-        $this->assertEquals(-1, $discussions['discussions'][0]['groupid']);
-        $this->assertEquals('the subject', $discussions['discussions'][0]['subject']);
-        $this->assertEquals('some text here...', $discussions['discussions'][0]['message']);
-
-    }
-
-    /**
-     * Test adding discussions in a course with gorups
-     */
-    public function test_add_discussion_in_course_with_groups() {
-        global $CFG;
-
-        $this->resetAfterTest(true);
-
-        // Create course to add the module.
-        $course = self::getDataGenerator()->create_course(array('groupmode' => VISIBLEGROUPS, 'groupmodeforce' => 0));
-        $user = self::getDataGenerator()->create_user();
-        $this->getDataGenerator()->enrol_user($user->id, $course->id);
-
-        // Forum forcing separate gropus.
-        $record = new stdClass();
-        $record->course = $course->id;
-        $forum = self::getDataGenerator()->create_module('forum', $record, array('groupmode' => SEPARATEGROUPS));
-
-        // Try to post (user not enrolled).
-        self::setUser($user);
-
-        // The user is not enroled in any group, try to post in a forum with separate groups.
-        try {
-            mod_forum_external::add_discussion($forum->id, 'the subject', 'some text here...');
-            $this->fail('Exception expected due to invalid group permissions.');
-        } catch (moodle_exception $e) {
-            $this->assertEquals('cannotcreatediscussion', $e->errorcode);
-        }
-
-        try {
-            mod_forum_external::add_discussion($forum->id, 'the subject', 'some text here...', 0);
-            $this->fail('Exception expected due to invalid group permissions.');
-        } catch (moodle_exception $e) {
-            $this->assertEquals('cannotcreatediscussion', $e->errorcode);
-        }
-
-        // Create a group.
-        $group = $this->getDataGenerator()->create_group(array('courseid' => $course->id));
-
-        // Try to post in a group the user is not enrolled.
-        try {
-            mod_forum_external::add_discussion($forum->id, 'the subject', 'some text here...', $group->id);
-            $this->fail('Exception expected due to invalid group permissions.');
-        } catch (moodle_exception $e) {
-            $this->assertEquals('cannotcreatediscussion', $e->errorcode);
-        }
-
-        // Add the user to a group.
-        groups_add_member($group->id, $user->id);
-
-        // Try to post in a group the user is not enrolled.
-        try {
-            mod_forum_external::add_discussion($forum->id, 'the subject', 'some text here...', $group->id + 1);
-            $this->fail('Exception expected due to invalid group.');
-        } catch (moodle_exception $e) {
-            $this->assertEquals('cannotcreatediscussion', $e->errorcode);
-        }
-
-        // Nost add the discussion using a valid group.
-        $discussion = mod_forum_external::add_discussion($forum->id, 'the subject', 'some text here...', $group->id);
-        $discussion = external_api::clean_returnvalue(mod_forum_external::add_discussion_returns(), $discussion);
-
-        $discussions = mod_forum_external::get_forum_discussions_paginated($forum->id);
-        $discussions = external_api::clean_returnvalue(mod_forum_external::get_forum_discussions_paginated_returns(), $discussions);
-
-        $this->assertCount(1, $discussions['discussions']);
-        $this->assertCount(0, $discussions['warnings']);
-        $this->assertEquals($discussion['discussionid'], $discussions['discussions'][0]['discussion']);
-        $this->assertEquals($group->id, $discussions['discussions'][0]['groupid']);
-
-        // Now add a discussions without indicating a group. The function should guess the correct group.
-        $discussion = mod_forum_external::add_discussion($forum->id, 'the subject', 'some text here...');
-        $discussion = external_api::clean_returnvalue(mod_forum_external::add_discussion_returns(), $discussion);
-
-        $discussions = mod_forum_external::get_forum_discussions_paginated($forum->id);
-        $discussions = external_api::clean_returnvalue(mod_forum_external::get_forum_discussions_paginated_returns(), $discussions);
-
-        $this->assertCount(2, $discussions['discussions']);
-        $this->assertCount(0, $discussions['warnings']);
-        $this->assertEquals($group->id, $discussions['discussions'][0]['groupid']);
-        $this->assertEquals($group->id, $discussions['discussions'][1]['groupid']);
-
-        // Enrol the same user in other group.
-        $group2 = $this->getDataGenerator()->create_group(array('courseid' => $course->id));
-        groups_add_member($group2->id, $user->id);
-
-        // Now add a discussions without indicating a group. The function should guess the correct group (the first one).
-        $discussion = mod_forum_external::add_discussion($forum->id, 'the subject', 'some text here...');
-        $discussion = external_api::clean_returnvalue(mod_forum_external::add_discussion_returns(), $discussion);
-
-        $discussions = mod_forum_external::get_forum_discussions_paginated($forum->id);
-        $discussions = external_api::clean_returnvalue(mod_forum_external::get_forum_discussions_paginated_returns(), $discussions);
-
-        $this->assertCount(3, $discussions['discussions']);
-        $this->assertCount(0, $discussions['warnings']);
-        $this->assertEquals($group->id, $discussions['discussions'][0]['groupid']);
-        $this->assertEquals($group->id, $discussions['discussions'][1]['groupid']);
-        $this->assertEquals($group->id, $discussions['discussions'][2]['groupid']);
-
-    }
-
 }

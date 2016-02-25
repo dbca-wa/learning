@@ -54,15 +54,8 @@ class MoodleQuickForm_textarea extends HTML_QuickForm_textarea{
      * @param string $elementLabel (optional) text field label
      * @param string $attributes (optional) Either a typical HTML attribute string or an associative array
      */
-    public function __construct($elementName=null, $elementLabel=null, $attributes=null) {
-        parent::__construct($elementName, $elementLabel, $attributes);
-    }
-
-    /**
-     * Old syntax of class constructor for backward compatibility.
-     */
-    public function MoodleQuickForm_textarea($elementName=null, $elementLabel=null, $attributes=null) {
-        self::__construct($elementName, $elementLabel, $attributes);
+    function MoodleQuickForm_textarea($elementName=null, $elementLabel=null, $attributes=null) {
+        parent::HTML_QuickForm_textarea($elementName, $elementLabel, $attributes);
     }
 
     /**

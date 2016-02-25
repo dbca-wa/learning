@@ -26,7 +26,6 @@ require('../config.php');
 require_once("$CFG->libdir/formslib.php");
 
 $id = required_param('id', PARAM_INT);
-$returnurl = optional_param('returnurl', 0, PARAM_LOCALURL);
 
 if (!isloggedin()) {
     $referer = get_local_referer();
@@ -105,14 +104,8 @@ foreach ($forms as $form) {
 if (!$forms) {
     if (isguestuser()) {
         notice(get_string('noguestaccess', 'enrol'), get_login_url());
-    } else if ($returnurl) {
-        notice(get_string('notenrollable', 'enrol'), $returnurl);
     } else {
-        $url = get_local_referer(false);
-        if (empty($url)) {
-            $url = new moodle_url('/index.php');
-        }
-        notice(get_string('notenrollable', 'enrol'), $url);
+        notice(get_string('notenrollable', 'enrol'), "$CFG->wwwroot/index.php");
     }
 }
 

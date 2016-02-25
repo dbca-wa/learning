@@ -41,6 +41,7 @@
 #page-mod-scorm-player #scormnav {
     position: absolute;
     right: 5px;
+    top: 0px;
     text-align: center;
     top: 3px;
     width: 100%;

@@ -37,8 +37,7 @@ var CSS = {
         TOOLBAR: 'editor_atto_toolbar',
         WRAPPER: 'editor_atto',
         HIGHLIGHT: 'highlight'
-    },
-    rangy = window.rangy;
+    };
 
 /**
  * The Atto editor for Moodle.
@@ -825,9 +824,7 @@ EditorAutosave.prototype = {
         var draftid = -1,
             form,
             optiontype = null,
-            options = this.get('filepickeroptions'),
-            params,
-            url;
+            options = this.get('filepickeroptions');
 
         if (!this.get('autosaveEnabled')) {
             // Autosave disabled for this instance.
@@ -861,7 +858,6 @@ EditorAutosave.prototype = {
             context: this,
             on: {
                 success: function(id,o) {
-                    var response_json;
                     if (typeof o.responseText !== "undefined" && o.responseText !== "") {
                         response_json = JSON.parse(o.responseText);
 
@@ -878,8 +874,7 @@ EditorAutosave.prototype = {
                         }
 
                         if (response_json.error || typeof response_json.result === 'undefined') {
-                            this.showMessage(M.util.get_string('errortextrecovery', 'editor_atto'),
-                                    NOTIFY_WARNING, RECOVER_MESSAGE_TIMEOUT);
+                            this.showMessage(M.util.get_string('errortextrecovery', 'editor_atto'), NOTIFY_WARNING, RECOVER_MESSAGE_TIMEOUT);
                         } else if (response_json.result !== this.textarea.get('value') &&
                                 response_json.result !== '') {
                             this.recoverText(response_json.result);
@@ -888,8 +883,7 @@ EditorAutosave.prototype = {
                     }
                 },
                 failure: function() {
-                    this.showMessage(M.util.get_string('errortextrecovery', 'editor_atto'),
-                            NOTIFY_WARNING, RECOVER_MESSAGE_TIMEOUT);
+                    this.showMessage(M.util.get_string('errortextrecovery', 'editor_atto'), NOTIFY_WARNING, RECOVER_MESSAGE_TIMEOUT);
                 }
             }
         });
@@ -915,8 +909,8 @@ EditorAutosave.prototype = {
      */
     resetAutosave: function() {
         // Make an ajax request to reset the autosaved text.
-        var url = M.cfg.wwwroot + this.get('autosaveAjaxScript');
-        var params = {
+        url = M.cfg.wwwroot + this.get('autosaveAjaxScript');
+        params = {
             sesskey: M.cfg.sesskey,
             contextid: this.get('contextid'),
             action: 'reset',
@@ -947,8 +941,7 @@ EditorAutosave.prototype = {
         this.updateOriginal();
         this.lastText = text;
 
-        this.showMessage(M.util.get_string('textrecovered', 'editor_atto'),
-                NOTIFY_INFO, RECOVER_MESSAGE_TIMEOUT);
+        this.showMessage(M.util.get_string('textrecovered', 'editor_atto'), NOTIFY_INFO, RECOVER_MESSAGE_TIMEOUT);
 
         return this;
     },
@@ -960,7 +953,6 @@ EditorAutosave.prototype = {
      * @chainable
      */
     saveDraft: function() {
-        var url, params;
         // Only copy the text from the div to the textarea if the textarea is not currently visible.
         if (!this.editor.get('hidden')) {
             this.updateOriginal();
@@ -1000,8 +992,7 @@ EditorAutosave.prototype = {
                         } else {
                             // All working.
                             this.lastText = newText;
-                            this.showMessage(M.util.get_string('autosavesucceeded', 'editor_atto'),
-                                    NOTIFY_INFO, SUCCESS_MESSAGE_TIMEOUT);
+                            this.showMessage(M.util.get_string('autosavesucceeded', 'editor_atto'), NOTIFY_INFO, SUCCESS_MESSAGE_TIMEOUT);
                         }
                     }
                 }
@@ -1801,7 +1792,7 @@ EditorToolbarNav.prototype = {
             if (this._tabFocus.hasAttribute('disabled') || this._tabFocus.hasAttribute('hidden')
                     || this._tabFocus.ancestor('.atto_group').hasAttribute('hidden')) {
                 // Find first available button.
-                var button = this._findFirstFocusable(this.toolbar.all('button'), this._tabFocus, -1);
+                button = this._findFirstFocusable(this.toolbar.all('button'), this._tabFocus, -1);
                 if (button) {
                     if (this._tabFocus.compareTo(document.activeElement)) {
                         // We should also move the focus, because the inaccessible button also has the focus.
@@ -1907,16 +1898,6 @@ EditorSelection.prototype = {
     _focusFromClick: false,
 
     /**
-     * Whether if the last gesturemovestart event target was contained in this editor or not.
-     *
-     * @property _gesturestartededitor
-     * @type Boolean
-     * @default false
-     * @private
-     */
-    _gesturestartededitor: false,
-
-    /**
      * Set up the watchers for selection save and restoration.
      *
      * @method setupSelectionWatchers
@@ -1946,21 +1927,13 @@ EditorSelection.prototype = {
                 Y.soon(Y.bind(this._hasSelectionChanged, this, e));
             }, this);
 
-        Y.one(document.body).on('gesturemovestart', function(e) {
-            if (this._wrapper.contains(e.target._node)) {
-                this._gesturestartededitor = true;
-            } else {
-                this._gesturestartededitor = false;
-            }
-        }, null, this);
-
-        Y.one(document.body).on('gesturemoveend', function(e) {
-            if (!this._gesturestartededitor) {
-                // Ignore the event if movestart target was not contained in the editor.
-                return;
-            }
-            Y.soon(Y.bind(this._hasSelectionChanged, this, e));
-        }, null, this);
+        // To capture both mouseup and touchend events, we need to track the gesturemoveend event in standAlone mode. Without
+        // standAlone, it will only fire if we listened to a gesturemovestart too.
+        this.editor.on('gesturemoveend', function(e) {
+                Y.soon(Y.bind(this._hasSelectionChanged, this, e));
+            }, {
+                standAlone: true
+            }, this);
 
         return this;
     },
@@ -2346,7 +2319,7 @@ EditorStyling.prototype = {
      */
     toggleInlineSelectionClass: function(toggleclasses) {
         var classname = toggleclasses.join(" ");
-        var cssApplier = rangy.createClassApplier(classname, {normalize: true});
+        var cssApplier = rangy.createCssClassApplier(classname, {normalize: true});
 
         cssApplier.toggleSelection();
     },
@@ -2361,7 +2334,7 @@ EditorStyling.prototype = {
      */
     formatSelectionInlineStyle: function(styles) {
         var classname = this.PLACEHOLDER_CLASS;
-        var cssApplier = rangy.createClassApplier(classname, {normalize: true});
+        var cssApplier = rangy.createCssClassApplier(classname, {normalize: true});
 
         cssApplier.applyToSelection();
 

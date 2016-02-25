@@ -33,7 +33,7 @@ Y.extend(MAINTENANCEMODETIMER, Y.Base, {
     updatetimer: function() {
         this.timeleftinsec -= 1;
         if (this.timeleftinsec <= 0) {
-            this.maintenancenode.set('text', M.util.get_string('sitemaintenance', 'admin'));
+            this.maintenancenode.set('text', M.str.admin.sitemaintenance);
         } else {
             var a = {};
             a.sec = this.timeleftinsec % 60;

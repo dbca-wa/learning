@@ -37,10 +37,7 @@ class Less_SourceMap_Generator extends Less_Configurable {
 			'outputSourceFiles'		=> false,
 
 			// base path for filename normalization
-			'sourceMapRootpath'		=> '',
-
-			// base path for filename normalization
-			'sourceMapBasepath'   => ''
+			'sourceMapBasepath'		=> ''
 	);
 
 	/**
@@ -77,7 +74,6 @@ class Less_SourceMap_Generator extends Less_Configurable {
 	 * @var array
 	 */
 	protected $sources = array();
-	protected $source_keys = array();
 
 	/**
 	 * Constructor
@@ -91,9 +87,12 @@ class Less_SourceMap_Generator extends Less_Configurable {
 		$this->encoder = new Less_SourceMap_Base64VLQ();
 
 		$this->SetOptions($options);
-		
-		$this->options['sourceMapRootpath'] = $this->fixWindowsPath($this->options['sourceMapRootpath'], true);
-		$this->options['sourceMapBasepath'] = $this->fixWindowsPath($this->options['sourceMapBasepath'], true);
+
+
+		// fix windows paths
+		if( isset($this->options['sourceMapBasepath']) ){
+			$this->options['sourceMapBasepath'] = str_replace('\\', '/', $this->options['sourceMapBasepath']);
+		}
 	}
 
 	/**
@@ -162,23 +161,16 @@ class Less_SourceMap_Generator extends Less_Configurable {
 	 * @return string
 	 */
 	protected function normalizeFilename($filename){
-
-		$filename = $this->fixWindowsPath($filename);
-
-		$rootpath = $this->getOption('sourceMapRootpath');
+		$filename = str_replace('\\', '/', $filename);
 		$basePath = $this->getOption('sourceMapBasepath');
 
-		// "Trim" the 'sourceMapBasepath' from the output filename.
-		if (strpos($filename, $basePath) === 0) {
-			$filename = substr($filename, strlen($basePath));
+		if( $basePath && ($pos = strpos($filename, $basePath)) !== false ){
+			$filename = substr($filename, $pos + strlen($basePath));
+			if(strpos($filename, '\\') === 0 || strpos($filename, '/') === 0){
+				$filename = substr($filename, 1);
+			}
 		}
-
-		// Remove extra leading path separators.
-		if(strpos($filename, '\\') === 0 || strpos($filename, '/') === 0){
-			$filename = substr($filename, 1);
-		}
-
-		return $rootpath . $filename;
+		return sprintf('%s%s', $this->getOption('sourceMapRootpath'), $filename);
 	}
 
 	/**
@@ -190,17 +182,19 @@ class Less_SourceMap_Generator extends Less_Configurable {
 	 * @param integer $originalColumn The column number in original file
 	 * @param string $sourceFile The original source file
 	 */
-	public function addMapping($generatedLine, $generatedColumn, $originalLine, $originalColumn, $fileInfo ){
-
+	public function addMapping($generatedLine, $generatedColumn, $originalLine, $originalColumn, $sourceFile){
 		$this->mappings[] = array(
 			'generated_line' => $generatedLine,
 			'generated_column' => $generatedColumn,
 			'original_line' => $originalLine,
 			'original_column' => $originalColumn,
-			'source_file' => $fileInfo['currentUri']
+			'source_file' => $sourceFile
 		);
 
-		$this->sources[$fileInfo['currentUri']] = $fileInfo['filename'];
+
+		$norm_file = $this->normalizeFilename($sourceFile);
+
+		$this->sources[$norm_file] = $sourceFile;
 	}
 
 
@@ -234,10 +228,8 @@ class Less_SourceMap_Generator extends Less_Configurable {
 
 
 		// A list of original sources used by the 'mappings' entry.
-		$sourceMap['sources'] = array();
-		foreach($this->sources as $source_uri => $source_filename){
-			$sourceMap['sources'][] = $this->normalizeFilename($source_filename);
-		}
+		$sourceMap['sources'] = array_keys($this->sources);
+
 
 
 		// A list of symbol names used by the 'mappings' entry.
@@ -288,9 +280,6 @@ class Less_SourceMap_Generator extends Less_Configurable {
 			return '';
 		}
 
-		$this->source_keys = array_flip(array_keys($this->sources));
-
-
 		// group mappings by generated line number.
 		$groupedMap = $groupedMapEncoded = array();
 		foreach($this->mappings as $m){
@@ -314,7 +303,7 @@ class Less_SourceMap_Generator extends Less_Configurable {
 
 				// find the index
 				if( $m['source_file'] ){
-					$index = $this->findFileIndex($m['source_file']);
+					$index = $this->findFileIndex($this->normalizeFilename($m['source_file']));
 					if( $index !== false ){
 						$mapEncoded .= $this->encoder->encode($index - $lastOriginalIndex);
 						$lastOriginalIndex = $index;
@@ -344,22 +333,7 @@ class Less_SourceMap_Generator extends Less_Configurable {
 	 * @return integer|false
 	 */
 	protected function findFileIndex($filename){
-		return $this->source_keys[$filename];
-	}
-
-	/**
-	 * fix windows paths
-	 * @param  string $path
-	 * @return string      
-	 */
-	public function fixWindowsPath($path, $addEndSlash = false){
-		$slash = ($addEndSlash) ? '/' : '';
-		if( !empty($path) ){
-			$path = str_replace('\\', '/', $path);
-			$path = rtrim($path,'/') . $slash;
-		}
-
-		return $path;
+		return array_search($filename, array_keys($this->sources));
 	}
 
 }

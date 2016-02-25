@@ -126,16 +126,6 @@ $definitions = array(
         'staticacceleration' => true,
     ),
 
-    // Cache the capabilities list DB table. See get_all_capabilities in accesslib.
-    'capabilities' => array(
-        'mode' => cache_store::MODE_APPLICATION,
-        'simplekeys' => true,
-        'simpledata' => true,
-        'staticacceleration' => true,
-        'staticaccelerationsize' => 1,
-        'ttl' => 3600, // Just in case.
-    ),
-
     // YUI Module cache.
     // This stores the YUI module metadata for Shifted YUI modules in Moodle.
     'yuimodules' => array(
@@ -216,14 +206,12 @@ $definitions = array(
         'simplekeys' => true,
         'simpledata' => true
     ),
-
-    // Used to cache activity completion status.
-    'completion' => array(
+    // Used to cache user grades for conditional availability purposes.
+    'gradecondition' => array(
         'mode' => cache_store::MODE_APPLICATION,
-        'simplekeys' => true,
-        'ttl' => 3600,
         'staticacceleration' => true,
-        'staticaccelerationsize' => 2, // Should be current course and site course.
+        'staticaccelerationsize' => 2, // Should not be required for more than one user at a time.
+        'ttl' => 3600,
     ),
 
     // A simple cache that stores whether a user can expand a course in the navigation.
@@ -243,15 +231,4 @@ $definitions = array(
         'simplekeys' => true,
         'simpledata' => true,
     ),
-
-    // Caches plugins existing functions by function name and file.
-    // Set static acceleration size to 5 to load a few functions.
-    'plugin_functions' => array(
-        'mode' => cache_store::MODE_APPLICATION,
-        'simplekeys' => true,
-        'simpledata' => true,
-        'staticacceleration' => true,
-        'staticaccelerationsize' => 5
-    )
-
 );

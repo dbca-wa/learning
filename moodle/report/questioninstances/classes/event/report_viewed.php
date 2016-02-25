@@ -100,10 +100,5 @@ class report_viewed extends \core\event\base {
             throw new \coding_exception('The \'requestedqtype\' value must be set in other.');
         }
     }
-
-    public static function get_other_mapping() {
-        // Nothing to map.
-        return false;
-    }
 }
 

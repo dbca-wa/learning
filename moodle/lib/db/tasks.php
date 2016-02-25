@@ -159,19 +159,10 @@ $tasks = array(
         'month' => '*'
     ),
     array(
-        'classname' => 'core\task\completion_regular_task',
+        'classname' => 'core\task\completion_cron_task',
         'blocking' => 0,
         'minute' => '*',
         'hour' => '*',
-        'day' => '*',
-        'dayofweek' => '*',
-        'month' => '*'
-    ),
-    array(
-        'classname' => 'core\task\completion_daily_task',
-        'blocking' => 0,
-        'minute' => 'R',
-        'hour' => 'R',
         'day' => '*',
         'dayofweek' => '*',
         'month' => '*'

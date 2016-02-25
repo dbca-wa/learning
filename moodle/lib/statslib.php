@@ -949,7 +949,7 @@ function stats_get_start_from($str) {
             $stores = $manager->get_readers();
             $firstlog = false;
             foreach ($stores as $store) {
-                if ($store instanceof \core\log\sql_internal_table_reader) {
+                if ($store instanceof \core\log\sql_internal_reader) {
                     $logtable = $store->get_internal_log_table_name();
                     if (!$logtable) {
                         continue;
@@ -983,33 +983,42 @@ function stats_get_start_from($str) {
 /**
  * Start of day
  * @param int $time timestamp
- * @return int start of day
+ * @return start of day
  */
 function stats_get_base_daily($time=0) {
+    global $CFG;
+
     if (empty($time)) {
         $time = time();
     }
-
-    core_date::set_default_server_timezone();
-    $time = strtotime(date('d-M-Y', $time));
-
-    return $time;
+    if ($CFG->timezone == 99) {
+        $time = strtotime(date('d-M-Y', $time));
+        return $time;
+    } else {
+        $offset = get_timezone_offset($CFG->timezone);
+        $gtime = $time + $offset;
+        $gtime = intval($gtime / (60*60*24)) * 60*60*24;
+        return $gtime - $offset;
+    }
 }
 
 /**
  * Start of week
  * @param int $time timestamp
- * @return int start of week
+ * @return start of week
  */
 function stats_get_base_weekly($time=0) {
     global $CFG;
 
     $time = stats_get_base_daily($time);
     $startday = $CFG->calendar_startwday;
-
-    core_date::set_default_server_timezone();
-    $thisday = date('w', $time);
-
+    if ($CFG->timezone == 99) {
+        $thisday = date('w', $time);
+    } else {
+        $offset = get_timezone_offset($CFG->timezone);
+        $gtime = $time + $offset;
+        $thisday = gmdate('w', $gtime);
+    }
     if ($thisday > $startday) {
         $time = $time - (($thisday - $startday) * 60*60*24);
     } else if ($thisday < $startday) {
@@ -1021,17 +1030,27 @@ function stats_get_base_weekly($time=0) {
 /**
  * Start of month
  * @param int $time timestamp
- * @return int start of month
+ * @return start of month
  */
 function stats_get_base_monthly($time=0) {
+    global $CFG;
+
     if (empty($time)) {
         $time = time();
     }
+    if ($CFG->timezone == 99) {
+        return strtotime(date('1-M-Y', $time));
 
-    core_date::set_default_server_timezone();
-    $return = strtotime(date('1-M-Y', $time));
-
-    return $return;
+    } else {
+        $time = stats_get_base_daily($time);
+        $offset = get_timezone_offset($CFG->timezone);
+        $gtime = $time + $offset;
+        $day = gmdate('d', $gtime);
+        if ($day == 1) {
+            return $time;
+        }
+        return $gtime - (($day-1) * 60*60*24);
+    }
 }
 
 /**
@@ -1748,7 +1767,7 @@ function stats_temp_table_fill($timestart, $timeend) {
     $manager = get_log_manager();
     $stores = $manager->get_readers();
     foreach ($stores as $store) {
-        if ($store instanceof \core\log\sql_internal_table_reader) {
+        if ($store instanceof \core\log\sql_internal_reader) {
             $logtable = $store->get_internal_log_table_name();
             if (!$logtable) {
                 continue;

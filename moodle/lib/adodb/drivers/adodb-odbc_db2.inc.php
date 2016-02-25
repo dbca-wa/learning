@@ -1,8 +1,6 @@
 <?php
 /*
-@version   v5.20.1  06-Dec-2015
-@copyright (c) 2000-2013 John Lim (jlim#natsoft.com). All rights reserved.
-@copyright (c) 2014      Damien Regad, Mark Newnham and the ADOdb community
+V5.19  23-Apr-2014  (c) 2000-2014 John Lim (jlim#natsoft.com). All rights reserved.
   Released under both BSD license and Lesser GPL library license.
   Whenever there is any discrepancy between the two licenses,
   the BSD license will take precedence.
@@ -112,10 +110,10 @@ class ADODB_ODBC_DB2 extends ADODB_odbc {
 	 var $hasInsertID = true;
 	var $rsPrefix = 'ADORecordset_odbc_';
 
-	function __construct()
+	function ADODB_DB2()
 	{
 		if (strncmp(PHP_OS,'WIN',3) === 0) $this->curmode = SQL_CUR_USE_ODBC;
-		parent::__construct();
+		$this->ADODB_odbc();
 	}
 
 	function IfNull( $field, $ifNull )
@@ -280,7 +278,7 @@ class ADODB_ODBC_DB2 extends ADODB_odbc {
 	}
 
 
-	function SelectLimit($sql, $nrows = -1, $offset = -1, $inputArr = false, $secs2cache = 0)
+	function SelectLimit($sql,$nrows=-1,$offset=-1,$inputArr=false)
 	{
 		$nrows = (integer) $nrows;
 		if ($offset <= 0) {
@@ -306,9 +304,9 @@ class  ADORecordSet_odbc_db2 extends ADORecordSet_odbc {
 
 	var $databaseType = "db2";
 
-	function __construct($id,$mode=false)
+	function ADORecordSet_db2($id,$mode=false)
 	{
-		parent::__construct($id,$mode);
+		$this->ADORecordSet_odbc($id,$mode);
 	}
 
 	function MetaType($t,$len=-1,$fieldobj=false)

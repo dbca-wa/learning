@@ -26,7 +26,7 @@
  * @class annotation
  * @constructor
  */
-var ANNOTATION = function(config) {
+ANNOTATION = function(config) {
     ANNOTATION.superclass.constructor.apply(this, [config]);
 };
 
@@ -170,8 +170,8 @@ Y.extend(ANNOTATION, Y.Base, {
      */
     draw_highlight : function() {
         var bounds,
-            drawingregion = this.editor.get_dialogue_element(SELECTOR.DRAWINGREGION),
-            offsetcanvas = this.editor.get_dialogue_element(SELECTOR.DRAWINGCANVAS).getXY(),
+            drawingregion = Y.one(SELECTOR.DRAWINGREGION),
+            offsetcanvas = Y.one(SELECTOR.DRAWINGCANVAS).getXY(),
             shape;
 
         if (this.editor.currentannotation === this) {
@@ -242,8 +242,7 @@ Y.extend(ANNOTATION, Y.Base, {
      * @param event
      */
     remove : function(e) {
-        var annotations,
-            i;
+        var annotations;
 
         e.preventDefault();
 

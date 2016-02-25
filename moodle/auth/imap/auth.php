@@ -35,16 +35,9 @@ class auth_plugin_imap extends auth_plugin_base {
     /**
      * Constructor.
      */
-    public function __construct() {
+    function auth_plugin_imap() {
         $this->authtype = 'imap';
         $this->config = get_config('auth/imap');
-    }
-
-    /**
-     * Old syntax of class constructor for backward compatibility.
-     */
-    public function auth_plugin_imap() {
-        self::__construct();
     }
 
     /**

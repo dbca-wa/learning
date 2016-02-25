@@ -27,7 +27,7 @@ class Less_Tree_Import extends Less_Tree{
 	public $root;
 	public $type = 'Import';
 
-    public function __construct($path, $features, $options, $index, $currentFileInfo = null ){
+	function __construct($path, $features, $options, $index, $currentFileInfo = null ){
 		$this->options = $options;
 		$this->index = $index;
 		$this->path = $path;
@@ -58,7 +58,7 @@ class Less_Tree_Import extends Less_Tree{
 // ruleset.
 //
 
-    public function accept($visitor){
+	function accept($visitor){
 
 		if( $this->features ){
 			$this->features = $visitor->visitObj($this->features);
@@ -73,7 +73,7 @@ class Less_Tree_Import extends Less_Tree{
     /**
      * @see Less_Tree::genCSS
      */
-    public function genCSS( $output ){
+	function genCSS( $output ){
 		if( $this->css ){
 
 			$output->add( '@import ', $this->currentFileInfo, $this->index );
@@ -87,7 +87,7 @@ class Less_Tree_Import extends Less_Tree{
 		}
 	}
 
-    public function toCSS(){
+	function toCSS(){
 		$features = $this->features ? ' ' . $this->features->toCSS() : '';
 
 		if ($this->css) {
@@ -100,7 +100,7 @@ class Less_Tree_Import extends Less_Tree{
 	/**
 	 * @return string
 	 */
-    public function getPath(){
+	function getPath(){
 		if ($this->path instanceof Less_Tree_Quoted) {
 			$path = $this->path->value;
 			$path = ( isset($this->css) || preg_match('/(\.[a-z]*$)|([\?;].*)$/',$path)) ? $path : $path . '.less';
@@ -114,11 +114,11 @@ class Less_Tree_Import extends Less_Tree{
 		return preg_replace('/[\?#][^\?]*$/','',$path);
 	}
 
-    public function compileForImport( $env ){
+	function compileForImport( $env ){
 		return new Less_Tree_Import( $this->path->compile($env), $this->features, $this->options, $this->index, $this->currentFileInfo);
 	}
 
-    public function compilePath($env) {
+	function compilePath($env) {
 		$path = $this->path->compile($env);
 		$rootpath = '';
 		if( $this->currentFileInfo && $this->currentFileInfo['rootpath'] ){
@@ -142,7 +142,7 @@ class Less_Tree_Import extends Less_Tree{
 		return $path;
 	}
 
-    public function compile( $env ){
+	function compile( $env ){
 
 		$evald = $this->compileForImport($env);
 
@@ -199,7 +199,7 @@ class Less_Tree_Import extends Less_Tree{
 	 *
 	 * @param Less_Tree_Import $evald
 	 */
-    public function PathAndUri(){
+	function PathAndUri(){
 
 		$evald_path = $this->getPath();
 
@@ -231,24 +231,12 @@ class Less_Tree_Import extends Less_Tree{
 						$full_path = $path;
 						return array( $full_path, $uri );
 					}
-				}elseif( !empty($rootpath) ){
-
-
-					if( $rooturi ){
-						if( strpos($evald_path,$rooturi) === 0 ){
-							$evald_path = substr( $evald_path, strlen($rooturi) );
-						}
-					}
-
+				}else{
 					$path = rtrim($rootpath,'/\\').'/'.ltrim($evald_path,'/\\');
 
 					if( file_exists($path) ){
 						$full_path = Less_Environment::normalizePath($path);
 						$uri = Less_Environment::normalizePath(dirname($rooturi.$evald_path));
-						return array( $full_path, $uri );
-					} elseif( file_exists($path.'.less') ){
-						$full_path = Less_Environment::normalizePath($path.'.less');
-						$uri = Less_Environment::normalizePath(dirname($rooturi.$evald_path.'.less'));
 						return array( $full_path, $uri );
 					}
 				}
@@ -262,7 +250,7 @@ class Less_Tree_Import extends Less_Tree{
 	 *
 	 * @return Less_Tree_Media|array
 	 */
-    public function ParseImport( $full_path, $uri, $env ){
+	function ParseImport( $full_path, $uri, $env ){
 
 		$import_env = clone $env;
 		if( (isset($this->options['reference']) && $this->options['reference']) || isset($this->currentFileInfo['reference']) ){
@@ -291,7 +279,7 @@ class Less_Tree_Import extends Less_Tree{
 	 */
 	private function Skip($path, $env){
 
-		$path = Less_Parser::winPath(realpath($path));
+		$path = realpath($path);
 
 		if( $path && Less_Parser::FileParsed($path) ){
 

@@ -299,8 +299,7 @@ class core_enrol_external extends external_api {
         // If any problems are found then exceptions are thrown with helpful error messages
         $params = self::validate_parameters(self::get_users_courses_parameters(), array('userid'=>$userid));
 
-        $courses = enrol_get_users_courses($params['userid'], true, 'id, shortname, fullname, idnumber, visible,
-                   summary, summaryformat, format, showgrades, lang, enablecompletion');
+        $courses = enrol_get_users_courses($params['userid'], true, 'id, shortname, fullname, idnumber, visible');
         $result = array();
 
         foreach ($courses as $course) {
@@ -321,14 +320,7 @@ class core_enrol_external extends external_api {
             $enrolledsql = "SELECT COUNT('x') FROM ($enrolledsqlselect) enrolleduserids";
             $enrolledusercount = $DB->count_records_sql($enrolledsql, $enrolledparams);
 
-            list($course->summary, $course->summaryformat) =
-                external_format_text($course->summary, $course->summaryformat, $context->id, 'course', 'summary', null);
-
-            $result[] = array('id' => $course->id, 'shortname' => $course->shortname, 'fullname' => $course->fullname,
-                'idnumber' => $course->idnumber, 'visible' => $course->visible, 'enrolledusercount' => $enrolledusercount,
-                'summary' => $course->summary, 'summaryformat' => $course->summaryformat, 'format' => $course->format,
-                'showgrades' => $course->showgrades, 'lang' => $course->lang, 'enablecompletion' => $course->enablecompletion
-                );
+            $result[] = array('id'=>$course->id, 'shortname'=>$course->shortname, 'fullname'=>$course->fullname, 'idnumber'=>$course->idnumber,'visible'=>$course->visible, 'enrolledusercount'=>$enrolledusercount);
         }
 
         return $result;
@@ -349,13 +341,6 @@ class core_enrol_external extends external_api {
                     'enrolledusercount' => new external_value(PARAM_INT, 'Number of enrolled users in this course'),
                     'idnumber'  => new external_value(PARAM_RAW, 'id number of course'),
                     'visible'   => new external_value(PARAM_INT, '1 means visible, 0 means hidden course'),
-                    'summary'   => new external_value(PARAM_RAW, 'summary', VALUE_OPTIONAL),
-                    'summaryformat' => new external_format_value('summary', VALUE_OPTIONAL),
-                    'format'    => new external_value(PARAM_PLUGIN, 'course format: weeks, topics, social, site', VALUE_OPTIONAL),
-                    'showgrades' => new external_value(PARAM_BOOL, 'true if grades are shown, otherwise false', VALUE_OPTIONAL),
-                    'lang'      => new external_value(PARAM_LANG, 'forced course language', VALUE_OPTIONAL),
-                    'enablecompletion' => new external_value(PARAM_BOOL, 'true if completion is enabled, otherwise false',
-                                                                VALUE_OPTIONAL)
                 )
             )
         );
@@ -967,15 +952,6 @@ class moodle_enrol_external extends external_api {
     }
 
     /**
-     * Marking the method as deprecated.
-     *
-     * @return bool
-     */
-    public static function get_enrolled_users_is_deprecated() {
-        return true;
-    }
-
-    /**
      * Returns description of method parameters
      *
      * @return external_function_parameters
@@ -1013,14 +989,6 @@ class moodle_enrol_external extends external_api {
         return core_enrol_external::get_users_courses_returns();
     }
 
-    /**
-     * Marking the method as deprecated.
-     *
-     * @return bool
-     */
-    public static function get_users_courses_is_deprecated() {
-        return true;
-    }
 
     /**
      * Returns description of method parameters
@@ -1058,14 +1026,6 @@ class moodle_enrol_external extends external_api {
         return core_role_external::assign_roles_returns();
     }
 
-    /**
-     * Marking the method as deprecated.
-     *
-     * @return bool
-     */
-    public static function role_assign_is_deprecated() {
-        return true;
-    }
 
     /**
      * Returns description of method parameters
@@ -1101,14 +1061,5 @@ class moodle_enrol_external extends external_api {
      */
     public static function role_unassign_returns() {
         return core_role_external::unassign_roles_returns();
-    }
-
-    /**
-     * Marking the method as deprecated.
-     *
-     * @return bool
-     */
-    public static function role_unassign_is_deprecated() {
-        return true;
     }
 }

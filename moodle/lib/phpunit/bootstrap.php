@@ -209,6 +209,8 @@ error_reporting($CFG->debug);
 ini_set('display_errors', '1');
 ini_set('log_errors', '1');
 
+$CFG->noemailever = true; // better not mail anybody from tests, override temporarily if necessary
+
 // some ugly hacks
 $CFG->themerev = 1;
 $CFG->jsrev = 1;

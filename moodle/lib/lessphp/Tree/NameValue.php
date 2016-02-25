@@ -25,7 +25,7 @@ class Less_Tree_NameValue extends Less_Tree{
 		$this->currentFileInfo = $currentFileInfo;
 	}
 
-    public function genCSS( $output ){
+	function genCSS( $output ){
 
 		$output->add(
 			$this->name

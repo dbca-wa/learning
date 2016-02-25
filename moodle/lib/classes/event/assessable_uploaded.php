@@ -77,8 +77,4 @@ abstract class assessable_uploaded extends base {
         }
     }
 
-    public static function get_other_mapping() {
-        // Nothing to map.
-        return false;
-    }
 }

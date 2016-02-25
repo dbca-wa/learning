@@ -173,11 +173,6 @@ $CFG->admin = 'admin';
 // and then restore on the target server.
 //    $CFG->forcedifferentsitecheckingusersonrestore = true;
 //
-// Force the backup system to continue to create backups in the legacy zip
-// format instead of the new tgz format. Does not affect restore, which
-// auto-detects the underlying file format.
-//    $CFG->usezipbackups = true;
-//
 // Prevent stats processing and hide the GUI
 //      $CFG->disablestatsprocessing = true;
 //
@@ -384,7 +379,7 @@ $CFG->admin = 'admin';
 // Localcachedir is intended for server clusters, it does not have to be shared by cluster nodes.
 // The directories must not be accessible via web.
 //
-//     $CFG->tempdir = '/var/www/moodle/temp';        // Directory MUST BE SHARED by all clsuter nodes.
+//     $CFG->tempdir = '/var/www/moodle/temp';        // Files used during one HTTP request only.
 //     $CFG->cachedir = '/var/www/moodle/cache';      // Directory MUST BE SHARED by all cluster nodes, locking required.
 //     $CFG->localcachedir = '/var/local/cache';      // Intended for local node caching.
 //
@@ -447,12 +442,15 @@ $CFG->admin = 'admin';
 //
 //      $CFG->disableupdatenotifications = true;
 //
-// Use the following flag to completely disable the installation of plugins
-// (new plugins, available updates and missing dependencies) and related
-// features (such as cancelling the plugin installation or upgrade) via the
-// server administration web interface.
+// Use the following flag to completely disable the Automatic updates deployment
+// feature and hide it from the server administration UI.
 //
 //      $CFG->disableupdateautodeploy = true;
+//
+// Use the following flag to completely disable the On-click add-on installation
+// feature and hide it from the server administration UI.
+//
+//      $CFG->disableonclickaddoninstall = true;
 //
 // Use the following flag to disable modifications to scheduled tasks
 // whilst still showing the state of tasks.
@@ -509,36 +507,6 @@ $CFG->admin = 'admin';
 // Location for lock files used by the File locking factory. This must exist
 // on a shared file system that supports locking.
 //      $CFG->lock_file_root = $CFG->dataroot . '/lock';
-//
-// Moodle 2.9 allows administrators to customise the list of supported file types.
-// To add a new filetype or override the definition of an existing one, set the
-// customfiletypes variable like this:
-//
-// $CFG->customfiletypes = array(
-//     (object)array(
-//         'extension' => 'frog',
-//         'icon' => 'archive',
-//         'type' => 'application/frog',
-//         'customdescription' => 'Amphibian-related file archive'
-//     )
-// );
-//
-// The extension, icon, and type fields are required. The icon field can refer to
-// any icon inside the pix/f folder. You can also set the customdescription field
-// (shown above) and (for advanced use) the groups, string, and defaulticon fields.
-//
-// Upgrade key
-//
-// If the upgrade key is defined here, then the value must be provided every time
-// the site is being upgraded though the web interface, regardless of whether the
-// administrator is logged in or not. This prevents anonymous access to the upgrade
-// screens where the real authentication and authorization mechanisms can not be
-// relied on.
-//
-// It is strongly recommended to use a value different from your real account
-// password.
-//
-//      $CFG->upgradekey = 'put_some_password-like_value_here';
 //
 //=========================================================================
 // 7. SETTINGS FOR DEVELOPMENT SERVERS - not intended for production use!!!
@@ -729,50 +697,6 @@ $CFG->admin = 'admin';
 // * a screenshot (JavaScript is required for the screenshot functionality, so not all browsers support this option)
 // Example:
 //   $CFG->behat_faildump_path = '/my/path/to/save/failure/dumps';
-//
-// You can specify db, selenium wd_host etc. for behat parallel run by setting following variable.
-// Example:
-//   $CFG->behat_parallel_run = array (
-//       array (
-//           'dbtype' => 'mysqli',
-//           'dblibrary' => 'native',
-//           'dbhost' => 'localhost',
-//           'dbname' => 'moodletest',
-//           'dbuser' => 'moodle',
-//           'dbpass' => 'moodle',
-//           'behat_prefix' => 'mdl_',
-//           'wd_host' => 'http://127.0.0.1:4444/wd/hub',
-//           'behat_wwwroot' => 'http://127.0.0.1/moodle',
-//           'behat_dataroot' => '/home/example/bht_moodledata'
-//       ),
-//   );
-//
-// To change name of behat parallel run site, define BEHAT_PARALLEL_SITE_NAME and parallel run sites will be suffixed
-// with this value
-// Example:
-//   define('BEHAT_PARALLEL_SITE_NAME', 'behatparallelsite');
-//
-// Command line output for parallel behat install is limited to 80 chars, if you are installing more then 4 sites and
-// want to expand output to more then 80 chars, then define BEHAT_MAX_CMD_LINE_OUTPUT
-// Example:
-//   define('BEHAT_MAX_CMD_LINE_OUTPUT', 120);
-//
-// Behat feature files will be distributed randomly between the processes by default. If you have timing file or want
-// to create timing file then define BEHAT_FEATURE_TIMING_FILE with path to timing file. It will be updated for each
-// run with latest time taken to execute feature.
-// Example:
-//   define('BEHAT_FEATURE_TIMING_FILE', '/PATH_TO_TIMING_FILE/timing.json');
-//
-// If you don't have timing file and want some stable distribution of features, then you can use step counts to
-// distribute the features. You can generate step file by executing php admin/tool/behat/cli/util.php --updatesteps
-// this will update step file which is defined by BEHAT_FEATURE_STEP_FILE.
-// Example:
-//   define('BEHAT_FEATURE_STEP_FILE', '/PATH_TO_FEATURE_STEP_COUNT_FILE/stepcount.json');
-//
-// Feature distribution for each process is displayed as histogram. you can disable it by setting
-// BEHAT_DISABLE_HISTOGRAM
-// Example:
-//   define('BEHAT_DISABLE_HISTOGRAM', true);
 //
 //=========================================================================
 // 12. DEVELOPER DATA GENERATOR

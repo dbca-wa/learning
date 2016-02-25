@@ -23,7 +23,7 @@
  */
 
 if (empty($scorm)) {
-    print_error('cannotaccess', 'mod_scorm');
+    error('You cannot call this script in that way');
 }
 if (!isset($currenttab)) {
     $currenttab = '';

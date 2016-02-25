@@ -43,7 +43,6 @@ class repository_s3 extends repository {
      * @param array $options
      */
     public function __construct($repositoryid, $context = SYSCONTEXTID, $options = array()) {
-        global $CFG;
         parent::__construct($repositoryid, $context, $options);
         $this->access_key = get_config('s3', 'access_key');
         $this->secret_key = get_config('s3', 'secret_key');
@@ -53,26 +52,6 @@ class repository_s3 extends repository {
         }
         $this->s = new S3($this->access_key, $this->secret_key, false, $this->endpoint);
         $this->s->setExceptions(true);
-
-        // Port of curl::__construct().
-        if (!empty($CFG->proxyhost)) {
-            if (empty($CFG->proxyport)) {
-                $proxyhost = $CFG->proxyhost;
-            } else {
-                $proxyhost = $CFG->proxyhost . ':' . $CFG->proxyport;
-            }
-            $proxytype = CURLPROXY_HTTP;
-            $proxyuser = null;
-            $proxypass = null;
-            if (!empty($CFG->proxyuser) and !empty($CFG->proxypassword)) {
-                $proxyuser = $CFG->proxyuser;
-                $proxypass = $CFG->proxypassword;
-            }
-            if (!empty($CFG->proxytype) && $CFG->proxytype == 'SOCKS5') {
-                $proxytype = CURLPROXY_SOCKS5;
-            }
-            $this->s->setProxy($proxyhost, $proxyuser, $proxypass, $proxytype);
-        }
     }
 
     /**
@@ -126,13 +105,7 @@ class repository_s3 extends repository {
             try {
                 $buckets = $this->s->listBuckets();
             } catch (S3Exception $e) {
-                throw new moodle_exception(
-                    'errorwhilecommunicatingwith',
-                    'repository',
-                    '',
-                    $this->get_name(),
-                    $e->getMessage()
-                );
+                throw new moodle_exception('errorwhilecommunicatingwith', 'repository', '', $this->get_name());
             }
             foreach ($buckets as $bucket) {
                 $folder = array(
@@ -151,13 +124,7 @@ class repository_s3 extends repository {
             try {
                 $contents = $this->s->getBucket($bucket, $uri, null, null, '/', true);
             } catch (S3Exception $e) {
-                throw new moodle_exception(
-                    'errorwhilecommunicatingwith',
-                    'repository',
-                    '',
-                    $this->get_name(),
-                    $e->getMessage()
-                );
+                throw new moodle_exception('errorwhilecommunicatingwith', 'repository', '', $this->get_name());
             }
             foreach ($contents as $object) {
 
@@ -232,13 +199,7 @@ class repository_s3 extends repository {
         try {
             $this->s->getObject($bucket, $uri, $path);
         } catch (S3Exception $e) {
-            throw new moodle_exception(
-                'errorwhilecommunicatingwith',
-                'repository',
-                '',
-                $this->get_name(),
-                $e->getMessage()
-            );
+            throw new moodle_exception('errorwhilecommunicatingwith', 'repository', '', $this->get_name());
         }
         return array('path' => $path);
     }

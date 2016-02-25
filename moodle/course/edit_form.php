@@ -27,7 +27,6 @@ class course_edit_form extends moodleform {
         $category      = $this->_customdata['category'];
         $editoroptions = $this->_customdata['editoroptions'];
         $returnto = $this->_customdata['returnto'];
-        $returnurl = $this->_customdata['returnurl'];
 
         $systemcontext   = context_system::instance();
         $categorycontext = context_coursecat::instance($category->id);
@@ -51,10 +50,6 @@ class course_edit_form extends moodleform {
         $mform->addElement('hidden', 'returnto', null);
         $mform->setType('returnto', PARAM_ALPHANUM);
         $mform->setConstant('returnto', $returnto);
-
-        $mform->addElement('hidden', 'returnurl', null);
-        $mform->setType('returnurl', PARAM_LOCALURL);
-        $mform->setConstant('returnurl', $returnurl);
 
         $mform->addElement('text','fullname', get_string('fullnamecourse'),'maxlength="254" size="50"');
         $mform->addHelpButton('fullname', 'fullnamecourse');
@@ -301,23 +296,7 @@ class course_edit_form extends moodleform {
             }
         }
 
-        if (!empty($CFG->usetags) &&
-                ((empty($course->id) && guess_if_creator_will_have_course_capability('moodle/course:tag', $categorycontext))
-                || (!empty($course->id) && has_capability('moodle/course:tag', $coursecontext)))) {
-            $mform->addElement('header', 'tagshdr', get_string('tags', 'tag'));
-            $mform->addElement('tags', 'tags', get_string('tags'));
-        }
-
-        // When two elements we need a group.
-        $buttonarray = array();
-        $classarray = array('class' => 'form-submit');
-        if ($returnto !== 0) {
-            $buttonarray[] = &$mform->createElement('submit', 'saveandreturn', get_string('savechangesandreturn'), $classarray);
-        }
-        $buttonarray[] = &$mform->createElement('submit', 'saveanddisplay', get_string('savechangesanddisplay'), $classarray);
-        $buttonarray[] = &$mform->createElement('cancel');
-        $mform->addGroup($buttonarray, 'buttonar', '', array(' '), false);
-        $mform->closeHeaderBefore('buttonar');
+        $this->add_action_buttons();
 
         $mform->addElement('hidden', 'id', null);
         $mform->setType('id', PARAM_INT);

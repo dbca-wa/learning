@@ -32,6 +32,7 @@ YUI.add('moodle-atto_equation-button', function (Y, NAME) {
  * @class Button
  * @extends M.editor_atto.EditorPlugin
  */
+
 var COMPONENTNAME = 'atto_equation',
     LOGNAME = 'atto_equation',
     CSS = {
@@ -59,11 +60,9 @@ var COMPONENTNAME = 'atto_equation',
             '<form class="atto_form">' +
                 '{{{library}}}' +
                 '<label for="{{elementid}}_{{CSS.EQUATION_TEXT}}">{{{get_string "editequation" component texdocsurl}}}</label>' +
-                '<textarea class="fullwidth {{CSS.EQUATION_TEXT}}" ' +
-                        'id="{{elementid}}_{{CSS.EQUATION_TEXT}}" rows="8"></textarea><br/>' +
+                '<textarea class="fullwidth {{CSS.EQUATION_TEXT}}" id="{{elementid}}_{{CSS.EQUATION_TEXT}}" rows="8"></textarea><br/>' +
                 '<label for="{{elementid}}_{{CSS.EQUATION_PREVIEW}}">{{get_string "preview" component}}</label>' +
-                '<div describedby="{{elementid}}_cursorinfo" class="well well-small fullwidth {{CSS.EQUATION_PREVIEW}}" ' +
-                        'id="{{elementid}}_{{CSS.EQUATION_PREVIEW}}"></div>' +
+                '<div describedby="{{elementid}}_cursorinfo" class="well well-small fullwidth {{CSS.EQUATION_PREVIEW}}" id="{{elementid}}_{{CSS.EQUATION_PREVIEW}}"></div>' +
                 '<div id="{{elementid}}_cursorinfo">{{get_string "cursorinfo" component}}</div>' +
                 '<div class="mdl-align">' +
                     '<br/>' +
@@ -187,9 +186,7 @@ Y.namespace('M.atto_equation').Button = Y.Base.create('button', Y.M.editor_atto.
 
             // We need to convert these to a non dom node based format.
             this.editor.all('tex').each(function (texNode) {
-                var replacement = Y.Node.create('<span>' +
-                        DELIMITERS.START + ' ' + texNode.get('text') + ' ' + DELIMITERS.END +
-                        '</span>');
+                var replacement = Y.Node.create('<span>' + DELIMITERS.START + ' ' + texNode.get('text') + ' ' + DELIMITERS.END + '</span>');
                 texNode.replace(replacement);
             });
         }
@@ -230,10 +227,8 @@ Y.namespace('M.atto_equation').Button = Y.Base.create('button', Y.M.editor_atto.
 
         tabview.render();
         dialogue.show();
-        // Notify the filters about the modified nodes.
-        require(['core/event'], function(event) {
-            event.notifyFilterContentUpdated(dialogue.get('boundingBox').getDOMNode());
-        });
+        // Trigger any JS filters to reprocess the new nodes.
+        Y.fire(M.core.event.FILTER_CONTENT_UPDATED, {nodes: (new Y.NodeList(dialogue.get('boundingBox')))});
 
         if (equation) {
             content.one(SELECTORS.EQUATION_TEXT).set('text', equation);
@@ -278,8 +273,7 @@ Y.namespace('M.atto_equation').Button = Y.Base.create('button', Y.M.editor_atto.
 
         text = Y.one(selectedNode).get('text');
 
-        // For each of these patterns we have a RegExp which captures the inner component of the equation but also
-        // includes the delimiters.
+        // For each of these patterns we have a RegExp which captures the inner component of the equation but also includes the delimiters.
         // We first run the RegExp adding the global flag ("g"). This ignores the capture, instead matching the entire
         // equation including delimiters and returning one entry per match of the whole equation.
         // We have to deal with multiple occurences of the same equation in a String so must be able to loop on the
@@ -359,8 +353,7 @@ Y.namespace('M.atto_equation').Button = Y.Base.create('button', Y.M.editor_atto.
             selectedNode,
             text,
             value,
-            host,
-            newText;
+            host;
 
         host = this.get('host');
 
@@ -453,9 +446,7 @@ Y.namespace('M.atto_equation').Button = Y.Base.create('button', Y.M.editor_atto.
         isChar = /[a-zA-Z\{\}]/;
         if (currentPos !== 0) {
             // Now match to the end of the line.
-            while (isChar.test(equation.charAt(currentPos)) &&
-                   currentPos < equation.length &&
-                   isChar.test(equation.charAt(currentPos-1))) {
+            while (isChar.test(equation.charAt(currentPos)) && currentPos < equation.length && isChar.test(equation.charAt(currentPos-1))) {
                 currentPos += 1;
             }
         }
@@ -497,10 +488,7 @@ Y.namespace('M.atto_equation').Button = Y.Base.create('button', Y.M.editor_atto.
         if (preview.status === 200) {
             previewNode.setHTML(preview.responseText);
 
-            // Notify the filters about the modified nodes.
-            require(['core/event'], function(event) {
-                event.notifyFilterContentUpdated(previewNode.getDOMNode());
-            });
+            Y.fire(M.core.event.FILTER_CONTENT_UPDATED, {nodes: (new Y.NodeList(previewNode))});
         }
     },
 
@@ -698,7 +686,7 @@ Y.namespace('M.atto_equation').Button = Y.Base.create('button', Y.M.editor_atto.
             text: content
         };
 
-        var preview = Y.io(url, {
+        preview = Y.io(url, {
             sync: true,
             data: params,
             method: 'POST'

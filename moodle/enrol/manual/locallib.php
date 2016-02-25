@@ -270,8 +270,6 @@ class enrol_manual_editselectedusers_operation extends enrol_bulk_enrolment_oper
                     $event->trigger();
                 }
             }
-            // Delete cached course contacts for this course because they may be affected.
-            cache::make('core', 'coursecontacts')->delete($manager->get_context()->instanceid);
             return true;
         }
 

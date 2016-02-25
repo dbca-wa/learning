@@ -32,14 +32,14 @@ class Less_Tree_Rule extends Less_Tree{
 		$this->variable = ( is_string($name) && $name[0] === '@');
 	}
 
-    public function accept($visitor) {
+	function accept($visitor) {
 		$this->value = $visitor->visitObj( $this->value );
 	}
 
     /**
      * @see Less_Tree::genCSS
      */
-    public function genCSS( $output ){
+	function genCSS( $output ){
 
 		$output->add( $this->name . Less_Environment::$_outputMap[': '], $this->currentFileInfo, $this->index);
 		try{
@@ -100,7 +100,7 @@ class Less_Tree_Rule extends Less_Tree{
 	}
 
 
-    public function CompileName( $env, $name ){
+	function CompileName( $env, $name ){
 		$output = new Less_Output();
 		foreach($name as $n){
 			$n->compile($env)->genCSS($output);
@@ -108,7 +108,7 @@ class Less_Tree_Rule extends Less_Tree{
 		return $output->toString();
 	}
 
-    public function makeImportant(){
+	function makeImportant(){
 		return new Less_Tree_Rule($this->name, $this->value, '!important', $this->merge, $this->index, $this->currentFileInfo, $this->inline);
 	}
 

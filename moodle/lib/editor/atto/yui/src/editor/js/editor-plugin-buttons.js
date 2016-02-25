@@ -34,8 +34,7 @@ var MENUTEMPLATE = '' +
             'title="{{title}}">' +
             '<img class="icon" aria-hidden="true" role="presentation" width="16" height="16" '+
                 'style="background-color:{{config.menuColor}};" src="{{config.iconurl}}" />' +
-            '<img class="icon" aria-hidden="true" role="presentation" width="16" height="16" ' +
-                'src="{{image_url "t/expanded" "moodle"}}"/>' +
+            '<img class="icon" aria-hidden="true" role="presentation" width="16" height="16" src="{{image_url "t/expanded" "moodle"}}"/>' +
         '</button>';
 
 var DISABLED = 'disabled',
@@ -210,8 +209,7 @@ EditorPluginButtons.prototype = {
         // Create the actual button.
         button = Y.Node.create('<button type="button" class="' + buttonClass + '"' +
                 'tabindex="-1">' +
-                    '<img class="icon" aria-hidden="true" role="presentation" width="16" height="16" src="' +
-                            config.iconurl + '"/>' +
+                    '<img class="icon" aria-hidden="true" role="presentation" width="16" height="16" src="' + config.iconurl + '"/>' +
                 '</button>');
         button.setAttribute('title', title);
 
@@ -284,8 +282,7 @@ EditorPluginButtons.prototype = {
     /**
      * Add a basic button which ties into the execCommand.
      *
-     * See {{#crossLink "M.editor_atto.EditorPluginButtons/addButton:method"}}addButton{{/crossLink}}
-     * for full details of the optional parameters.
+     * See {{#crossLink "M.editor_atto.EditorPluginButtons/addButton:method"}}addButton{{/crossLink}} for full details of the optional parameters.
      *
      * @method addBasicButton
      * @param {object} config The button configuration
@@ -515,6 +512,7 @@ EditorPluginButtons.prototype = {
         // Cancel the hide menu prevention.
         menuDialogue.set('preventHideMenu', false);
 
+        console.log('Menu item chosen');
         // Set the focus after hide so that focus is returned to the editor and changes are made correctly.
         menuDialogue.set('focusAfterHide', this.get('host').editor);
         menuDialogue.hide(e);

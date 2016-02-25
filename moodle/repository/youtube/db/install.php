@@ -23,14 +23,17 @@
  */
 
 /**
- * This was supposed to be the installer script for the Youtube repository.
+ * Create a default instance of the youtube repository
  *
- * However, since the Youtube repository is disabled in new Moodle installations from 3.0, and since we cannot
- * just delete this file, the function's contents has been replaced to just return true.
- * See https://tracker.moodle.org/browse/MDL-50572 for more details.
- *
- * @return bool Return true.
+ * @return bool A status indicating success or failure
  */
 function xmldb_repository_youtube_install() {
-    return true;
+    global $CFG;
+    $result = true;
+    require_once($CFG->dirroot.'/repository/lib.php');
+    $youtubeplugin = new repository_type('youtube', array(), true);
+    if(!$id = $youtubeplugin->create(true)) {
+        $result = false;
+    }
+    return $result;
 }

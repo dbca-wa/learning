@@ -297,7 +297,7 @@ function xmldb_scorm_upgrade($oldversion) {
     // Moodle v2.8.0 release upgrade line.
     // Put any upgrade step following this.
 
-    if ($oldversion < 2015031800) {
+    if ($oldversion < 2014111001) {
 
         // Check to see if this site has any AICC packages - if so set the aiccuserid to pass the username
         // so that the data remains consistent with existing packages.
@@ -312,13 +312,10 @@ function xmldb_scorm_upgrade($oldversion) {
             }
         }
         // Scorm savepoint reached.
-        upgrade_mod_savepoint(true, 2015031800, 'scorm');
+        upgrade_mod_savepoint(true, 2014111001, 'scorm');
     }
 
-    // Moodle v2.9.0 release upgrade line.
-    // Put any upgrade step following this.
-
-    if ($oldversion < 2015091400) {
+    if ($oldversion < 2014111003) {
         $table = new xmldb_table('scorm');
 
         // Changing the default of field forcecompleted on table scorm to 0.
@@ -332,11 +329,8 @@ function xmldb_scorm_upgrade($oldversion) {
         $dbman->change_field_default($table, $field);
 
         // Scorm savepoint reached.
-        upgrade_mod_savepoint(true, 2015091400, 'scorm');
+        upgrade_mod_savepoint(true, 2014111003, 'scorm');
     }
-
-    // Moodle v3.0.0 release upgrade line.
-    // Put any upgrade step following this.
 
     return true;
 }

@@ -23,21 +23,12 @@ class mnet_xmlrpc_client {
     var $mnet     = null;
 
     /**
-     * Constructor
+     * Constructor returns true
      */
-    public function __construct() {
+    function mnet_xmlrpc_client() {
         // make sure we've got this set up before we try and do anything else
         $this->mnet = get_mnet_environment();
-    }
-
-    /**
-     * Old syntax of class constructor. Deprecated in PHP7.
-     *
-     * @deprecated since Moodle 3.1
-     */
-    public function mnet_xmlrpc_client() {
-        debugging('Use of class name as constructor is deprecated', DEBUG_DEVELOPER);
-        self::__construct();
+        return true;
     }
 
     /**
@@ -377,17 +368,8 @@ class mnet_xmlrpc_client {
         curl_setopt($httprequest, CURLOPT_POST, true);
         curl_setopt($httprequest, CURLOPT_USERAGENT, 'Moodle');
         curl_setopt($httprequest, CURLOPT_HTTPHEADER, array("Content-Type: text/xml charset=UTF-8"));
-
-        $verifyhost = 0;
-        $verifypeer = false;
-        if ($mnet_peer->sslverification == mnet_peer::SSL_HOST_AND_PEER) {
-            $verifyhost = 2;
-            $verifypeer = true;
-        } else if ($mnet_peer->sslverification == mnet_peer::SSL_HOST) {
-            $verifyhost = 2;
-        }
-        curl_setopt($httprequest, CURLOPT_SSL_VERIFYHOST, $verifyhost);
-        curl_setopt($httprequest, CURLOPT_SSL_VERIFYPEER, $verifypeer);
+        curl_setopt($httprequest, CURLOPT_SSL_VERIFYPEER, false);
+        curl_setopt($httprequest, CURLOPT_SSL_VERIFYHOST, 0);
         return $httprequest;
     }
 }

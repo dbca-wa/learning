@@ -60,9 +60,9 @@ if ($ADMIN->fulltree) {
     $quizsettings->add(new admin_setting_heading('quizintro', '', get_string('configintro', 'quiz')));
 
     // Time limit.
-    $quizsettings->add(new admin_setting_configduration_with_advanced('quiz/timelimit',
-            get_string('timelimit', 'quiz'), get_string('configtimelimitsec', 'quiz'),
-            array('value' => '0', 'adv' => false), 60));
+    $quizsettings->add(new admin_setting_configtext_with_advanced('quiz/timelimit',
+            get_string('timelimitsec', 'quiz'), get_string('configtimelimitsec', 'quiz'),
+            array('value' => '0', 'adv' => false), PARAM_INT));
 
     // What to do with overdue attempts.
     $quizsettings->add(new mod_quiz_admin_setting_overduehandling('quiz/overduehandling',
@@ -70,14 +70,14 @@ if ($ADMIN->fulltree) {
             array('value' => 'autosubmit', 'adv' => false), null));
 
     // Grace period time.
-    $quizsettings->add(new admin_setting_configduration_with_advanced('quiz/graceperiod',
+    $quizsettings->add(new admin_setting_configtext_with_advanced('quiz/graceperiod',
             get_string('graceperiod', 'quiz'), get_string('graceperiod_desc', 'quiz'),
-            array('value' => '86400', 'adv' => false)));
+            array('value' => '86400', 'adv' => false), PARAM_INT));
 
     // Minimum grace period used behind the scenes.
-    $quizsettings->add(new admin_setting_configduration('quiz/graceperiodmin',
+    $quizsettings->add(new admin_setting_configtext('quiz/graceperiodmin',
             get_string('graceperiodmin', 'quiz'), get_string('graceperiodmin_desc', 'quiz'),
-            60, 1));
+            60, PARAM_INT));
 
     // Number of attempts.
     $options = array(get_string('unlimited'));
@@ -96,6 +96,11 @@ if ($ADMIN->fulltree) {
     // Maximum grade.
     $quizsettings->add(new admin_setting_configtext('quiz/maximumgrade',
             get_string('maximumgrade'), get_string('configmaximumgrade', 'quiz'), 10, PARAM_INT));
+
+    // Shuffle questions.
+    $quizsettings->add(new admin_setting_configcheckbox_with_advanced('quiz/shufflequestions',
+            get_string('shufflequestions', 'quiz'), get_string('configshufflequestions', 'quiz'),
+            array('value' => 0, 'adv' => false)));
 
     // Questions per page.
     $perpage = array();
@@ -122,12 +127,6 @@ if ($ADMIN->fulltree) {
     $quizsettings->add(new admin_setting_question_behaviour('quiz/preferredbehaviour',
             get_string('howquestionsbehave', 'question'), get_string('howquestionsbehave_desc', 'quiz'),
             'deferredfeedback'));
-
-    // Can redo completed questions.
-    $quizsettings->add(new admin_setting_configselect_with_advanced('quiz/canredoquestions',
-            get_string('canredoquestions', 'quiz'), get_string('canredoquestions_desc', 'quiz'),
-            array('value' => 0, 'adv' => true),
-            array(0 => get_string('no'), 1 => get_string('canredoquestionsyes', 'quiz'))));
 
     // Each attempt builds on last.
     $quizsettings->add(new admin_setting_configcheckbox_with_advanced('quiz/attemptonlast',
@@ -183,7 +182,7 @@ if ($ADMIN->fulltree) {
     // Password.
     $quizsettings->add(new admin_setting_configtext_with_advanced('quiz/password',
             get_string('requirepassword', 'quiz'), get_string('configrequirepassword', 'quiz'),
-            array('value' => '', 'adv' => false), PARAM_TEXT));
+            array('value' => '', 'adv' => true), PARAM_TEXT));
 
     // IP restrictions.
     $quizsettings->add(new admin_setting_configtext_with_advanced('quiz/subnet',
@@ -191,21 +190,17 @@ if ($ADMIN->fulltree) {
             array('value' => '', 'adv' => true), PARAM_TEXT));
 
     // Enforced delay between attempts.
-    $quizsettings->add(new admin_setting_configduration_with_advanced('quiz/delay1',
+    $quizsettings->add(new admin_setting_configtext_with_advanced('quiz/delay1',
             get_string('delay1st2nd', 'quiz'), get_string('configdelay1st2nd', 'quiz'),
-            array('value' => 0, 'adv' => true), 60));
-    $quizsettings->add(new admin_setting_configduration_with_advanced('quiz/delay2',
+            array('value' => 0, 'adv' => true), PARAM_INT));
+    $quizsettings->add(new admin_setting_configtext_with_advanced('quiz/delay2',
             get_string('delaylater', 'quiz'), get_string('configdelaylater', 'quiz'),
-            array('value' => 0, 'adv' => true), 60));
+            array('value' => 0, 'adv' => true), PARAM_INT));
 
     // Browser security.
     $quizsettings->add(new mod_quiz_admin_setting_browsersecurity('quiz/browsersecurity',
             get_string('showinsecurepopup', 'quiz'), get_string('configpopup', 'quiz'),
             array('value' => '-', 'adv' => true), null));
-
-    $quizsettings->add(new admin_setting_configtext('quiz/initialnumfeedbacks',
-            get_string('initialnumfeedbacks', 'quiz'), get_string('initialnumfeedbacks_desc', 'quiz'),
-            2, PARAM_INT, 5));
 
     // Allow user to specify if setting outcomes is an advanced setting.
     if (!empty($CFG->enableoutcomes)) {
@@ -215,8 +210,14 @@ if ($ADMIN->fulltree) {
     }
 
     // Autosave frequency.
-    $quizsettings->add(new admin_setting_configduration('quiz/autosaveperiod',
-            get_string('autosaveperiod', 'quiz'), get_string('autosaveperiod_desc', 'quiz'), 60, 1));
+    $options = array(
+          0 => get_string('donotuseautosave', 'quiz'),
+         60 => get_string('oneminute', 'quiz'),
+        120 => get_string('numminutes', 'moodle', 2),
+        300 => get_string('numminutes', 'moodle', 5),
+    );
+    $quizsettings->add(new admin_setting_configselect('quiz/autosaveperiod',
+            get_string('autosaveperiod', 'quiz'), get_string('autosaveperiod_desc', 'quiz'), 120, $options));
 }
 
 // Now, depending on whether any reports have their own settings page, add

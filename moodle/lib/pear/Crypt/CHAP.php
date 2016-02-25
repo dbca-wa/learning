@@ -85,16 +85,10 @@ class Crypt_CHAP extends PEAR
      * Generates a random challenge
      * @return void
      */
-    public function __construct()
-    {
-        parent::__construct();
-        $this->generateChallenge();
-    }
-
     function Crypt_CHAP()
     {
-        debugging('Use of class name as constructor is deprecated', DEBUG_DEVELOPER);
-        self::__construct();
+        $this->PEAR();
+        $this->generateChallenge();
     }
 
     /**
@@ -173,16 +167,10 @@ class Crypt_CHAP_MSv1 extends Crypt_CHAP
      * Loads the hash extension
      * @return void
      */
-    public function __construct()
-    {
-        parent::__construct();
-        $this->loadExtension('hash');
-    }
-
     function Crypt_CHAP_MSv1()
     {
-        debugging('Use of class name as constructor is deprecated', DEBUG_DEVELOPER);
-        self::__construct();
+        $this->Crypt_CHAP();
+        $this->loadExtension('hash');
     }
 
     /**
@@ -427,9 +415,9 @@ class Crypt_CHAP_MSv2 extends Crypt_CHAP_MSv1
      * Generates the 16 Bytes peer and authentication challenge
      * @return void
      */
-    public function __construct()
+    function Crypt_CHAP_MSv2()
     {
-        parent::__construct();
+        $this->Crypt_CHAP_MSv1();
         $this->generateChallenge('peerChallenge', 16);
         $this->generateChallenge('authChallenge', 16);
     }

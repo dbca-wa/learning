@@ -42,5 +42,4 @@ $string['presentationoraltrequired'] = 'Images must have a description, except i
 $string['preview'] = 'Preview';
 $string['saveimage'] = 'Save image';
 $string['size'] = 'Size';
-$string['uploading'] = 'Uploading, please wait...';
 $string['width'] = 'Width';

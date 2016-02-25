@@ -25,7 +25,6 @@ YUI.add('moodle-editor_atto-menu', function (Y, NAME) {
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-var LOGNAME = 'moodle-editor_atto-menu';
 var MENUDIALOGUE = '' +
         '<div class="open {{config.buttonClass}} atto_menu" ' +
             'style="min-width:{{config.innerOverlayWidth}};">' +
@@ -52,7 +51,7 @@ var MENUDIALOGUE = '' +
  * @constructor
  * @extends M.core.dialogue
  */
-var Menu = function() {
+Menu = function() {
     Menu.superclass.constructor.apply(this, arguments);
 };
 
@@ -174,8 +173,7 @@ Y.extend(Menu, M.core.dialogue, {
             index = 0,
             direction = 1,
             checkCount = 0,
-            current = e.target.ancestor('a[role="menuitem"]', true),
-            next;
+            current = e.target.ancestor('a[role="menuitem"]', true);
 
         // Determine which button is currently selected.
         while (!found && index < buttons.size()) {

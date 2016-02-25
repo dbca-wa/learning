@@ -317,7 +317,7 @@ class cache implements cache_loader {
         $setaftervalidation = false;
         if ($result === false) {
             if ($this->perfdebug) {
-                cache_helper::record_cache_miss($this->storetype, $this->definition);
+                cache_helper::record_cache_miss($this->storetype, $this->definition->get_id());
             }
             if ($this->loader !== false) {
                 // We must pass the original (unparsed) key to the next loader in the chain.
@@ -329,7 +329,7 @@ class cache implements cache_loader {
             }
             $setaftervalidation = ($result !== false);
         } else if ($this->perfdebug) {
-            cache_helper::record_cache_hit($this->storetype, $this->definition);
+            cache_helper::record_cache_hit($this->storetype, $this->definition->get_id());
         }
         // 5. Validate strictness.
         if ($strictness === MUST_EXIST && $result === false) {
@@ -473,8 +473,8 @@ class cache implements cache_loader {
                     $hits++;
                 }
             }
-            cache_helper::record_cache_hit($this->storetype, $this->definition, $hits);
-            cache_helper::record_cache_miss($this->storetype, $this->definition, $misses);
+            cache_helper::record_cache_hit($this->storetype, $this->definition->get_id(), $hits);
+            cache_helper::record_cache_miss($this->storetype, $this->definition->get_id(), $misses);
         }
 
         // Return the result. Phew!
@@ -500,7 +500,7 @@ class cache implements cache_loader {
      */
     public function set($key, $data) {
         if ($this->perfdebug) {
-            cache_helper::record_cache_set($this->storetype, $this->definition);
+            cache_helper::record_cache_set($this->storetype, $this->definition->get_id());
         }
         if ($this->loader !== false) {
             // We have a loader available set it there as well.
@@ -649,7 +649,7 @@ class cache implements cache_loader {
         }
         $successfullyset = $this->store->set_many($data);
         if ($this->perfdebug && $successfullyset) {
-            cache_helper::record_cache_set($this->storetype, $this->definition, $successfullyset);
+            cache_helper::record_cache_set($this->storetype, $this->definition->get_id(), $successfullyset);
         }
         return $successfullyset;
     }
@@ -1039,7 +1039,7 @@ class cache implements cache_loader {
         }
         if ($result) {
             if ($this->perfdebug) {
-                cache_helper::record_cache_hit('** static acceleration **', $this->definition);
+                cache_helper::record_cache_hit('** static acceleration **', $this->definition->get_id());
             }
             if ($this->staticaccelerationsize > 1 && $this->staticaccelerationcount > 1) {
                 // Check to see if this is the last item on the static acceleration keys array.
@@ -1053,7 +1053,7 @@ class cache implements cache_loader {
             return $result;
         } else {
             if ($this->perfdebug) {
-                cache_helper::record_cache_miss('** static acceleration **', $this->definition);
+                cache_helper::record_cache_miss('** static acceleration **', $this->definition->get_id());
             }
             return false;
         }
@@ -1270,9 +1270,7 @@ class cache_application extends cache implements cache_loader_with_locking {
                 $this->delete_many($todelete);
             }
             // Set the time of the last invalidation.
-            if ($purgeall || !empty($todelete)) {
-                $this->set('lastinvalidation', cache::now());
-            }
+            $this->set('lastinvalidation', cache::now());
         }
     }
 
@@ -1671,9 +1669,7 @@ class cache_session extends cache {
                 $this->delete_many($todelete);
             }
             // Set the time of the last invalidation.
-            if ($purgeall || !empty($todelete)) {
-                $this->set('lastsessioninvalidation', cache::now());
-            }
+            $this->set('lastsessioninvalidation', cache::now());
         }
     }
 
@@ -1783,7 +1779,7 @@ class cache_session extends cache {
         // 4. Load if from the loader/datasource if we don't already have it.
         if ($result === false) {
             if ($this->perfdebug) {
-                cache_helper::record_cache_miss($this->storetype, $this->get_definition());
+                cache_helper::record_cache_miss($this->storetype, $this->get_definition()->get_id());
             }
             if ($this->get_loader() !== false) {
                 // We must pass the original (unparsed) key to the next loader in the chain.
@@ -1798,7 +1794,7 @@ class cache_session extends cache {
                 $this->set($key, $result);
             }
         } else if ($this->perfdebug) {
-            cache_helper::record_cache_hit($this->storetype, $this->get_definition());
+            cache_helper::record_cache_hit($this->storetype, $this->get_definition()->get_id());
         }
         // 5. Validate strictness.
         if ($strictness === MUST_EXIST && $result === false) {
@@ -1842,7 +1838,7 @@ class cache_session extends cache {
             $loader->set($key, $data);
         }
         if ($this->perfdebug) {
-            cache_helper::record_cache_set($this->storetype, $this->get_definition());
+            cache_helper::record_cache_set($this->storetype, $this->get_definition()->get_id());
         }
         if (is_object($data) && $data instanceof cacheable_object) {
             $data = new cache_cached_object($data);
@@ -1966,8 +1962,8 @@ class cache_session extends cache {
                     $hits++;
                 }
             }
-            cache_helper::record_cache_hit($this->storetype, $this->get_definition(), $hits);
-            cache_helper::record_cache_miss($this->storetype, $this->get_definition(), $misses);
+            cache_helper::record_cache_hit($this->storetype, $this->get_definition()->get_id(), $hits);
+            cache_helper::record_cache_miss($this->storetype, $this->get_definition()->get_id(), $misses);
         }
         return $return;
 
@@ -2044,7 +2040,7 @@ class cache_session extends cache {
         }
         $successfullyset = $this->get_store()->set_many($data);
         if ($this->perfdebug && $successfullyset) {
-            cache_helper::record_cache_set($this->storetype, $this->get_definition(), $successfullyset);
+            cache_helper::record_cache_set($this->storetype, $definitionid, $successfullyset);
         }
         return $successfullyset;
     }

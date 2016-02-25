@@ -25,19 +25,6 @@
 // Get the HTML for the settings bits.
 $html = theme_clean_get_html_for_settings($OUTPUT, $PAGE);
 
-// Set default (LTR) layout mark-up for a three column page.
-$regionmainbox = 'span9';
-$regionmain = 'span8 pull-right';
-$sidepre = 'span4 desktop-first-column';
-$sidepost = 'span3 pull-right';
-// Reset layout mark-up for RTL languages.
-if (right_to_left()) {
-    $regionmainbox = 'span9 pull-right';
-    $regionmain = 'span8';
-    $sidepre = 'span4 pull-right';
-    $sidepost = 'span3 desktop-first-column';
-}
-
 echo $OUTPUT->doctype() ?>
 <html <?php echo $OUTPUT->htmlattributes(); ?>>
 <head>
@@ -57,7 +44,11 @@ echo $OUTPUT->doctype() ?>
             <span class="brand"><?php echo
                 format_string($SITE->shortname, true, array('context' => context_course::instance(SITEID)));
                 ?></span>
-            <?php echo $OUTPUT->navbar_button(); ?>
+            <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </a>
             <div class="nav-collapse collapse">
                 <ul class="nav pull-right">
                     <li><?php echo $OUTPUT->page_heading_menu(); ?></li>
@@ -75,15 +66,15 @@ echo $OUTPUT->doctype() ?>
     </header>
 
     <div id="page-content" class="row-fluid">
-        <div id="region-main-box" class="<?php echo $regionmainbox; ?>">
+        <div id="region-bs-main-and-pre" class="span9">
             <div class="row-fluid">
-                <section id="region-main" class="<?php echo $regionmain; ?>">
+                <section id="region-main" class="span8 pull-right">
                     <?php echo $OUTPUT->main_content(); ?>
                 </section>
-                <?php echo $OUTPUT->blocks('side-pre', $sidepre); ?>
+                <?php echo $OUTPUT->blocks('side-pre', 'span4 desktop-first-column'); ?>
             </div>
         </div>
-        <?php echo $OUTPUT->blocks('side-post', $sidepost); ?>
+        <?php echo $OUTPUT->blocks('side-post', 'span3'); ?>
     </div>
 
     <?php echo $OUTPUT->standard_end_of_body_html() ?>

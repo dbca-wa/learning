@@ -41,7 +41,11 @@ echo $OUTPUT->doctype() ?>
             <a class="brand" href="<?php echo $CFG->wwwroot;?>"><?php echo
                 format_string($SITE->shortname, true, array('context' => context_course::instance(SITEID)));
                 ?></a>
-            <?php echo $OUTPUT->navbar_button(); ?>
+            <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </a>
             <?php echo $OUTPUT->user_menu(); ?>
             <div class="nav-collapse collapse">
                 <?php echo $OUTPUT->custom_menu(); ?>
@@ -55,7 +59,16 @@ echo $OUTPUT->doctype() ?>
 
 <div id="page" class="container-fluid">
 
-    <?php echo $OUTPUT->full_header(); ?>
+    <header id="page-header" class="clearfix">
+        <div id="page-navbar" class="clearfix">
+            <nav class="breadcrumb-nav"><?php echo $OUTPUT->navbar(); ?></nav>
+            <div class="breadcrumb-button"><?php echo $OUTPUT->page_heading_button(); ?></div>
+        </div>
+        <?php echo $OUTPUT->page_heading(); ?>
+        <div id="course-header">
+            <?php echo $OUTPUT->course_header(); ?>
+        </div>
+    </header>
 
     <div id="page-content" class="row-fluid">
         <section id="region-main" class="span12">

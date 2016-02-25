@@ -75,21 +75,15 @@ class HTML_QuickForm_autocomplete extends HTML_QuickForm_text
      * @access    public
      * @return    void
      */
-    public function __construct($elementName = null, $elementLabel = null, $options = null, $attributes = null) {
-        parent::__construct($elementName, $elementLabel, $attributes);
+    function HTML_QuickForm_autocomplete($elementName = null, $elementLabel = null, $options = null, $attributes = null)
+    {
+        $this->HTML_QuickForm_text($elementName, $elementLabel, $attributes);
         $this->_persistantFreeze = true;
         $this->_type = 'autocomplete';
         if (isset($options)) {
             $this->setOptions($options);
         }
     } //end constructor
-
-    /**
-     * Old syntax of class constructor for backward compatibility.
-     */
-    public function HTML_QuickForm_autocomplete($elementName = null, $elementLabel = null, $options = null, $attributes = null) {
-        self::__construct($elementName, $elementLabel, $options, $attributes);
-    }
 
     // }}}
     // {{{ setOptions()

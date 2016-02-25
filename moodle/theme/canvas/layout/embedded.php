@@ -36,7 +36,7 @@ echo $OUTPUT->doctype() ?>
 
 <!-- END OF HEADER -->
 
-    <div id="page-content" class="clearfix">
+    <div id="content" class="clearfix">
         <?php echo $OUTPUT->main_content() ?>
     </div>
 

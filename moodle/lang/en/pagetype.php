@@ -1,4 +1,5 @@
 <?php
+
 // This file is part of Moodle - http://moodle.org/
 //
 // Moodle is free software: you can redistribute it and/or modify
@@ -17,7 +18,7 @@
 /**
  * Strings for component 'pagetype', language 'en'
  *
- * @package   core
+ * @package   pagetype
  * @copyright 1999 onwards Martin Dougiamas  {@link http://moodle.com}
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -33,7 +34,7 @@ $string['page-course-x'] = 'Any course page';
 $string['page-course-report-x'] = 'Any course report';
 $string['page-mod-x'] = 'Any activity module page';
 $string['page-mod-x-view'] = 'Any main activity module page';
-$string['page-my-index'] = 'Dashboard page';
+$string['page-my-index'] = 'My home page';
 $string['page-report-x'] = 'Any report page';
 $string['page-site-index'] = 'The front page only';
 $string['page-site-x'] = 'Any top-level site page';

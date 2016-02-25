@@ -89,10 +89,6 @@ class restore_gradebook_structure_step extends restore_structure_step {
      protected function execute_condition() {
         global $CFG, $DB;
 
-        if ($this->get_courseid() == SITEID) {
-            return false;
-        }
-
         // No gradebook info found, don't execute
         $fullpath = $this->task->get_taskbasepath();
         $fullpath = rtrim($fullpath, '/') . '/' . $this->filename;
@@ -524,8 +520,6 @@ class restore_gradebook_structure_step extends restore_structure_step {
         $minmaxtouse = $DB->get_field('grade_settings', 'value', array('courseid' => $courseid, 'name' => $settingname));
         $version28start = 2014111000.00;
         $version28last = 2014111006.05;
-        $version29start = 2015051100.00;
-        $version29last = 2015060400.02;
 
         $target = $this->get_task()->get_target();
         if ($minmaxtouse === false &&
@@ -540,8 +534,7 @@ class restore_gradebook_structure_step extends restore_structure_step {
                     grade_set_setting($courseid, $settingname, GRADE_MIN_MAX_FROM_GRADE_ITEM);
                 }
 
-            } else if (($version >= $version28start && $version < $version28last) ||
-                    ($version >= $version29start && $version < $version29last)) {
+            } else if ($version >= $version28start && $version < $version28last) {
                 // They should be using grade_grade when the course has inconsistencies.
 
                 $sql = "SELECT gi.id
@@ -584,10 +577,6 @@ class restore_grade_history_structure_step extends restore_structure_step {
 
      protected function execute_condition() {
         global $CFG, $DB;
-
-        if ($this->get_courseid() == SITEID) {
-            return false;
-        }
 
         // No gradebook info found, don't execute.
         $fullpath = $this->task->get_taskbasepath();
@@ -800,7 +789,7 @@ class restore_update_availability extends restore_execution_step {
             if (!is_null($section->availability)) {
                 $info = new \core_availability\info_section($section);
                 $info->update_after_restore($this->get_restoreid(),
-                        $this->get_courseid(), $this->get_logger(), $dateoffset, $this->task);
+                        $this->get_courseid(), $this->get_logger(), $dateoffset);
             }
         }
         $rs->close();
@@ -820,7 +809,7 @@ class restore_update_availability extends restore_execution_step {
             if (!is_null($cm->availability)) {
                 $info = new \core_availability\info_module($cm);
                 $info->update_after_restore($this->get_restoreid(),
-                        $this->get_courseid(), $this->get_logger(), $dateoffset, $this->task);
+                        $this->get_courseid(), $this->get_logger(), $dateoffset);
             }
         }
         $rs->close();
@@ -1054,13 +1043,10 @@ class restore_groups_structure_step extends restore_structure_step {
 
         $paths = array(); // Add paths here
 
-        // Do not include group/groupings information if not requested.
-        $groupinfo = $this->get_setting_value('groups');
-        if ($groupinfo) {
-            $paths[] = new restore_path_element('group', '/groups/group');
-            $paths[] = new restore_path_element('grouping', '/groups/groupings/grouping');
-            $paths[] = new restore_path_element('grouping_group', '/groups/groupings/grouping/grouping_groups/grouping_group');
-        }
+        $paths[] = new restore_path_element('group', '/groups/group');
+        $paths[] = new restore_path_element('grouping', '/groups/groupings/grouping');
+        $paths[] = new restore_path_element('grouping_group', '/groups/groupings/grouping/grouping_groups/grouping_group');
+
         return $paths;
     }
 
@@ -1189,7 +1175,7 @@ class restore_groups_members_structure_step extends restore_structure_step {
 
         $paths = array(); // Add paths here
 
-        if ($this->get_setting_value('groups') && $this->get_setting_value('users')) {
+        if ($this->get_setting_value('users')) {
             $paths[] = new restore_path_element('group', '/groups/group');
             $paths[] = new restore_path_element('member', '/groups/group/group_members/group_member');
         }
@@ -1968,14 +1954,8 @@ class restore_ras_and_caps_structure_step extends restore_structure_step {
  * If no instances yet add default enrol methods the same way as when creating new course in UI.
  */
 class restore_default_enrolments_step extends restore_execution_step {
-
     public function define_execution() {
         global $DB;
-
-        // No enrolments in front page.
-        if ($this->get_courseid() == SITEID) {
-            return;
-        }
 
         $course = $DB->get_record('course', array('id'=>$this->get_courseid()), '*', MUST_EXIST);
 
@@ -2012,10 +1992,6 @@ class restore_enrolments_structure_step extends restore_structure_step {
      * @return bool true is safe to execute, false otherwise
      */
     protected function execute_condition() {
-
-        if ($this->get_courseid() == SITEID) {
-            return false;
-        }
 
         // Check it is included in the backup
         $fullpath = $this->task->get_taskbasepath();
@@ -2412,11 +2388,9 @@ class restore_badges_structure_step extends restore_structure_step {
         $data = (object)$data;
 
         $params = array(
-                'badgeid'           => $this->get_new_parentid('badge'),
-                'criteriatype'      => $data->criteriatype,
-                'method'            => $data->method,
-                'description'       => isset($data->description) ? $data->description : '',
-                'descriptionformat' => isset($data->descriptionformat) ? $data->descriptionformat : 0,
+                'badgeid'      => $this->get_new_parentid('badge'),
+                'criteriatype' => $data->criteriatype,
+                'method'       => $data->method
         );
         $newid = $DB->insert_record('badge_criteria', $params);
         $this->set_mapping('criterion', $data->id, $newid);
@@ -2598,21 +2572,15 @@ class restore_course_completion_structure_step extends restore_structure_step {
      *   2. The backup includes course completion information
      *   3. All modules are restorable
      *   4. All modules are marked for restore.
-     *   5. No completion criteria already exist for the course.
      *
      * @return bool True is safe to execute, false otherwise
      */
     protected function execute_condition() {
-        global $CFG, $DB;
+        global $CFG;
 
         // First check course completion is enabled on this site
         if (empty($CFG->enablecompletion)) {
             // Disabled, don't restore course completion
-            return false;
-        }
-
-        // No course completion on the front page.
-        if ($this->get_courseid() == SITEID) {
             return false;
         }
 
@@ -2629,13 +2597,8 @@ class restore_course_completion_structure_step extends restore_structure_step {
             return false;
         }
 
-        // Check all modules within the backup are being restored.
+        // Finally check all modules within the backup are being restored.
         if ($this->task->is_excluding_activities()) {
-            return false;
-        }
-
-        // Check that no completion criteria is already set for the course.
-        if ($DB->record_exists('course_completion_criteria', array('course' => $this->get_courseid()))) {
             return false;
         }
 
@@ -2997,75 +2960,6 @@ class restore_activity_logs_structure_step extends restore_course_logs_structure
     }
 }
 
-/**
- * Structure step in charge of restoring the logstores.xml file for the course logs.
- *
- * This restore step will rebuild the logs for all the enabled logstore subplugins supporting
- * it, for logs belonging to the course level.
- */
-class restore_course_logstores_structure_step extends restore_structure_step {
-
-    /**
-     * Conditionally decide if this step should be executed.
-     *
-     * This function checks the following parameter:
-     *
-     *   1. the logstores.xml file exists
-     *
-     * @return bool true is safe to execute, false otherwise
-     */
-    protected function execute_condition() {
-
-        // Check it is included in the backup.
-        $fullpath = $this->task->get_taskbasepath();
-        $fullpath = rtrim($fullpath, '/') . '/' . $this->filename;
-        if (!file_exists($fullpath)) {
-            // Not found, can't restore logstores.xml information.
-            return false;
-        }
-
-        return true;
-    }
-
-    /**
-     * Return the elements to be processed on restore of logstores.
-     *
-     * @return restore_path_element[] array of elements to be processed on restore.
-     */
-    protected function define_structure() {
-
-        $paths = array();
-
-        $logstore = new restore_path_element('logstore', '/logstores/logstore');
-        $paths[] = $logstore;
-
-        // Add logstore subplugin support to the 'logstore' element.
-        $this->add_subplugin_structure('logstore', $logstore, 'tool', 'log');
-
-        return array($logstore);
-    }
-
-    /**
-     * Process the 'logstore' element,
-     *
-     * Note: This is empty by definition in backup, because stores do not share any
-     * data between them, so there is nothing to process here.
-     *
-     * @param array $data element data
-     */
-    protected function process_logstore($data) {
-        return;
-    }
-}
-
-/**
- * Structure step in charge of restoring the logstores.xml file for the activity logs.
- *
- * Note: Activity structure is completely equivalent to the course one, so just extend it.
- */
-class restore_activity_logstores_structure_step extends restore_course_logstores_structure_step {
-}
-
 
 /**
  * Defines the restore step for advanced grading methods attached to the activity module
@@ -3076,10 +2970,6 @@ class restore_activity_grading_structure_step extends restore_structure_step {
      * This step is executed only if the grading file is present
      */
      protected function execute_condition() {
-
-        if ($this->get_courseid() == SITEID) {
-            return false;
-        }
 
         $fullpath = $this->task->get_taskbasepath();
         $fullpath = rtrim($fullpath, '/') . '/' . $this->filename;
@@ -3214,14 +3104,6 @@ class restore_activity_grading_structure_step extends restore_structure_step {
  * available there
  */
 class restore_activity_grades_structure_step extends restore_structure_step {
-
-    /**
-     * No grades in front page.
-     * @return bool
-     */
-    protected function execute_condition() {
-        return ($this->get_courseid() != SITEID);
-    }
 
     protected function define_structure() {
 
@@ -3364,11 +3246,6 @@ class restore_activity_grade_history_structure_step extends restore_structure_st
      * This step is executed only if the grade history file is present.
      */
      protected function execute_condition() {
-
-        if ($this->get_courseid() == SITEID) {
-            return false;
-        }
-
         $fullpath = $this->task->get_taskbasepath();
         $fullpath = rtrim($fullpath, '/') . '/' . $this->filename;
         if (!file_exists($fullpath)) {
@@ -3796,11 +3673,6 @@ class restore_userscompletion_structure_step extends restore_structure_step {
              return false;
          }
 
-        // No completion on the front page.
-        if ($this->get_courseid() == SITEID) {
-            return false;
-        }
-
          // No user completion info found, don't execute
         $fullpath = $this->task->get_taskbasepath();
         $fullpath = rtrim($fullpath, '/') . '/' . $this->filename;
@@ -3851,10 +3723,47 @@ class restore_userscompletion_structure_step extends restore_structure_step {
 }
 
 /**
- * Abstract structure step, parent of all the activity structure steps. Used to support
- * the main <activity ...> tag and process it.
+ * Abstract structure step, parent of all the activity structure steps. Used to suuport
+ * the main <activity ...> tag and process it. Also provides subplugin support for
+ * activities.
  */
 abstract class restore_activity_structure_step extends restore_structure_step {
+
+    protected function add_subplugin_structure($subplugintype, $element) {
+
+        global $CFG;
+
+        // Check the requested subplugintype is a valid one
+        $subpluginsfile = $CFG->dirroot . '/mod/' . $this->task->get_modulename() . '/db/subplugins.php';
+        if (!file_exists($subpluginsfile)) {
+             throw new restore_step_exception('activity_missing_subplugins_php_file', $this->task->get_modulename());
+        }
+        include($subpluginsfile);
+        if (!array_key_exists($subplugintype, $subplugins)) {
+             throw new restore_step_exception('incorrect_subplugin_type', $subplugintype);
+        }
+        // Get all the restore path elements, looking across all the subplugin dirs
+        $subpluginsdirs = core_component::get_plugin_list($subplugintype);
+        foreach ($subpluginsdirs as $name => $subpluginsdir) {
+            $classname = 'restore_' . $subplugintype . '_' . $name . '_subplugin';
+            $restorefile = $subpluginsdir . '/backup/moodle2/' . $classname . '.class.php';
+            if (file_exists($restorefile)) {
+                require_once($restorefile);
+                $restoresubplugin = new $classname($subplugintype, $name, $this);
+                // Add subplugin paths to the step
+                $this->prepare_pathelements($restoresubplugin->define_subplugin_structure($element));
+            }
+        }
+    }
+
+    /**
+     * As far as activity restore steps are implementing restore_subplugin stuff, they need to
+     * have the parent task available for wrapping purposes (get course/context....)
+     * @return restore_task
+     */
+    public function get_task() {
+        return $this->task;
+    }
 
     /**
      * Adds support for the 'activity' path that is common to all the activities

@@ -45,20 +45,19 @@ class core_role_define_role_table_basic extends core_role_define_role_table_adva
         $perm = $this->permissions[$capability->name];
         $permname = $this->allpermissions[$perm];
         $defaultperm = $this->allpermissions[$this->parentpermissions[$capability->name]];
-        $content = '<td class="' . $permname . '">';
+        echo '<td class="' . $permname . '">';
         if ($perm == CAP_ALLOW || $perm == CAP_INHERIT) {
             $checked = '';
             if ($perm == CAP_ALLOW) {
                 $checked = 'checked="checked" ';
             }
-            $content .= '<input type="hidden" name="' . $capability->name . '" value="' . CAP_INHERIT . '" />';
-            $content .= '<label><input type="checkbox" name="' . $capability->name .
+            echo '<input type="hidden" name="' . $capability->name . '" value="' . CAP_INHERIT . '" />';
+            echo '<label><input type="checkbox" name="' . $capability->name .
                 '" value="' . CAP_ALLOW . '" ' . $checked . '/> ' . $this->strallow . '</label>';
         } else {
-            $content .= '<input type="hidden" name="' . $capability->name . '" value="' . $perm . '" />';
-            $content .= $this->strperms[$permname] . '<span class="note">' . $this->stradvmessage . '</span>';
+            echo '<input type="hidden" name="' . $capability->name . '" value="' . $perm . '" />';
+            echo $this->strperms[$permname] . '<span class="note">' . $this->stradvmessage . '</span>';
         }
-        $content .= '</td>';
-        return $content;
+        echo '</td>';
     }
 }

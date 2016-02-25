@@ -67,8 +67,6 @@ class core_role_permissions_table extends core_role_capability_table_base {
 
     protected function add_row_cells($capability) {
         global $OUTPUT, $PAGE;
-        $renderer = $PAGE->get_renderer('core');
-        $adminurl = new moodle_url("/admin/");
 
         $context = $this->context;
         $contextid = $this->context->id;
@@ -76,6 +74,7 @@ class core_role_permissions_table extends core_role_capability_table_base {
         $allowsafeoverrides = $this->allowsafeoverrides;
         $overridableroles = $this->overridableroles;
         $roles = $this->roles;
+
 
         list($needed, $forbidden) = get_roles_with_cap_in_context($context, $capability->name);
         $neededroles    = array();
@@ -92,50 +91,40 @@ class core_role_permissions_table extends core_role_capability_table_base {
 
         foreach ($roles as $id => $name) {
             if (isset($needed[$id])) {
-                $templatecontext = array("rolename" => $name, "roleid" => $id, "action" => "prevent", "spanclass" => "allowed",
-                                  "linkclass" => "preventlink", "adminurl" => $adminurl->out(), "imageurl" => "");
+                $neededroles[$id] = $roles[$id];
                 if (isset($overridableroles[$id]) and ($allowoverrides or ($allowsafeoverrides and is_safe_capability($capability)))) {
-                    $templatecontext['imageurl'] = $renderer->pix_url('t/delete');
+                    $preventurl = new moodle_url($PAGE->url, array('contextid'=>$contextid, 'roleid'=>$id, 'capability'=>$capability->name, 'prevent'=>1));
+                    $neededroles[$id] .= $OUTPUT->action_icon($preventurl, new pix_icon('t/delete', get_string('prevent', 'core_role')));
                 }
-                $neededroles[$id] = $renderer->render_from_template('core/permissionmanager_role', $templatecontext);
             }
         }
-        $neededroles = implode(' ', $neededroles);
+        $neededroles = implode(', ', $neededroles);
         foreach ($roles as $id => $name) {
             if (isset($forbidden[$id])  and ($allowoverrides or ($allowsafeoverrides and is_safe_capability($capability)))) {
-                $templatecontext = array("rolename" => $name, "roleid" => $id, "action" => "unprohibit",
-                                "spanclass" => "forbidden", "linkclass" => "unprohibitlink", "adminurl" => $adminurl->out(),
-                                "imageurl" => "");
+                $forbiddenroles[$id] = $roles[$id];
                 if (isset($overridableroles[$id]) and prohibit_is_removable($id, $context, $capability->name)) {
-                    $templatecontext['imageurl'] = $renderer->pix_url('t/delete');
+                    $unprohibiturl = new moodle_url($PAGE->url, array('contextid'=>$contextid, 'roleid'=>$id, 'capability'=>$capability->name, 'unprohibit'=>1));
+                    $forbiddenroles[$id] .= $OUTPUT->action_icon($unprohibiturl, new pix_icon('t/delete', get_string('delete')));
                 }
-                $forbiddenroles[$id] = $renderer->render_from_template('core/permissionmanager_role', $templatecontext);
             }
         }
-        $forbiddenroles = implode(' ', $forbiddenroles);
+        $forbiddenroles = implode(', ', $forbiddenroles);
 
         if ($allowable and ($allowoverrides or ($allowsafeoverrides and is_safe_capability($capability)))) {
-            $allowurl = new moodle_url($PAGE->url, array('contextid' => $contextid,
-                                       'capability' => $capability->name, 'allow' => 1));
-            $allowicon = $OUTPUT->action_icon($allowurl, new pix_icon('t/add', get_string('allow', 'core_role')), null,
-                                            array('class' => 'allowlink', 'data-action' => 'allow'));
-            $neededroles .= html_writer::div($allowicon, 'allowmore');
+            $allowurl = new moodle_url($PAGE->url, array('contextid'=>$contextid, 'capability'=>$capability->name, 'allow'=>1));
+            $neededroles .= '<div class="allowmore">'.$OUTPUT->action_icon($allowurl, new pix_icon('t/add', get_string('allow', 'core_role'))).'</div>';
         }
 
         if ($forbitable and ($allowoverrides or ($allowsafeoverrides and is_safe_capability($capability)))) {
-            $prohibiturl = new moodle_url($PAGE->url, array('contextid' => $contextid,
-                                          'capability' => $capability->name, 'prohibit' => 1));
-            $prohibiticon = $OUTPUT->action_icon($prohibiturl, new pix_icon('t/add', get_string('prohibit', 'core_role')), null,
-                                                array('class' => 'prohibitlink', 'data-action' => 'prohibit'));
-            $forbiddenroles .= html_writer::div($prohibiticon, 'prohibitmore');
+            $prohibiturl = new moodle_url($PAGE->url, array('contextid'=>$contextid, 'capability'=>$capability->name, 'prohibit'=>1));
+            $forbiddenroles .= '<div class="prohibitmore">'.$OUTPUT->action_icon($prohibiturl, new pix_icon('t/add', get_string('prohibit', 'core_role'))).'</div>';
         }
 
         $risks = $this->get_risks($capability);
 
-        $contents = html_writer::tag('td', $risks, array('class' => 'risks'));
-        $contents .= html_writer::tag('td', $neededroles, array('class' => 'allowedroles'));
-        $contents .= html_writer::tag('td', $forbiddenroles, array('class' => 'forbiddenroles'));
-        return $contents;
+        echo '<td>' . $risks . '</td>';
+        echo '<td>' . $neededroles . '</td>';
+        echo '<td>' . $forbiddenroles . '</td>';
     }
 
     protected function get_risks($capability) {
@@ -157,19 +146,5 @@ class core_role_permissions_table extends core_role_capability_table_base {
         }
 
         return $return;
-    }
-
-    /**
-     * Add additional attributes to row
-     *
-     * @param stdClass $capability capability that this table row relates to.
-     * @return array key value pairs of attribute names and values.
-     */
-    protected function get_row_attributes($capability) {
-        return array(
-                'data-id' => $capability->id,
-                'data-name' => $capability->name,
-                'data-humanname' => get_capability_string($capability->name),
-        );
     }
 }

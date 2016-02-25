@@ -41,16 +41,9 @@ class user_filter_text extends user_filter_type {
      * @param boolean $advanced advanced form element flag
      * @param string $field user table filed name
      */
-    public function __construct($name, $label, $advanced, $field) {
-        parent::__construct($name, $label, $advanced);
-        $this->_field = $field;
-    }
-
-    /**
-     * Old syntax of class constructor for backward compatibility.
-     */
     public function user_filter_text($name, $label, $advanced, $field) {
-        self::__construct($name, $label, $advanced, $field);
+        parent::user_filter_type($name, $label, $advanced);
+        $this->_field = $field;
     }
 
     /**

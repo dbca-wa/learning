@@ -118,9 +118,7 @@ if (!empty($forum)) {      // User is starting a new discussion in a forum
                 if (enrol_selfenrol_available($course->id)) {
                     $SESSION->wantsurl = qualified_me();
                     $SESSION->enrolcancel = get_local_referer(false);
-                    redirect(new moodle_url('/enrol/index.php', array('id' => $course->id,
-                        'returnurl' => '/mod/forum/view.php?f=' . $forum->id)),
-                        get_string('youneedtoenrol'));
+                    redirect($CFG->wwwroot.'/enrol/index.php?id='.$course->id, get_string('youneedtoenrol'));
                 }
             }
         }
@@ -185,9 +183,7 @@ if (!empty($forum)) {      // User is starting a new discussion in a forum
             if (!is_enrolled($coursecontext)) {  // User is a guest here!
                 $SESSION->wantsurl = qualified_me();
                 $SESSION->enrolcancel = get_local_referer(false);
-                redirect(new moodle_url('/enrol/index.php', array('id' => $course->id,
-                    'returnurl' => '/mod/forum/view.php?f=' . $forum->id)),
-                    get_string('youneedtoenrol'));
+                redirect($CFG->wwwroot.'/enrol/index.php?id='.$course->id, get_string('youneedtoenrol'));
             }
         }
         print_error('nopostforum', 'forum');
@@ -841,10 +837,29 @@ if ($mform_post->is_cancelled()) {
         // The location to redirect to after successfully posting.
         $redirectto = new moodle_url('view.php', array('f' => $fromform->forum));
 
+        // Before we add this we must check that the user will not exceed the blocking threshold.
+        forum_check_blocking_threshold($thresholdwarning);
+
+        if (!empty($fromform->groupinfo)) {
+            // Use the value provided in the dropdown group selection.
+            $fromform->groupid = $fromform->groupinfo;
+
+            // Ensure that we redirect back to the group selected.
+            $redirectto->param('group', $fromform->groupid);
+        } else if (!isset($fromform->groupid) || empty($fromform->groupid)) {
+            // There was not value set in the hidden form element.
+            // Use the value for all participants instead.
+            $fromform->groupid = -1;
+        }
+
+        if (!forum_user_can_post_discussion($forum, $fromform->groupid, -1, $cm, $modcontext)) {
+            print_error('cannotcreatediscussion', 'forum');
+        }
+
         $fromform->mailnow = empty($fromform->mailnow) ? 0 : 1;
 
         $discussion = $fromform;
-        $discussion->name = $fromform->subject;
+        $discussion->name    = $fromform->subject;
 
         $newstopic = false;
         if ($forum->type == 'news' && !$fromform->parent) {
@@ -853,88 +868,52 @@ if ($mform_post->is_cancelled()) {
         $discussion->timestart = $fromform->timestart;
         $discussion->timeend = $fromform->timeend;
 
-        $allowedgroups = array();
-        $groupstopostto = array();
+        $message = '';
+        if ($discussion->id = forum_add_discussion($discussion, $mform_post, $message)) {
 
-        // If we are posting a copy to all groups the user has access to.
-        if (isset($fromform->posttomygroups)) {
-            // Post to each of my groups.
-            require_capability('mod/forum:canposttomygroups', $modcontext);
+            $params = array(
+                'context' => $modcontext,
+                'objectid' => $discussion->id,
+                'other' => array(
+                    'forumid' => $forum->id,
+                )
+            );
+            $event = \mod_forum\event\discussion_created::create($params);
+            $event->add_record_snapshot('forum_discussions', $discussion);
+            $event->trigger();
 
-            // Fetch all of this user's groups.
-            // Note: all groups are returned when in visible groups mode so we must manually filter.
-            $allowedgroups = groups_get_activity_allowed_groups($cm);
-            foreach ($allowedgroups as $groupid => $group) {
-                if (forum_user_can_post_discussion($forum, $groupid, -1, $cm, $modcontext)) {
-                    $groupstopostto[] = $groupid;
-                }
-            }
-        } else if (isset($fromform->groupinfo)) {
-            // Use the value provided in the dropdown group selection.
-            $groupstopostto[] = $fromform->groupinfo;
-            $redirectto->param('group', $fromform->groupinfo);
-        } else if (isset($fromform->groupid) && !empty($fromform->groupid)) {
-            // Use the value provided in the hidden form element instead.
-            $groupstopostto[] = $fromform->groupid;
-            $redirectto->param('group', $fromform->groupid);
-        } else {
-            // Use the value for all participants instead.
-            $groupstopostto[] = -1;
-        }
-
-        // Before we post this we must check that the user will not exceed the blocking threshold.
-        forum_check_blocking_threshold($thresholdwarning);
-
-        foreach ($groupstopostto as $group) {
-            if (!forum_user_can_post_discussion($forum, $group, -1, $cm, $modcontext)) {
-                print_error('cannotcreatediscussion', 'forum');
+            $timemessage = 2;
+            if (!empty($message)) { // if we're printing stuff about the file upload
+                $timemessage = 4;
             }
 
-            $discussion->groupid = $group;
-            $message = '';
-            if ($discussion->id = forum_add_discussion($discussion, $mform_post, $message)) {
-
-                $params = array(
-                    'context' => $modcontext,
-                    'objectid' => $discussion->id,
-                    'other' => array(
-                        'forumid' => $forum->id,
-                    )
-                );
-                $event = \mod_forum\event\discussion_created::create($params);
-                $event->add_record_snapshot('forum_discussions', $discussion);
-                $event->trigger();
-
-                $timemessage = 2;
-                if (!empty($message)) { // If we're printing stuff about the file upload.
-                    $timemessage = 4;
-                }
-
-                if ($fromform->mailnow) {
-                    $message .= get_string("postmailnow", "forum");
-                    $timemessage = 4;
-                } else {
-                    $message .= '<p>'.get_string("postaddedsuccess", "forum") . '</p>';
-                    $message .= '<p>'.get_string("postaddedtimeleft", "forum", format_time($CFG->maxeditingtime)) . '</p>';
-                }
-
-                if ($subscribemessage = forum_post_subscription($fromform, $forum, $discussion)) {
-                    $timemessage = 6;
-                }
+            if ($fromform->mailnow) {
+                $message .= get_string("postmailnow", "forum");
+                $timemessage = 4;
             } else {
-                print_error("couldnotadd", "forum", $errordestination);
+                $message .= '<p>'.get_string("postaddedsuccess", "forum") . '</p>';
+                $message .= '<p>'.get_string("postaddedtimeleft", "forum", format_time($CFG->maxeditingtime)) . '</p>';
             }
-        }
 
-        // Update completion status.
-        $completion = new completion_info($course);
-        if ($completion->is_enabled($cm) &&
+            if ($subscribemessage = forum_post_subscription($fromform, $forum, $discussion)) {
+                $timemessage = 6;
+            }
+
+            // Update completion status
+            $completion=new completion_info($course);
+            if($completion->is_enabled($cm) &&
                 ($forum->completiondiscussions || $forum->completionposts)) {
-            $completion->update_state($cm, COMPLETION_COMPLETE);
+                $completion->update_state($cm,COMPLETION_COMPLETE);
+            }
+
+            // Redirect back to the discussion.
+            redirect(forum_go_back_to($redirectto->out()), $message . $subscribemessage, $timemessage);
+
+        } else {
+            print_error("couldnotadd", "forum", $errordestination);
         }
 
-        // Redirect back to the discussion.
-        redirect(forum_go_back_to($redirectto->out()), $message . $subscribemessage, $timemessage);
+        exit;
     }
 }
 

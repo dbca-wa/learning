@@ -52,7 +52,7 @@ Y.extend(COMMENTSEARCH, M.core.dialogue, {
         commentlist = Y.Node.create('<ul role="menu" class="assignfeedback_editpdf_menu"/>');
         container.append(commentlist);
 
-        commentfilter.on('keyup', this.filter_search_comments, this);
+        commentfilter.on('keyup', this.filter_search_comments, null, this);
         commentlist.delegate('click', this.focus_on_comment, 'a', this);
         commentlist.delegate('key', this.focus_on_comment, 'enter,space', 'a', this);
 
@@ -71,12 +71,10 @@ Y.extend(COMMENTSEARCH, M.core.dialogue, {
     filter_search_comments : function() {
         var filternode,
             commentslist,
-            filtertext,
-            dialogueid;
+            filtertext;
 
-        dialogueid = this.get('id');
-        filternode = Y.one('#' + dialogueid + SELECTOR.SEARCHFILTER);
-        commentslist = Y.one('#' + dialogueid + SELECTOR.SEARCHCOMMENTSLIST);
+        filternode = Y.one(SELECTOR.SEARCHFILTER);
+        commentslist = Y.one(SELECTOR.SEARCHCOMMENTSLIST);
 
         filtertext = filternode.get('value');
 

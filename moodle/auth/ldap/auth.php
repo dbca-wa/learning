@@ -143,18 +143,11 @@ class auth_plugin_ldap extends auth_plugin_base {
     /**
      * Constructor with initialisation.
      */
-    public function __construct() {
+    function auth_plugin_ldap() {
         $this->authtype = 'ldap';
         $this->roleauth = 'auth_ldap';
         $this->errorlogtag = '[AUTH LDAP] ';
         $this->init_plugin($this->authtype);
-    }
-
-    /**
-     * Old syntax of class constructor for backward compatibility.
-     */
-    public function auth_plugin_ldap() {
-        self::__construct();
     }
 
     /**
@@ -547,7 +540,6 @@ class auth_plugin_ldap extends auth_plugin_base {
         global $CFG, $DB, $PAGE, $OUTPUT;
 
         require_once($CFG->dirroot.'/user/profile/lib.php');
-        require_once($CFG->dirroot.'/user/lib.php');
 
         if ($this->user_exists($user->username)) {
             print_error('auth_ldap_user_exists', 'auth_ldap');
@@ -561,8 +553,6 @@ class auth_plugin_ldap extends auth_plugin_base {
         }
 
         $user->id = user_create_user($user, false, false);
-
-        user_add_password_history($user->id, $plainslashedpassword);
 
         // Save any custom profile field information
         profile_save_data($user);
@@ -626,6 +616,9 @@ class auth_plugin_ldap extends auth_plugin_base {
                     return AUTH_CONFIRM_FAIL;
                 }
                 $user->confirmed = 1;
+                if ($user->firstaccess == 0) {
+                    $user->firstaccess = time();
+                }
                 user_update_user($user, false);
                 return AUTH_CONFIRM_OK;
             }

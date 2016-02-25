@@ -45,10 +45,9 @@ unset($SESSION->theme);
 if ($reset and confirm_sesskey()) {
     theme_reset_all_caches();
 
-} else if ($choose && $device && !theme_is_device_locked($device) && !$unsettheme && confirm_sesskey()) {
+} else if ($choose && $device && !$unsettheme && confirm_sesskey()) {
     // Load the theme to make sure it is valid.
     $theme = theme_config::load($choose);
-
     // Get the config argument for the chosen device.
     $themename = core_useragent::get_device_type_cfg_var_name($device);
     set_config($themename, $theme->name);
@@ -74,7 +73,7 @@ if ($reset and confirm_sesskey()) {
     echo $output->continue_button($CFG->wwwroot . '/theme/index.php');
     echo $output->footer();
     exit;
-} else if ($device && !theme_is_device_locked($device) && $unsettheme && confirm_sesskey() && ($device != 'default')) {
+} else if ($device && $unsettheme && confirm_sesskey() && ($device != 'default')) {
     // Unset the theme and continue.
     unset_config(core_useragent::get_device_type_cfg_var_name($device));
     $device = '';
@@ -105,7 +104,6 @@ if (!empty($CFG->enabledevicedetection) && empty($device)) {
         if (!$themename && $thedevice == 'default') {
             $themename = theme_config::DEFAULT_THEME;
         }
-        $themelocked = theme_is_device_locked($thedevice);
 
         $screenshotcell = $strthemenotselected;
         $unsetthemebutton = '';
@@ -127,7 +125,7 @@ if (!empty($CFG->enabledevicedetection) && empty($device)) {
                 $headingthemename = $OUTPUT->heading($strthemename, 3);
             }
             // If not default device then show option to unset theme.
-            if ($thedevice != 'default' && !$themelocked) {
+            if ($thedevice != 'default') {
                 $unsetthemestr = get_string('unsettheme', 'admin');
                 $unsetthemeurl = new moodle_url('/theme/index.php',
                     array('device' => $thedevice, 'sesskey' => sesskey(), 'unsettheme' => true));
@@ -137,21 +135,12 @@ if (!empty($CFG->enabledevicedetection) && empty($device)) {
         }
 
         $deviceurl = new moodle_url('/theme/index.php', array('device' => $thedevice, 'sesskey' => sesskey()));
-
-        $select = '';
-        if (!$themelocked) {
-            $select = $OUTPUT->render(new single_button($deviceurl, $strthemeselect, 'get'));
-        }
-
-        $lockwarning = '';
-        if ($themelocked) {
-            $lockwarning = html_writer::div(get_string('configoverride', 'admin'), 'alert alert-info');
-        }
+        $select = new single_button($deviceurl, $strthemeselect, 'get');
 
         $table->data[] = array(
             $OUTPUT->heading(ucfirst($thedevice), 3),
             $screenshotcell,
-            $headingthemename . $lockwarning . $select . $unsetthemebutton
+            $headingthemename . $OUTPUT->render($select) . $unsetthemebutton
         );
     }
 } else {
@@ -163,19 +152,10 @@ if (!empty($CFG->enabledevicedetection) && empty($device)) {
         $device = core_useragent::get_device_type();
     }
 
-    $themelocked = theme_is_device_locked($device);
     $table->id = 'adminthemeselector';
     $table->head = array(get_string('theme'), get_string('info'));
 
-    $themes = array();
-    if ($themelocked) {
-        $heading = get_string('currenttheme', 'admin');
-        $themename = theme_get_locked_theme_for_device($device);
-        $themedirectory = core_component::get_plugin_directory('theme', $themename);
-        $themes[$themename] = $themedirectory;
-    } else {
-        $themes = core_component::get_plugin_list('theme');
-    }
+    $themes = core_component::get_plugin_list('theme');
 
     foreach ($themes as $themename => $themedir) {
 
@@ -219,25 +199,19 @@ if (!empty($CFG->enabledevicedetection) && empty($device)) {
         // Contents of the second cell.
         $infocell = $OUTPUT->heading($strthemename, 3);
 
-        if ($themelocked) {
-            $infocell .= html_writer::div(get_string('configoverride', 'admin'), 'alert alert-info');
-        }
-
         // Button to choose this as the main theme or unset this theme for devices other then default.
-        if (!$themelocked) {
-            if (($ischosentheme) && ($device != 'default')) {
-                $unsetthemestr = get_string('unsettheme', 'admin');
-                $unsetthemeurl = new moodle_url('/theme/index.php',
-                    array('device' => $device, 'unsettheme' => true, 'sesskey' => sesskey()));
-                $unsetbutton = new single_button($unsetthemeurl, $unsetthemestr, 'get');
-                $infocell .= $OUTPUT->render($unsetbutton);
-            } else if ((!$ischosentheme)) {
-                $setthemestr = get_string('usetheme');
-                $setthemeurl = new moodle_url('/theme/index.php',
-                    array('device' => $device, 'choose' => $themename, 'sesskey' => sesskey()));
-                $setthemebutton = new single_button($setthemeurl, $setthemestr, 'get');
-                $infocell .= $OUTPUT->render($setthemebutton);
-            }
+        if (($ischosentheme) && ($device != 'default')) {
+            $unsetthemestr = get_string('unsettheme', 'admin');
+            $unsetthemeurl = new moodle_url('/theme/index.php',
+                array('device' => $device, 'unsettheme' => true, 'sesskey' => sesskey()));
+            $unsetbutton = new single_button($unsetthemeurl, $unsetthemestr, 'get');
+            $infocell .= $OUTPUT->render($unsetbutton);
+        } else if ((!$ischosentheme)) {
+            $setthemestr = get_string('usetheme');
+            $setthemeurl = new moodle_url('/theme/index.php',
+                array('device' => $device, 'choose' => $themename, 'sesskey' => sesskey()));
+            $setthemebutton = new single_button($setthemeurl, $setthemestr, 'get');
+            $infocell .= $OUTPUT->render($setthemebutton);
         }
 
         $row[] = $infocell;

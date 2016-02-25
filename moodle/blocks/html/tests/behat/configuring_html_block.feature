@@ -7,7 +7,6 @@ Feature: Adding and configuring HTML blocks
   @javascript
   Scenario: Configuring the HTML block with Javascript on
     Given I log in as "admin"
-    And I am on site homepage
     When I click on "Turn editing on" "link" in the "Administration" "block"
     And I add the "HTML" block
     And I configure the "(new HTML block)" block
@@ -24,7 +23,6 @@ Feature: Adding and configuring HTML blocks
 
   Scenario: Configuring the HTML block with Javascript off
     Given I log in as "admin"
-    And I am on site homepage
     When I click on "Turn editing on" "link" in the "Administration" "block"
     And I add the "HTML" block
     And I configure the "(new HTML block)" block

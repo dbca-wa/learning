@@ -24,10 +24,10 @@ class Less_Tree_Ruleset extends Less_Tree{
 	public $multiMedia;
 	public $allExtends;
 
-	public $ruleset_id;
-	public $originalRuleset;
+	var $ruleset_id;
+	var $originalRuleset;
 
-	public $first_oelements;
+	var $first_oelements;
 
 	public function SetRulesetIndex(){
 		$this->ruleset_id = Less_Parser::$next_id++;
@@ -50,7 +50,7 @@ class Less_Tree_Ruleset extends Less_Tree{
 		$this->SetRulesetIndex();
 	}
 
-	public function accept( $visitor ){
+	function accept( $visitor ){
 		if( $this->paths ){
 			$paths_len = count($this->paths);
 			for($i = 0,$paths_len; $i < $paths_len; $i++ ){

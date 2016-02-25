@@ -41,11 +41,11 @@
     }
 
     require_once($CFG->dirroot.'/calendar/lib.php');
-    $timezones = core_date::get_list_of_timezones(null, true);
+    $timezones = get_list_of_timezones();
 
     echo '<center><form action="timezone.php" method="post">';
     echo html_writer::label($strusers . ' (' . $strall . '): ', 'menuzone');
-    echo html_writer::select($timezones, "zone", $current);
+    echo html_writer::select($timezones, "zone", $current, array('99'=>get_string("serverlocaltime")));
     echo "<input type=\"hidden\" name=\"sesskey\" value=\"".sesskey()."\" />";
     echo '<input type="submit" value="'.s($strsavechanges).'" />';
     echo "</form></center>";

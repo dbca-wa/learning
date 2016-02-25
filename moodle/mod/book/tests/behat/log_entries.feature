@@ -4,13 +4,12 @@ Feature: In a book, verify log entries
   As an admin
   I need to perform various actions in a book.
 
-  @javascript @_switch_window
+  @javascript
   Scenario: perform various book actions and verify log entries.
     Given the following "courses" exist:
       | fullname | shortname | category | groupmode |
       | Course 1 | C1 | 0 | 1 |
     And I log in as "admin"
-    And I am on site homepage
     And I follow "Course 1"
     And I turn editing mode on
     When I add a "Book" to section "1" and I fill the form with:

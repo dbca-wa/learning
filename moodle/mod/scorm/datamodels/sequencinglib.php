@@ -421,8 +421,7 @@ function scorm_seq_choice_sequencing($sco, $userid, $seq) {
     }
 
     if ($seq->currentactivity === $sco) {
-        // MDL-51757 - this part of the SCORM 2004 sequencing and navigation was not completed.
-        throw new \coding_exception('Unexpected state encountered');
+        break;
     }
 
     $sib = scorm_get_siblings($seq->currentactivity);
@@ -452,8 +451,7 @@ function scorm_seq_choice_sequencing($sco, $userid, $seq) {
                 return $seq;
             }
         }
-        // MDL-51757 - this part of the SCORM 2004 sequencing and navigation was not completed.
-        throw new \coding_exception('Unexpected state encountered');
+        break;
     }
 
     if ($seq->currentactivity == null || $seq->currentactivity == $comancestor) {
@@ -480,8 +478,7 @@ function scorm_seq_choice_sequencing($sco, $userid, $seq) {
                 return $seq;
             }
         }
-        // MDL-51757 - this part of the SCORM 2004 sequencing and navigation was not completed.
-        throw new \coding_exception('Unexpected state encountered');
+        break;
     }
 
     if ($comancestor->id == $sco->id) {
@@ -507,8 +504,7 @@ function scorm_seq_choice_sequencing($sco, $userid, $seq) {
                 }
             }
         }
-        // MDL-51757 - this part of the SCORM 2004 sequencing and navigation was not completed.
-        throw new \coding_exception('Unexpected state encountered');
+        break;
     }
 
     if (array_search($ancestors, $comancestor) !== false) {
@@ -593,8 +589,7 @@ function scorm_seq_choice_sequencing($sco, $userid, $seq) {
                 }
             }
         }
-        // MDL-51757 - this part of the SCORM 2004 sequencing and navigation was not completed.
-        throw new \coding_exception('Unexpected state encountered');
+        break;
     }
 
     if (scorm_is_leaf ($sco)) {

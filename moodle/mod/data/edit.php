@@ -34,14 +34,8 @@ $rid   = optional_param('rid', 0, PARAM_INT);    //record id
 $cancel   = optional_param('cancel', '', PARAM_RAW);    // cancel an add
 $mode ='addtemplate';    //define the mode for this page, only 1 mode available
 
-
-
 $url = new moodle_url('/mod/data/edit.php');
 if ($rid !== 0) {
-    $record = $DB->get_record('data_records', array(
-            'id' => $rid,
-            'dataid' => $d,
-        ), '*', MUST_EXIST);
     $url->param('rid', $rid);
 }
 if ($cancel !== '') {
@@ -112,7 +106,7 @@ $groupmode = groups_get_activity_groupmode($cm);
 if (!has_capability('mod/data:manageentries', $context)) {
     if ($rid) {
         // User is editing an existing record
-        if (!data_user_can_manage_entry($record, $data, $context)) {
+        if (!data_isowner($rid) || data_in_readonly_period($data)) {
             print_error('noaccess','data');
         }
     } else if (!data_user_can_add_entry($data, $currentgroup, $groupmode, $context)) {
@@ -158,121 +152,105 @@ if ($rid) {
 $PAGE->set_title($data->name);
 $PAGE->set_heading($course->fullname);
 
-// Process incoming data for adding/updating records.
+/// Process incoming data for adding/updating records
 
-// Keep track of any notifications.
-$generalnotifications = array();
-$fieldnotifications = array();
-
-// Process the submitted form.
 if ($datarecord = data_submitted() and confirm_sesskey()) {
-    if ($rid) {
-        // Updating an existing record.
 
-        // Retrieve the format for the fields.
-        $fields = $DB->get_records('data_fields', array('dataid' => $datarecord->d));
+    $ignorenames = array('MAX_FILE_SIZE','sesskey','d','rid','saveandview','cancel');  // strings to be ignored in input data
 
-        // Validate the form to ensure that enough data was submitted.
-        $processeddata = data_process_submission($data, $fields, $datarecord);
+    if ($rid) {                                          /// Update some records
 
-        // Add the new notification data.
-        $generalnotifications = array_merge($generalnotifications, $processeddata->generalnotifications);
-        $fieldnotifications = array_merge($fieldnotifications, $processeddata->fieldnotifications);
+        /// All student edits are marked unapproved by default
+        $record = $DB->get_record('data_records', array('id'=>$rid));
 
-        if ($processeddata->validated) {
-            // Enough data to update the record.
-
-            // Obtain the record to be updated.
-
-            // Reset the approved flag after edit if the user does not have permission to approve their own entries.
-            if (!has_capability('mod/data:approve', $context)) {
-                $record->approved = 0;
-            }
-
-            // Update the parent record.
-            $record->timemodified = time();
-            $DB->update_record('data_records', $record);
-
-            // Update all content.
-            foreach ($processeddata->fields as $fieldname => $field) {
-                $field->update_content($rid, $datarecord->$fieldname, $fieldname);
-            }
-
-            // Trigger an event for updating this record.
-            $event = \mod_data\event\record_updated::create(array(
-                'objectid' => $rid,
-                'context' => $context,
-                'courseid' => $course->id,
-                'other' => array(
-                    'dataid' => $data->id
-                )
-            ));
-            $event->add_record_snapshot('data', $data);
-            $event->trigger();
-
-            $viewurl = new moodle_url('/mod/data/view.php', array(
-                'd' => $data->id,
-                'rid' => $rid,
-            ));
-            redirect($viewurl);
+        /// reset approved flag after student edit
+        if (!has_capability('mod/data:approve', $context)) {
+            $record->approved = 0;
         }
 
-    } else {
-        // No recordid was specified - creating a new entry.
+        $record->timemodified = time();
+        $DB->update_record('data_records', $record);
 
-        // Retrieve the format for the fields.
-        $fields = $DB->get_records('data_fields', array('dataid' => $datarecord->d));
+        /// Update all content
+        $field = NULL;
+        foreach ($datarecord as $name => $value) {
+            if (!in_array($name, $ignorenames)) {
+                $namearr = explode('_',$name);  // Second one is the field id
+                if (empty($field->field) || ($namearr[1] != $field->field->id)) {  // Try to reuse classes
+                    $field = data_get_field_from_id($namearr[1], $data);
+                }
+                if ($field) {
+                    $field->update_content($rid, $value, $name);
+                }
+            }
+        }
 
-        // Validate the form to ensure that enough data was submitted.
-        $processeddata = data_process_submission($data, $fields, $datarecord);
+        // Trigger an event for updating this record.
+        $event = \mod_data\event\record_updated::create(array(
+            'objectid' => $rid,
+            'context' => $context,
+            'courseid' => $course->id,
+            'other' => array(
+                'dataid' => $data->id
+            )
+        ));
+        $event->add_record_snapshot('data', $data);
+        $event->trigger();
 
-        // Add the new notification data.
-        $generalnotifications = array_merge($generalnotifications, $processeddata->generalnotifications);
-        $fieldnotifications = array_merge($fieldnotifications, $processeddata->fieldnotifications);
+        redirect($CFG->wwwroot.'/mod/data/view.php?d='.$data->id.'&rid='.$rid);
 
-        // Add instance to data_record.
-        if ($processeddata->validated && $recordid = data_add_record($data, $currentgroup)) {
+    } else { /// Add some new records
+        ///Empty form checking - you can't submit an empty form!
 
-            // Insert a whole lot of empty records to make sure we have them.
-            $records = array();
+        $emptyform = true;      // assume the worst
+
+        foreach ($datarecord as $name => $value) {
+            if (!in_array($name, $ignorenames)) {
+                $namearr = explode('_', $name);  // Second one is the field id
+                if (empty($field->field) || ($namearr[1] != $field->field->id)) {  // Try to reuse classes
+                    $field = data_get_field_from_id($namearr[1], $data);
+                }
+                if ($field->notemptyfield($value, $name)) {
+                    $emptyform = false;
+                    break;             // if anything has content, this form is not empty, so stop now!
+                }
+            }
+        }
+
+        if ($emptyform){    //nothing gets written to database
+            echo $OUTPUT->notification(get_string('emptyaddform','data'));
+        }
+
+        if (!$emptyform && $recordid = data_add_record($data, $currentgroup)) {    //add instance to data_record
+
+            /// Insert a whole lot of empty records to make sure we have them
+            $fields = $DB->get_records('data_fields', array('dataid'=>$data->id));
             foreach ($fields as $field) {
                 $content = new stdClass();
                 $content->recordid = $recordid;
                 $content->fieldid = $field->id;
-                $records[] = $content;
+                $DB->insert_record('data_content',$content);
             }
 
-            // Bulk insert the records now. Some records may have no data but all must exist.
-            $DB->insert_records('data_content', $records);
-
-            // Add all provided content.
-            foreach ($processeddata->fields as $fieldname => $field) {
-                $field->update_content($recordid, $datarecord->$fieldname, $fieldname);
+            /// For each field in the add form, add it to the data_content.
+            foreach ($datarecord as $name => $value){
+                if (!in_array($name, $ignorenames)) {
+                    $namearr = explode('_', $name);  // Second one is the field id
+                    if (empty($field->field) || ($namearr[1] != $field->field->id)) {  // Try to reuse classes
+                        $field = data_get_field_from_id($namearr[1], $data);
+                    }
+                    if ($field) {
+                        $field->update_content($recordid, $value, $name);
+                    }
+                }
             }
-
-            // Trigger an event for updating this record.
-            $event = \mod_data\event\record_created::create(array(
-                'objectid' => $rid,
-                'context' => $context,
-                'courseid' => $course->id,
-                'other' => array(
-                    'dataid' => $data->id
-                )
-            ));
-            $event->add_record_snapshot('data', $data);
-            $event->trigger();
 
             if (!empty($datarecord->saveandview)) {
-                $viewurl = new moodle_url('/mod/data/view.php', array(
-                    'd' => $data->id,
-                    'rid' => $recordid,
-                ));
-                redirect($viewurl);
+                redirect($CFG->wwwroot.'/mod/data/view.php?d='.$data->id.'&rid='.$recordid);
             }
         }
     }
-}
-// End of form processing.
+}  // End of form processing
 
 
 /// Print the page header
@@ -322,18 +300,9 @@ if ($data->addtemplate){
 
         // To skip unnecessary calls to display_add_field().
         if (strpos($data->addtemplate, "[[".$field->field->name."]]") !== false) {
-            // Replace the field tag.
             $patterns[] = "[[".$field->field->name."]]";
-            $errors = '';
-            if (!empty($fieldnotifications[$field->field->name])) {
-                foreach ($fieldnotifications[$field->field->name] as $notification) {
-                    $errors .= $OUTPUT->notification($notification);
-                }
-            }
-            $replacements[] = $errors . $field->display_add_field($rid, $datarecord);
+            $replacements[] = $field->display_add_field($rid);
         }
-
-        // Replace the field id tag.
         $patterns[] = "[[".$field->field->name."#id]]";
         $replacements[] = 'field_'.$field->field->id;
     }
@@ -344,9 +313,6 @@ if ($data->addtemplate){
     $newtext = '';
 }
 
-foreach ($generalnotifications as $notification) {
-    echo $OUTPUT->notification($notification);
-}
 echo $newtext;
 
 echo '<div class="mdl-align"><input type="submit" name="saveandview" value="'.get_string('saveandview','data').'" />';

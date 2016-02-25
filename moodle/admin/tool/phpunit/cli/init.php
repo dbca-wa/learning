@@ -39,7 +39,6 @@ require_once(__DIR__.'/../../../../lib/phpunit/bootstraplib.php');
 require_once(__DIR__.'/../../../../lib/testing/lib.php');
 
 echo "Initialising Moodle PHPUnit test environment...\n";
-testing_update_composer_dependencies();
 
 $output = null;
 exec('php --version', $output, $code);
@@ -73,6 +72,4 @@ if ($code == 0) {
 
 passthru("php util.php --buildconfig", $code);
 
-echo "\n";
-echo "PHPUnit test environment setup complete.\n";
 exit(0);

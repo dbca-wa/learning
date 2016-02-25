@@ -168,7 +168,7 @@ if ($formdata = $mform2->is_cancelled()) {
     $allowdeletes      = (!empty($formdata->uuallowdeletes) and $optype != UU_USER_ADDNEW and $optype != UU_USER_ADDINC);
     $allowsuspends     = (!empty($formdata->uuallowsuspends));
     $bulk              = $formdata->uubulk;
-    $noemailduplicates = empty($CFG->allowaccountssameemail) ? 1 : $formdata->uunoemailduplicates;
+    $noemailduplicates = $formdata->uunoemailduplicates;
     $standardusernames = $formdata->uustandardusernames;
     $resetpasswords    = isset($formdata->uuforcepasswordchange) ? $formdata->uuforcepasswordchange : UU_PWRESET_NONE;
 
@@ -187,8 +187,7 @@ if ($formdata = $mform2->is_cancelled()) {
     // caches
     $ccache         = array(); // course cache - do not fetch all courses here, we  will not probably use them all anyway!
     $cohorts        = array();
-    $rolecache      = uu_allowed_roles_cache(); // Course roles lookup cache.
-    $sysrolecache   = uu_allowed_sysroles_cache(); // System roles lookup cache.
+    $rolecache      = uu_allowed_roles_cache(); // roles lookup cache
     $manualcache    = array(); // cache of used manual enrol plugins in each course
     $supportedauths = uu_supported_auths(); // officially supported plugins that are enabled
 
@@ -232,8 +231,8 @@ if ($formdata = $mform2->is_cancelled()) {
                 if (isset($USER->$key) and is_array($USER->$key)) {
                     // this must be some hacky field that is abusing arrays to store content and format
                     $user->$key = array();
-                    $user->{$key['text']}   = $value;
-                    $user->{$key['format']} = FORMAT_MOODLE;
+                    $user->$key['text']   = $value;
+                    $user->$key['format'] = FORMAT_MOODLE;
                 } else {
                     $user->$key = trim($value);
                 }
@@ -890,41 +889,6 @@ if ($formdata = $mform2->is_cancelled()) {
         // find course enrolments, groups, roles/types and enrol periods
         // this is again a special case, we always do this for any updated or created users
         foreach ($filecolumns as $column) {
-            if (preg_match('/^sysrole\d+$/', $column)) {
-
-                if (!empty($user->$column)) {
-                    $sysrolename = $user->$column;
-                    if ($sysrolename[0] == '-') {
-                        $removing = true;
-                        $sysrolename = substr($sysrolename, 1);
-                    } else {
-                        $removing = false;
-                    }
-
-                    if (array_key_exists($sysrolename, $sysrolecache)) {
-                        $sysroleid = $sysrolecache[$sysrolename]->id;
-                    } else {
-                        $upt->track('enrolments', get_string('unknownrole', 'error', s($sysrolename)), 'error');
-                        continue;
-                    }
-
-                    if ($removing) {
-                        if (user_has_role_assignment($user->id, $sysroleid, SYSCONTEXTID)) {
-                            role_unassign($sysroleid, $user->id, SYSCONTEXTID);
-                            $upt->track('enrolments', get_string('unassignedsysrole',
-                                    'tool_uploaduser', $sysrolecache[$sysroleid]->name));
-                        }
-                    } else {
-                        if (!user_has_role_assignment($user->id, $sysroleid, SYSCONTEXTID)) {
-                            role_assign($sysroleid, $user->id, SYSCONTEXTID);
-                            $upt->track('enrolments', get_string('assignedsysrole',
-                                    'tool_uploaduser', $sysrolecache[$sysroleid]->name));
-                        }
-                    }
-                }
-
-                continue;
-            }
             if (!preg_match('/^course\d+$/', $column)) {
                 continue;
             }
@@ -963,32 +927,32 @@ if ($formdata = $mform2->is_cancelled()) {
                 // let's not invent new lang strings here for this rarely used feature.
 
                 if (!empty($user->{'role'.$i})) {
-                    $rolename = $user->{'role'.$i};
-                    if (array_key_exists($rolename, $rolecache)) {
-                        $roleid = $rolecache[$rolename]->id;
+                    $addrole = $user->{'role'.$i};
+                    if (array_key_exists($addrole, $rolecache)) {
+                        $rid = $rolecache[$addrole]->id;
                     } else {
-                        $upt->track('enrolments', get_string('unknownrole', 'error', s($rolename)), 'error');
+                        $upt->track('enrolments', get_string('unknownrole', 'error', s($addrole)), 'error');
                         continue;
                     }
 
-                    role_assign($roleid, $user->id, context_course::instance($courseid));
+                    role_assign($rid, $user->id, context_course::instance($courseid));
 
                     $a = new stdClass();
                     $a->course = $shortname;
-                    $a->role   = $rolecache[$roleid]->name;
+                    $a->role   = $rolecache[$rid]->name;
                     $upt->track('enrolments', get_string('enrolledincourserole', 'enrol_manual', $a));
                 }
 
             } else if ($manual and $manualcache[$courseid]) {
 
                 // find role
-                $roleid = false;
+                $rid = false;
                 if (!empty($user->{'role'.$i})) {
-                    $rolename = $user->{'role'.$i};
-                    if (array_key_exists($rolename, $rolecache)) {
-                        $roleid = $rolecache[$rolename]->id;
+                    $addrole = $user->{'role'.$i};
+                    if (array_key_exists($addrole, $rolecache)) {
+                        $rid = $rolecache[$addrole]->id;
                     } else {
-                        $upt->track('enrolments', get_string('unknownrole', 'error', s($rolename)), 'error');
+                        $upt->track('enrolments', get_string('unknownrole', 'error', s($addrole)), 'error');
                         continue;
                     }
 
@@ -1001,14 +965,14 @@ if ($formdata = $mform2->is_cancelled()) {
                     } else if (empty($formdata->{'uulegacy'.$addtype})) {
                         continue;
                     } else {
-                        $roleid = $formdata->{'uulegacy'.$addtype};
+                        $rid = $formdata->{'uulegacy'.$addtype};
                     }
                 } else {
                     // no role specified, use the default from manual enrol plugin
-                    $roleid = $manualcache[$courseid]->roleid;
+                    $rid = $manualcache[$courseid]->roleid;
                 }
 
-                if ($roleid) {
+                if ($rid) {
                     // Find duration and/or enrol status.
                     $timeend = 0;
                     $status = null;
@@ -1035,11 +999,11 @@ if ($formdata = $mform2->is_cancelled()) {
                         $timeend = $today + $manualcache[$courseid]->enrolperiod;
                     }
 
-                    $manual->enrol_user($manualcache[$courseid], $user->id, $roleid, $today, $timeend, $status);
+                    $manual->enrol_user($manualcache[$courseid], $user->id, $rid, $today, $timeend, $status);
 
                     $a = new stdClass();
                     $a->course = $shortname;
-                    $a->role   = $rolecache[$roleid]->name;
+                    $a->role   = $rolecache[$rid]->name;
                     $upt->track('enrolments', get_string('enrolledincourserole', 'enrol_manual', $a));
                 }
             }

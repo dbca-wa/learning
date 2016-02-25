@@ -35,17 +35,10 @@ class auth_plugin_mnet extends auth_plugin_base {
     /**
      * Constructor.
      */
-    public function __construct() {
+    function auth_plugin_mnet() {
         $this->authtype = 'mnet';
         $this->config = get_config('auth_mnet');
         $this->mnet = get_mnet_environment();
-    }
-
-    /**
-     * Old syntax of class constructor for backward compatibility.
-     */
-    public function auth_plugin_mnet() {
-        self::__construct();
     }
 
     /**
@@ -296,7 +289,7 @@ class auth_plugin_mnet extends auth_plugin_base {
             } See MDL-21327   for why this is commented out
             */
             $remoteuser->mnethostid = $remotehost->id;
-            $remoteuser->firstaccess = 0;
+            $remoteuser->firstaccess = time(); // First time user in this server, grab it here
             $remoteuser->confirmed = 1;
 
             $remoteuser->id = $DB->insert_record('user', $remoteuser);
@@ -366,6 +359,9 @@ class auth_plugin_mnet extends auth_plugin_base {
         }
 
         $localuser->mnethostid = $remotepeer->id;
+        if (empty($localuser->firstaccess)) { // Now firstaccess, grab it here
+            $localuser->firstaccess = time();
+        }
         user_update_user($localuser, false);
 
         if (!$firsttime) {

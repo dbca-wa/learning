@@ -1,8 +1,6 @@
 <?php
 /*
-  @version   v5.20.1  06-Dec-2015
-  @copyright (c) 2000-2013 John Lim (jlim#natsoft.com). All rights reserved.
-  @copyright (c) 2014      Damien Regad, Mark Newnham and the ADOdb community
+  V5.19  23-Apr-2014  (c) 2000-2014 John Lim (jlim#natsoft.com). All rights reserved.
   Released under both BSD license and Lesser GPL library license.
   Whenever there is any discrepancy between the two licenses,
   the BSD license will take precedence. See License.txt.
@@ -35,7 +33,7 @@ class ADODB_odbtp extends ADOConnection{
 	var $_canPrepareSP = false;
 	var $_dontPoolDBC = true;
 
-	function __construct()
+	function ADODB_odbtp()
 	{
 	}
 
@@ -122,7 +120,7 @@ class ADODB_odbtp extends ADOConnection{
 		return $this->Execute("insert into adodb_seq values('$seqname',$start)");
 	}
 
-	function DropSequence($seqname = 'adodbseq')
+	function DropSequence($seqname)
 	{
 		if (empty($this->_dropSeqSQL)) return false;
 		return $this->Execute(sprintf($this->_dropSeqSQL,$seqname));
@@ -477,7 +475,7 @@ class ADODB_odbtp extends ADOConnection{
 		return array($sql,$stmt,false);
 	}
 
-	function PrepareSP($sql, $param = true)
+	function PrepareSP($sql)
 	{
 		if (!$this->_canPrepareSP) return $sql; // Can't prepare procedures
 
@@ -670,14 +668,14 @@ class ADORecordSet_odbtp extends ADORecordSet {
 	var $databaseType = 'odbtp';
 	var $canSeek = true;
 
-	function __construct($queryID,$mode=false)
+	function ADORecordSet_odbtp($queryID,$mode=false)
 	{
 		if ($mode === false) {
 			global $ADODB_FETCH_MODE;
 			$mode = $ADODB_FETCH_MODE;
 		}
 		$this->fetchMode = $mode;
-		parent::__construct($queryID);
+		$this->ADORecordSet($queryID);
 	}
 
 	function _initrs()
@@ -793,9 +791,9 @@ class ADORecordSet_odbtp_mssql extends ADORecordSet_odbtp {
 
 	var $databaseType = 'odbtp_mssql';
 
-	function __construct($id,$mode=false)
+	function ADORecordSet_odbtp_mssql($id,$mode=false)
 	{
-		return parent::__construct($id,$mode);
+		return $this->ADORecordSet_odbtp($id,$mode);
 	}
 }
 
@@ -803,9 +801,9 @@ class ADORecordSet_odbtp_access extends ADORecordSet_odbtp {
 
 	var $databaseType = 'odbtp_access';
 
-	function __construct($id,$mode=false)
+	function ADORecordSet_odbtp_access($id,$mode=false)
 	{
-		return parent::__construct($id,$mode);
+		return $this->ADORecordSet_odbtp($id,$mode);
 	}
 }
 
@@ -813,9 +811,9 @@ class ADORecordSet_odbtp_vfp extends ADORecordSet_odbtp {
 
 	var $databaseType = 'odbtp_vfp';
 
-	function __construct($id,$mode=false)
+	function ADORecordSet_odbtp_vfp($id,$mode=false)
 	{
-		return parent::__construct($id,$mode);
+		return $this->ADORecordSet_odbtp($id,$mode);
 	}
 }
 
@@ -823,9 +821,9 @@ class ADORecordSet_odbtp_oci8 extends ADORecordSet_odbtp {
 
 	var $databaseType = 'odbtp_oci8';
 
-	function __construct($id,$mode=false)
+	function ADORecordSet_odbtp_oci8($id,$mode=false)
 	{
-		return parent::__construct($id,$mode);
+		return $this->ADORecordSet_odbtp($id,$mode);
 	}
 }
 
@@ -833,8 +831,8 @@ class ADORecordSet_odbtp_sybase extends ADORecordSet_odbtp {
 
 	var $databaseType = 'odbtp_sybase';
 
-	function __construct($id,$mode=false)
+	function ADORecordSet_odbtp_sybase($id,$mode=false)
 	{
-		return parent::__construct($id,$mode);
+		return $this->ADORecordSet_odbtp($id,$mode);
 	}
 }

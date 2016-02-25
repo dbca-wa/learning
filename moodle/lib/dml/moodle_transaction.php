@@ -95,10 +95,10 @@ class moodle_transaction {
     /**
      * Rollback all current delegated transactions.
      *
-     * @param Exception|Throwable $e mandatory exception/throwable
+     * @param Exception $e mandatory exception
      * @return void
      */
-    public function rollback($e) {
+    public function rollback(Exception $e) {
         if ($this->is_disposed()) {
             throw new dml_transaction_exception('Transactions already disposed', $this);
         }

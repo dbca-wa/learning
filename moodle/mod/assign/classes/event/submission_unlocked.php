@@ -123,8 +123,4 @@ class submission_unlocked extends base {
             throw new \coding_exception('The \'relateduserid\' must be set.');
         }
     }
-
-    public static function get_objectid_mapping() {
-        return array('db' => 'assign', 'restore' => 'assign');
-    }
 }

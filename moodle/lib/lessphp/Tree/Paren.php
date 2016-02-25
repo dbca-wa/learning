@@ -15,14 +15,14 @@ class Less_Tree_Paren extends Less_Tree{
 		$this->value = $value;
 	}
 
-    public function accept($visitor){
+	function accept($visitor){
 		$this->value = $visitor->visitObj($this->value);
 	}
 
     /**
      * @see Less_Tree::genCSS
      */
-    public function genCSS( $output ){
+	function genCSS( $output ){
 		$output->add( '(' );
 		$this->value->genCSS( $output );
 		$output->add( ')' );

@@ -23,7 +23,6 @@
  */
 
 require_once('../config.php');
-require_once($CFG->dirroot.'/user/lib.php');
 require_once($CFG->libdir.'/tablelib.php');
 require_once($CFG->libdir.'/filelib.php');
 
@@ -106,8 +105,16 @@ if (empty($rolenames) && !$isfrontpage) {
     }
 }
 
-// Trigger events.
-user_list_view($course, $context);
+$event = \core\event\user_list_viewed::create(array(
+    'objectid' => $course->id,
+    'courseid' => $course->id,
+    'context' => $context,
+    'other' => array(
+        'courseshortname' => $course->shortname,
+        'coursefullname' => $course->fullname
+    )
+));
+$event->trigger();
 
 $bulkoperations = has_capability('moodle/course:bulkmessaging', $context);
 
@@ -155,7 +162,6 @@ $PAGE->add_body_class('path-user');                     // So we can style it in
 $PAGE->set_other_editing_capability('moodle/course:manageactivities');
 
 echo $OUTPUT->header();
-echo $OUTPUT->heading(get_string('participants'));
 
 echo '<div class="userlist">';
 
@@ -493,8 +499,8 @@ $userlist = $DB->get_recordset_sql("$select $from $where $sort", $params, $table
 // If there are multiple Roles in the course, then show a drop down menu for switching.
 if (count($rolenames) > 1) {
     echo '<div class="rolesform">';
-    echo $OUTPUT->single_select($rolenamesurl, 'roleid', $rolenames, $roleid, null,
-        'rolesform', array('label' => get_string('currentrole', 'role')));
+    echo '<label for="rolesform_jump">'.get_string('currentrole', 'role').'&nbsp;</label>';
+    echo $OUTPUT->single_select($rolenamesurl, 'roleid', $rolenames, $roleid, null, 'rolesform');
     echo '</div>';
 
 } else if (count($rolenames) == 1) {
@@ -506,45 +512,42 @@ if (count($rolenames) > 1) {
     echo '</div>';
 }
 
-$editlink = '';
-if ($course->id != SITEID && has_capability('moodle/course:enrolreview', $context)) {
-    $editlink = new moodle_url('/enrol/users.php', array('id' => $course->id));
-}
-
 if ($roleid > 0) {
     $a = new stdClass();
     $a->number = $totalcount;
     $a->role = $rolenames[$roleid];
     $heading = format_string(get_string('xuserswiththerole', 'role', $a));
 
-    if ($currentgroup and !empty($group)) {
+    if ($currentgroup and $group) {
         $a->group = $group->name;
         $heading .= ' ' . format_string(get_string('ingroup', 'role', $a));
     }
 
-    if ($accesssince && !empty($timeoptions[$accesssince])) {
+    if ($accesssince) {
         $a->timeperiod = $timeoptions[$accesssince];
         $heading .= ' ' . format_string(get_string('inactiveformorethan', 'role', $a));
     }
 
     $heading .= ": $a->number";
 
-    if (!empty($editlink)) {
-        $editlink->param('role', $roleid);
-        $heading .= $OUTPUT->action_icon($editlink, new pix_icon('t/edit', get_string('edit')));
+    if (user_can_assign($context, $roleid)) {
+        $headingurl = new moodle_url($CFG->wwwroot . '/' . $CFG->admin . '/roles/assign.php',
+                array('roleid' => $roleid, 'contextid' => $context->id));
+        $heading .= $OUTPUT->action_icon($headingurl, new pix_icon('t/edit', get_string('edit')));
     }
     echo $OUTPUT->heading($heading, 3);
 } else {
+    if ($course->id != SITEID && has_capability('moodle/course:enrolreview', $context)) {
+        $editlink = $OUTPUT->action_icon(new moodle_url('/enrol/users.php', array('id' => $course->id)),
+                                         new pix_icon('t/edit', get_string('edit')));
+    } else {
+        $editlink = '';
+    }
     if ($course->id == SITEID and $roleid < 0) {
         $strallparticipants = get_string('allsiteusers', 'role');
     } else {
         $strallparticipants = get_string('allparticipants');
     }
-
-    if (!empty($editlink)) {
-        $editlink = $OUTPUT->action_icon($editlink, new pix_icon('t/edit', get_string('edit')));
-    }
-
     if ($matchcount < $totalcount) {
         echo $OUTPUT->heading($strallparticipants.get_string('labelsep', 'langconfig').$matchcount.'/'.$totalcount . $editlink, 3);
     } else {

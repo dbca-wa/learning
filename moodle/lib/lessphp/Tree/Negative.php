@@ -11,7 +11,7 @@ class Less_Tree_Negative extends Less_Tree{
 	public $value;
 	public $type = 'Negative';
 
-    public function __construct($node){
+	function __construct($node){
 		$this->value = $node;
 	}
 
@@ -22,12 +22,12 @@ class Less_Tree_Negative extends Less_Tree{
     /**
      * @see Less_Tree::genCSS
      */
-    public function genCSS( $output ){
+	function genCSS( $output ){
 		$output->add( '-' );
 		$this->value->genCSS( $output );
 	}
 
-    public function compile($env) {
+	function compile($env) {
 		if( Less_Environment::isMathOn() ){
 			$ret = new Less_Tree_Operation('*', array( new Less_Tree_Dimension(-1), $this->value ) );
 			return $ret->compile($env);

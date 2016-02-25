@@ -15,7 +15,6 @@ Feature: A user can control their own subscription preferences for a discussion
       | user | course | role |
       | student1 | C1 | student |
     And I log in as "admin"
-    And I am on site homepage
     And I follow "Course 1"
     And I turn editing mode on
 
@@ -135,7 +134,6 @@ Feature: A user can control their own subscription preferences for a discussion
     And "You are not subscribed to this discussion. Click to subscribe." "link" should exist in the "Test post subject two" "table_row"
     And I log out
     And I log in as "admin"
-    And I am on site homepage
     And I follow "Course 1"
     And I follow "Test forum name"
     And I click on "Edit settings" "link" in the "Administration" "block"
@@ -181,7 +179,6 @@ Feature: A user can control their own subscription preferences for a discussion
     And "You are not subscribed to this discussion. Click to subscribe." "link" should exist in the "Test post subject two" "table_row"
     And I log out
     And I log in as "admin"
-    And I am on site homepage
     And I follow "Course 1"
     And I follow "Test forum name"
     And I click on "Edit settings" "link" in the "Administration" "block"
@@ -274,7 +271,7 @@ Feature: A user can control their own subscription preferences for a discussion
     And the field "Discussion subscription" matches value "I don't want to be notified of new posts in this discussion"
 
  Scenario: A guest should not be able to subscribe to a discussion
-   Given I am on site homepage
+   Given I click on "Home" "link" in the "Navigation" "block"
    And I add a "Forum" to section "1" and I fill the form with:
      | Forum name        | Test forum name |
      | Forum type        | Standard forum for general use |
@@ -292,7 +289,7 @@ Feature: A user can control their own subscription preferences for a discussion
    And "You are subscribed to this discussion. Click to unsubscribe." "link" should not exist
 
  Scenario: A user who is not logged in should not be able to subscribe to a discussion
-   Given I am on site homepage
+   Given I click on "Home" "link" in the "Navigation" "block"
    And I add a "Forum" to section "1" and I fill the form with:
      | Forum name        | Test forum name |
      | Forum type        | Standard forum for general use |

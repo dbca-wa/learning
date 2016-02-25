@@ -29,7 +29,7 @@ class Moxiecode_JSONReader {
 	var $_location, $_lastLocations;
 	var $_needProp;
 
-	public function __construct($data) {
+	function Moxiecode_JSONReader($data) {
 		$this->_data = $data;
 		$this->_len = strlen($data);
 		$this->_pos = -1;
@@ -37,13 +37,6 @@ class Moxiecode_JSONReader {
 		$this->_lastLocations = array();
 		$this->_needProp = false;
 	}
-
-    /**
-     * Old syntax of class constructor. Deprecated in PHP7.
-     */
-    public function Moxiecode_JSONReader($data) {
-        self::__construct($data);
-    }
 
 	function getToken() {
 		return $this->_token;
@@ -367,15 +360,8 @@ class Moxiecode_JSONReader {
  * @package MCManager.utils
  */
 class Moxiecode_JSON {
-	public function __construct() {
+	function Moxiecode_JSON() {
 	}
-
-    /**
-     * Old syntax of class constructor. Deprecated in PHP7.
-     */
-    public function Moxiecode_JSON() {
-        self::__construct();
-    }
 
 	function decode($input) {
 		$reader = new Moxiecode_JSONReader($input);

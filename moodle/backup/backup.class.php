@@ -125,17 +125,9 @@ abstract class backup implements checksumable {
     const OPERATION_BACKUP  ='backup'; // We are performing one backup
     const OPERATION_RESTORE ='restore';// We are performing one restore
 
-    // Version and release (to keep CFG->backup_version (and release) updated automatically).
-    /**
-     * Usually same than major release version, this is used to mark important
-     * point is backup when some behavior/approach channged, in order to allow
-     * conditional coding based on it.
-     */
-    const VERSION = 2015111600;
-    /**
-     * Usually same than major release zero version, mainly for informative/historic purposes.
-     */
-    const RELEASE = '3.0';
+    // Version (to keep CFG->backup_version (and release) updated automatically)
+    const VERSION = 2014111000;
+    const RELEASE = '2.8';
 }
 
 /*

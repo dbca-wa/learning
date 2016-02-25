@@ -24,7 +24,6 @@
  */
 
 require('../../config.php');
-require_once("$CFG->dirroot/mod/url/lib.php");
 require_once("$CFG->dirroot/mod/url/locallib.php");
 require_once($CFG->libdir . '/completionlib.php');
 
@@ -47,8 +46,19 @@ require_course_login($course, true, $cm);
 $context = context_module::instance($cm->id);
 require_capability('mod/url:view', $context);
 
-// Completion and trigger events.
-url_view($url, $course, $cm, $context);
+$params = array(
+    'context' => $context,
+    'objectid' => $url->id
+);
+$event = \mod_url\event\course_module_viewed::create($params);
+$event->add_record_snapshot('course_modules', $cm);
+$event->add_record_snapshot('course', $course);
+$event->add_record_snapshot('url', $url);
+$event->trigger();
+
+// Update 'viewed' state if required by completion system
+$completion = new completion_info($course);
+$completion->set_module_viewed($cm);
 
 $PAGE->set_url('/mod/url/view.php', array('id' => $cm->id));
 

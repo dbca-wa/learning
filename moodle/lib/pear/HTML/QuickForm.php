@@ -253,9 +253,9 @@ class HTML_QuickForm extends HTML_Common {
      * @param    bool        $trackSubmit       (optional)Whether to track if the form was submitted by adding a special hidden field
      * @access   public
      */
-    public function __construct($formName='', $method='post', $action='', $target='', $attributes=null, $trackSubmit = false)
+    function HTML_QuickForm($formName='', $method='post', $action='', $target='', $attributes=null, $trackSubmit = false)
     {
-        parent::__construct($attributes);
+        HTML_Common::HTML_Common($attributes);
         $method = (strtoupper($method) == 'GET') ? 'get' : 'post';
         $action = ($action == '') ? $_SERVER['PHP_SELF'] : $action;
         $target = empty($target) ? array() : array('target' => $target);
@@ -300,13 +300,6 @@ class HTML_QuickForm extends HTML_Common {
             }
         }
     } // end constructor
-
-    /**
-     * Old syntax of class constructor for backward compatibility.
-     */
-    public function HTML_QuickForm($formName='', $method='post', $action='', $target='', $attributes=null, $trackSubmit = false) {
-        self::__construct($formName, $method, $action, $target, $attributes, $trackSubmit);
-    }
 
     // }}}
     // {{{ apiVersion()
@@ -1990,22 +1983,14 @@ class HTML_QuickForm_Error extends PEAR_Error {
     * @param int   $level intensity of the error (PHP error code)
     * @param mixed $debuginfo any information that can inform user as to nature of the error
     */
-    public function __construct($code = QUICKFORM_ERROR, $mode = PEAR_ERROR_RETURN,
+    function HTML_QuickForm_Error($code = QUICKFORM_ERROR, $mode = PEAR_ERROR_RETURN,
                          $level = E_USER_NOTICE, $debuginfo = null)
     {
         if (is_int($code)) {
-            parent::__construct(HTML_QuickForm::errorMessage($code), $code, $mode, $level, $debuginfo);
+            $this->PEAR_Error(HTML_QuickForm::errorMessage($code), $code, $mode, $level, $debuginfo);
         } else {
-            parent::__construct("Invalid error code: $code", QUICKFORM_ERROR, $mode, $level, $debuginfo);
+            $this->PEAR_Error("Invalid error code: $code", QUICKFORM_ERROR, $mode, $level, $debuginfo);
         }
-    }
-
-    /**
-     * Old syntax of class constructor for backward compatibility.
-     */
-    public function HTML_QuickForm_Error($code = QUICKFORM_ERROR, $mode = PEAR_ERROR_RETURN,
-                         $level = E_USER_NOTICE, $debuginfo = null) {
-        self::__construct($code, $mode, $level, $debuginfo);
     }
 
     // }}}

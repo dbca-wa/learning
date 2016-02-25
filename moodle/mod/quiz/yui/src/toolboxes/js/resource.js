@@ -60,8 +60,8 @@ Y.extend(RESOURCETOOLBOX, TOOLBOX, {
      */
     initializer: function() {
         M.mod_quiz.quizbase.register_module(this);
+        BODY.delegate('key', this.handle_data_action, 'down:enter', SELECTOR.ACTIVITYACTION, this);
         Y.delegate('click', this.handle_data_action, BODY, SELECTOR.ACTIVITYACTION, this);
-        Y.delegate('click', this.handle_data_action, BODY, SELECTOR.DEPENDENCY_LINK, this);
     },
 
     /**
@@ -105,11 +105,6 @@ Y.extend(RESOURCETOOLBOX, TOOLBOX, {
             case 'removepagebreak':
                 // The user is adding or removing a page break.
                 this.update_page_break(ev, node, activity, action);
-                break;
-            case 'adddependency':
-            case 'removedependency':
-                // The user is adding or removing a dependency between questions.
-                this.update_dependency(ev, node, activity, action);
                 break;
             default:
                 // Nothing to do here!
@@ -179,6 +174,8 @@ Y.extend(RESOURCETOOLBOX, TOOLBOX, {
                     if (M.core.actionmenu && M.core.actionmenu.instance) {
                         M.core.actionmenu.instance.hideMenu(ev);
                     }
+                } else {
+                    window.location.reload(true);
                 }
             });
 
@@ -201,7 +198,8 @@ Y.extend(RESOURCETOOLBOX, TOOLBOX, {
      */
     edit_maxmark : function(ev, button, activity) {
         // Get the element we're working on
-        var instancemaxmark  = activity.one(SELECTOR.INSTANCEMAXMARK),
+        var activityid = Y.Moodle.mod_quiz.util.slot.getId(activity),
+            instancemaxmark  = activity.one(SELECTOR.INSTANCEMAXMARK),
             instance = activity.one(SELECTOR.ACTIVITYINSTANCE),
             currentmaxmark = instancemaxmark.get('firstChild'),
             oldmaxmark = currentmaxmark.get('data'),
@@ -211,7 +209,7 @@ Y.extend(RESOURCETOOLBOX, TOOLBOX, {
             data = {
                 'class'   : 'resource',
                 'field'   : 'getmaxmark',
-                'id'      : Y.Moodle.mod_quiz.util.slot.getId(activity)
+                'id'      : activityid
             };
 
         // Prevent the default actions.
@@ -247,7 +245,7 @@ Y.extend(RESOURCETOOLBOX, TOOLBOX, {
 
             // Force the editing instruction to match the mod-indent position.
             var padside = 'left';
-            if (window.right_to_left()) {
+            if (right_to_left()) {
                 padside = 'right';
             }
 
@@ -361,24 +359,28 @@ Y.extend(RESOURCETOOLBOX, TOOLBOX, {
      * @param {EventFacade} ev The event that was fired.
      * @param {Node} button The button that triggered this action.
      * @param {Node} activity The activity node that this action will be performed on.
-     * @param {String} action The action, addpagebreak or removepagebreak.
      * @chainable
      */
     update_page_break: function(ev, button, activity, action) {
         // Prevent the default button action
         ev.preventDefault();
 
-        var nextactivity = activity.next('li.activity.slot');
-        var spinner = this.add_spinner(nextactivity);
+        nextactivity = activity.next('li.activity.slot');
+        var spinner = this.add_spinner(nextactivity),
+            slotid = 0;
         var value = action === 'removepagebreak' ? 1 : 2;
 
         var data = {
             'class': 'resource',
             'field': 'updatepagebreak',
-            'id':    Y.Moodle.mod_quiz.util.slot.getId(nextactivity),
+            'id':    slotid,
             'value': value
         };
 
+        slotid = Y.Moodle.mod_quiz.util.slot.getId(nextactivity);
+        if (slotid) {
+            data.id = Number(slotid);
+        }
         this.send_request(data, spinner, function(response) {
             if (response.slots) {
                 if (action === 'addpagebreak') {
@@ -388,39 +390,8 @@ Y.extend(RESOURCETOOLBOX, TOOLBOX, {
                     Y.Moodle.mod_quiz.util.page.remove(page, true);
                 }
                 this.reorganise_edit_page();
-            }
-        });
-
-        return this;
-    },
-
-    /**
-     * Updates a slot to either require the question in the previous slot to
-     * have been answered, or not,
-     *
-     * @protected
-     * @method update_page_break
-     * @param {EventFacade} ev The event that was fired.
-     * @param {Node} button The button that triggered this action.
-     * @param {Node} activity The activity node that this action will be performed on.
-     * @param {String} action The action, adddependency or removedependency.
-     * @chainable
-     */
-    update_dependency: function(ev, button, activity, action) {
-        // Prevent the default button action.
-        ev.preventDefault();
-        var spinner = this.add_spinner(activity);
-
-        var data = {
-            'class': 'resource',
-            'field': 'updatedependency',
-            'id':    Y.Moodle.mod_quiz.util.slot.getId(activity),
-            'value': action === 'adddependency' ? 1 : 0
-        };
-
-        this.send_request(data, spinner, function(response) {
-            if (response.hasOwnProperty('requireprevious')) {
-                Y.Moodle.mod_quiz.util.slot.updateDependencyIcon(activity, response.requireprevious);
+            } else {
+                window.location.reload(true);
             }
         });
 
@@ -437,8 +408,6 @@ Y.extend(RESOURCETOOLBOX, TOOLBOX, {
         Y.Moodle.mod_quiz.util.slot.reorderSlots();
         Y.Moodle.mod_quiz.util.slot.reorderPageBreaks();
         Y.Moodle.mod_quiz.util.page.reorderPages();
-        Y.Moodle.mod_quiz.util.slot.updateOneSlotSections();
-        Y.Moodle.mod_quiz.util.slot.updateAllDependencyIcons();
     },
 
     NAME : 'mod_quiz-resource-toolbox',

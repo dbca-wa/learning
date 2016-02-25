@@ -411,15 +411,6 @@ class behat_general extends behat_base {
         list($containerselector, $containerlocator) = $this->transform_selector($containerselectortype, $containerelement);
         $destinationxpath = $this->getSession()->getSelectorsHandler()->selectorToXpath($containerselector, $containerlocator);
 
-        $node = $this->get_selected_node("xpath_element", $sourcexpath);
-        if (!$node->isVisible()) {
-            throw new ExpectationException('"' . $sourcexpath . '" "xpath_element" is not visible', $this->getSession());
-        }
-        $node = $this->get_selected_node("xpath_element", $destinationxpath);
-        if (!$node->isVisible()) {
-            throw new ExpectationException('"' . $destinationxpath . '" "xpath_element" is not visible', $this->getSession());
-        }
-
         $this->getSession()->getDriver()->dragTo($sourcexpath, $destinationxpath);
     }
 
@@ -936,63 +927,6 @@ class behat_general extends behat_base {
     }
 
     /**
-     * Runs a scheduled task immediately, given full class name.
-     *
-     * This is faster and more reliable than running cron (running cron won't
-     * work more than once in the same test, for instance). However it is
-     * a little less 'realistic'.
-     *
-     * While the task is running, we suppress mtrace output because it makes
-     * the Behat result look ugly.
-     *
-     * Note: Most of the code relating to running a task is based on
-     * admin/tool/task/cli/schedule_task.php.
-     *
-     * @Given /^I run the scheduled task "(?P<task_name>[^"]+)"$/
-     * @param string $taskname Name of task e.g. 'mod_whatever\task\do_something'
-     */
-    public function i_run_the_scheduled_task($taskname) {
-        $task = \core\task\manager::get_scheduled_task($taskname);
-        if (!$task) {
-            throw new DriverException('The "' . $taskname . '" scheduled task does not exist');
-        }
-
-        // Do setup for cron task.
-        raise_memory_limit(MEMORY_EXTRA);
-        cron_setup_user();
-
-        // Get lock.
-        $cronlockfactory = \core\lock\lock_config::get_lock_factory('cron');
-        if (!$cronlock = $cronlockfactory->get_lock('core_cron', 10)) {
-            throw new DriverException('Unable to obtain core_cron lock for scheduled task');
-        }
-        if (!$lock = $cronlockfactory->get_lock('\\' . get_class($task), 10)) {
-            $cronlock->release();
-            throw new DriverException('Unable to obtain task lock for scheduled task');
-        }
-        $task->set_lock($lock);
-        if (!$task->is_blocking()) {
-            $cronlock->release();
-        } else {
-            $task->set_cron_lock($cronlock);
-        }
-
-        try {
-            // Discard task output as not appropriate for Behat output!
-            ob_start();
-            $task->execute();
-            ob_end_clean();
-
-            // Mark task complete.
-            \core\task\manager::scheduled_task_complete($task);
-        } catch (Exception $e) {
-            // Mark task failed and throw exception.
-            \core\task\manager::scheduled_task_failed($task);
-            throw new DriverException('The "' . $taskname . '" scheduled task failed', 0, $e);
-        }
-    }
-
-    /**
      * Checks that an element and selector type exists in another element and selector type on the current page.
      *
      * This step is for advanced users, use it if you don't find anything else suitable for what you need.
@@ -1158,7 +1092,7 @@ class behat_general extends behat_base {
 
         // Check if value exists in specific row/column.
         // Get row xpath.
-        $rowxpath = $tablexpath."/tbody/tr[th[normalize-space(.)=" . $rowliteral . "] or td[normalize-space(.)=" . $rowliteral . "]]";
+        $rowxpath = $tablexpath."/tbody/tr[th[normalize-space(.)=" . $rowliteral . "] | td[normalize-space(.)=" . $rowliteral . "]]";
 
         $columnvaluexpath = $rowxpath . $columnpositionxpath . "[contains(normalize-space(.)," . $valueliteral . ")]";
 
@@ -1500,41 +1434,5 @@ class behat_general extends behat_base {
         } else {
             throw new ExpectationException('Unknown browser button.', $session);
         }
-    }
-
-    /**
-     * Trigger a keydown event for a key on a specific element.
-     *
-     * @When /^I press key "(?P<key_string>(?:[^"]|\\")*)" in "(?P<element_string>(?:[^"]|\\")*)" "(?P<selector_string>[^"]*)"$/
-     * @param string $key either char-code or character itself,
-     *               may optionally be prefixed with ctrl-, alt-, shift- or meta-
-     * @param string $element Element we look for
-     * @param string $selectortype The type of what we look for
-     * @throws DriverException
-     * @throws ExpectationException
-     */
-    public function i_press_key_in_element($key, $element, $selectortype) {
-        if (!$this->running_javascript()) {
-            throw new DriverException('Key down step is not available with Javascript disabled');
-        }
-        // Gets the node based on the requested selector type and locator.
-        $node = $this->get_selected_node($selectortype, $element);
-        $modifier = null;
-        $validmodifiers = array('ctrl', 'alt', 'shift', 'meta');
-        $char = $key;
-        if (strpos($key, '-')) {
-            list($modifier, $char) = preg_split('/-/', $key, 2);
-            $modifier = strtolower($modifier);
-            if (!in_array($modifier, $validmodifiers)) {
-                throw new ExpectationException(sprintf('Unknown key modifier: %s.', $modifier));
-            }
-        }
-        if (is_numeric($char)) {
-            $char = (int)$char;
-        }
-
-        $node->keyDown($char, $modifier);
-        $node->keyPress($char, $modifier);
-        $node->keyUp($char, $modifier);
     }
 }

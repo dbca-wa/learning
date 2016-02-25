@@ -153,19 +153,6 @@ $temp->add(new admin_setting_configselect('gradehistorylifetime', new lang_strin
                                                                                                      60 => new lang_string('numdays', '', 60),
                                                                                                      30 => new lang_string('numdays', '', 30))));
 
-$temp->add(new admin_setting_configselect('tempdatafoldercleanup', new lang_string('tempdatafoldercleanup', 'admin'),
-        new lang_string('configtempdatafoldercleanup', 'admin'), 168, array(
-            1 => new lang_string('numhours', '', 1),
-            3 => new lang_string('numhours', '', 3),
-            6 => new lang_string('numhours', '', 6),
-            9 => new lang_string('numhours', '', 9),
-            12 => new lang_string('numhours', '', 12),
-            18 => new lang_string('numhours', '', 18),
-            24 => new lang_string('numhours', '', 24),
-            48 => new lang_string('numdays', '', 2),
-            168 => new lang_string('numdays', '', 7),
-)));
-
 $ADMIN->add('server', $temp);
 
 
@@ -215,6 +202,10 @@ if (empty($CFG->disableupdatenotifications)) {
     $temp = new admin_settingpage('updatenotifications', new lang_string('updatenotifications', 'core_admin'));
     $temp->add(new admin_setting_configcheckbox('updateautocheck', new lang_string('updateautocheck', 'core_admin'),
                                                 new lang_string('updateautocheck_desc', 'core_admin'), 1));
+    if (empty($CFG->disableupdateautodeploy)) {
+        $temp->add(new admin_setting_configcheckbox('updateautodeploy', new lang_string('updateautodeploy', 'core_admin'),
+                                                    new lang_string('updateautodeploy_desc', 'core_admin'), 0));
+    }
     $temp->add(new admin_setting_configselect('updateminmaturity', new lang_string('updateminmaturity', 'core_admin'),
                                               new lang_string('updateminmaturity_desc', 'core_admin'), MATURITY_STABLE,
                                               array(

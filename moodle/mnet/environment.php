@@ -17,6 +17,10 @@ class mnet_environment {
     var $keypair            = array();
     var $deleted            = 0;
 
+    function mnet_environment() {
+        return true;
+    }
+
     function init() {
         global $CFG, $DB;
 

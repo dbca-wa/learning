@@ -113,7 +113,4 @@ class user_login_failed extends base {
         }
     }
 
-    public static function get_other_mapping() {
-        return false;
-    }
 }

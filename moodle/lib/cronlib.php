@@ -64,8 +64,7 @@ function cron_run() {
     // Run all scheduled tasks.
     while (!\core\task\manager::static_caches_cleared_since($timenow) &&
            $task = \core\task\manager::get_next_scheduled_task($timenow)) {
-        $fullname = $task->get_name() . ' (' . get_class($task) . ')';
-        mtrace('Execute scheduled task: ' . $fullname);
+        mtrace("Execute scheduled task: " . $task->get_name());
         cron_trace_time_and_memory();
         $predbqueries = null;
         $predbqueries = $DB->perf_get_queries();
@@ -80,7 +79,7 @@ function cron_run() {
                 mtrace("... used " . ($DB->perf_get_queries() - $predbqueries) . " dbqueries");
                 mtrace("... used " . (microtime(1) - $pretime) . " seconds");
             }
-            mtrace('Scheduled task complete: ' . $fullname);
+            mtrace("Scheduled task complete: " . $task->get_name());
             \core\task\manager::scheduled_task_complete($task);
         } catch (Exception $e) {
             if ($DB && $DB->is_transaction_started()) {
@@ -91,7 +90,7 @@ function cron_run() {
                 mtrace("... used " . ($DB->perf_get_queries() - $predbqueries) . " dbqueries");
                 mtrace("... used " . (microtime(1) - $pretime) . " seconds");
             }
-            mtrace('Scheduled task failed: ' . $fullname . ',' . $e->getMessage());
+            mtrace("Scheduled task failed: " . $task->get_name() . "," . $e->getMessage());
             if ($CFG->debugdeveloper) {
                  if (!empty($e->debuginfo)) {
                     mtrace("Debug info:");

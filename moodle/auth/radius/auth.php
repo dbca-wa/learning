@@ -38,16 +38,9 @@ class auth_plugin_radius extends auth_plugin_base {
     /**
      * Constructor.
      */
-    public function __construct() {
+    function auth_plugin_radius() {
         $this->authtype = 'radius';
         $this->config = get_config('auth/radius');
-    }
-
-    /**
-     * Old syntax of class constructor for backward compatibility.
-     */
-    public function auth_plugin_radius() {
-        self::__construct();
     }
 
     /**

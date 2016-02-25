@@ -15,19 +15,12 @@
          * external 'helper' binaries.
          * Other platforms could/should be added
          */
-        public function __construct() {
+        function latex() {
             global $CFG;
 
             // construct directory structure
             $this->temp_dir = $CFG->tempdir . "/latex";
             make_temp_directory('latex');
-        }
-
-        /**
-         * Old syntax of class constructor. Deprecated in PHP7.
-         */
-        public function latex() {
-            self::__construct();
         }
 
         /**
@@ -130,7 +123,7 @@
 
             // run dvips (.dvi to .ps)
             $pathdvips = escapeshellarg(trim(get_config('filter_tex', 'pathdvips'), " '\""));
-            $command = "$pathdvips -q -E $dvi -o $ps";
+            $command = "$pathdvips -E $dvi -o $ps";
             if ($this->execute($command, $log )) {
                 return false;
             }

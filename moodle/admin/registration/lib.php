@@ -117,7 +117,6 @@ class registration_manager {
      */
     public function add_registeredhub($hub) {
         global $DB;
-        $hub->timemodified = time();
         $id = $DB->insert_record('registration_hubs', $hub);
         return $id;
     }
@@ -171,16 +170,15 @@ class registration_manager {
 
     /**
      * Update a registered hub (mostly use to update the confirmation status)
-     * @param object $hub the hub
+     * @param object $communication the hub
      */
-    public function update_registeredhub($hub) {
+    public function update_registeredhub($communication) {
         global $DB;
-        $hub->timemodified = time();
-        $DB->update_record('registration_hubs', $hub);
+        $DB->update_record('registration_hubs', $communication);
     }
 
     /**
-     * Return all hubs where the site is registered
+     * Return all hubs where the site is registered on
      */
     public function get_registered_on_hubs() {
         global $DB;

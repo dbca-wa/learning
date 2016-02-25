@@ -8,15 +8,15 @@
  */
 class Less_Visitor{
 
-	protected $methods = array();
-	protected $_visitFnCache = array();
+	var $methods = array();
+	var $_visitFnCache = array();
 
-	public function __construct(){
+	function __construct(){
 		$this->_visitFnCache = get_class_methods(get_class($this));
 		$this->_visitFnCache = array_flip($this->_visitFnCache);
 	}
 
-	public function visitObj( $node ){
+	function visitObj( $node ){
 
 		$funcName = 'visit'.$node->type;
 		if( isset($this->_visitFnCache[$funcName]) ){
@@ -40,7 +40,7 @@ class Less_Visitor{
 		return $node;
 	}
 
-	public function visitArray( $nodes ){
+	function visitArray( $nodes ){
 
 		array_map( array($this,'visitObj'), $nodes);
 		return $nodes;

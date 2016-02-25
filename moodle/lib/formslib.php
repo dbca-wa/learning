@@ -157,7 +157,7 @@ abstract class moodleform {
      * @param mixed $attributes you can pass a string of html attributes here or an array.
      * @param bool $editable
      */
-    public function __construct($action=null, $customdata=null, $method='post', $target='', $attributes=null, $editable=true) {
+    function moodleform($action=null, $customdata=null, $method='post', $target='', $attributes=null, $editable=true) {
         global $CFG, $FULLME;
         // no standard mform in moodle should allow autocomplete with the exception of user signup
         if (empty($attributes)) {
@@ -205,13 +205,6 @@ abstract class moodleform {
 
         // we have to know all input types before processing submission ;-)
         $this->_process_submission($method);
-    }
-
-    /**
-     * Old syntax of class constructor for backward compatibility.
-     */
-    public function moodleform($action=null, $customdata=null, $method='post', $target='', $attributes=null, $editable=true) {
-        self::__construct($action, $customdata, $method, $target, $attributes, $editable);
     }
 
     /**
@@ -1246,7 +1239,7 @@ abstract class moodleform {
             if (is_array($strings)) {
                 foreach ($strings as $string) {
                     if (is_array($string)) {
-                        call_user_func_array(array($PAGE->requires, 'string_for_js'), $string);
+                        call_user_method_array('string_for_js', $PAGE->requires, $string);
                     } else {
                         $PAGE->requires->string_for_js($string, 'moodle');
                     }
@@ -1433,13 +1426,12 @@ class MoodleQuickForm extends HTML_QuickForm_DHTMLRulesTableless {
      * @param string $target (optional)Form's target defaults to none
      * @param mixed $attributes (optional)Extra attributes for <form> tag
      */
-    public function __construct($formName, $method, $action, $target='', $attributes=null) {
+    function MoodleQuickForm($formName, $method, $action, $target='', $attributes=null){
         global $CFG, $OUTPUT;
 
         static $formcounter = 1;
 
-        // TODO MDL-52313 Replace with the call to parent::__construct().
-        HTML_Common::__construct($attributes);
+        HTML_Common::HTML_Common($attributes);
         $target = empty($target) ? array() : array('target' => $target);
         $this->_formName = $formName;
         if (is_a($action, 'moodle_url')){
@@ -1466,13 +1458,6 @@ class MoodleQuickForm extends HTML_QuickForm_DHTMLRulesTableless {
         $this->_reqHTML = '<img class="req" title="'.get_string('requiredelement', 'form').'" alt="'.get_string('requiredelement', 'form').'" src="'.$OUTPUT->pix_url('req') .'" />';
         $this->_advancedHTML = '<img class="adv" title="'.get_string('advancedelement', 'form').'" alt="'.get_string('advancedelement', 'form').'" src="'.$OUTPUT->pix_url('adv') .'" />';
         $this->setRequiredNote(get_string('somefieldsrequired', 'form', '<img alt="'.get_string('requiredelement', 'form').'" src="'.$OUTPUT->pix_url('req') .'" />'));
-    }
-
-    /**
-     * Old syntax of class constructor for backward compatibility.
-     */
-    public function MoodleQuickForm($formName, $method, $action, $target='', $attributes=null) {
-        self::__construct($formName, $method, $action, $target, $attributes);
     }
 
     /**
@@ -2609,7 +2594,7 @@ class MoodleQuickForm_Renderer extends HTML_QuickForm_Renderer_Tableless{
     /**
      * Constructor
      */
-    public function __construct() {
+    function MoodleQuickForm_Renderer(){
         // switch next two lines for ol li containers for form items.
         //        $this->_elementTemplates=array('default'=>"\n\t\t".'<li class="fitem"><label>{label}{help}<!-- BEGIN required -->{req}<!-- END required --></label><div class="qfelement<!-- BEGIN error --> error<!-- END error --> {type}"><!-- BEGIN error --><span class="error">{error}</span><br /><!-- END error -->{element}</div></li>');
         $this->_elementTemplates = array(
@@ -2619,20 +2604,13 @@ class MoodleQuickForm_Renderer extends HTML_QuickForm_Renderer_Tableless{
 
         'fieldset'=>"\n\t\t".'<div id="{id}" class="fitem {advanced}<!-- BEGIN required --> required<!-- END required --> fitem_{type} {emptylabel}"><div class="fitemtitle"><div class="fgrouplabel"><label>{label}<!-- BEGIN required -->{req}<!-- END required -->{advancedimg} </label>{help}</div></div><fieldset class="felement {type}<!-- BEGIN error --> error<!-- END error -->"><!-- BEGIN error --><span class="error" tabindex="0">{error}</span><br /><!-- END error -->{element}</fieldset></div>',
 
-        'static'=>"\n\t\t".'<div class="fitem {advanced} {emptylabel}"><div class="fitemtitle"><div class="fstaticlabel">{label}<!-- BEGIN required -->{req}<!-- END required -->{advancedimg} {help}</div></div><div class="felement fstatic <!-- BEGIN error --> error<!-- END error -->"><!-- BEGIN error --><span class="error" tabindex="0">{error}</span><br /><!-- END error -->{element}</div></div>',
+        'static'=>"\n\t\t".'<div class="fitem {advanced} {emptylabel}"><div class="fitemtitle"><div class="fstaticlabel"><label>{label}<!-- BEGIN required -->{req}<!-- END required -->{advancedimg} </label>{help}</div></div><div class="felement fstatic <!-- BEGIN error --> error<!-- END error -->"><!-- BEGIN error --><span class="error" tabindex="0">{error}</span><br /><!-- END error -->{element}</div></div>',
 
         'warning'=>"\n\t\t".'<div class="fitem {advanced} {emptylabel}">{element}</div>',
 
         'nodisplay'=>'');
 
-        parent::__construct();
-    }
-
-    /**
-     * Old syntax of class constructor for backward compatibility.
-     */
-    public function MoodleQuickForm_Renderer() {
-        self::__construct();
+        parent::HTML_QuickForm_Renderer_Tableless();
     }
 
     /**
@@ -2954,7 +2932,6 @@ $GLOBALS['_HTML_QuickForm_default_renderer'] = new MoodleQuickForm_Renderer();
 
 /** Please keep this list in alphabetical order. */
 MoodleQuickForm::registerElementType('advcheckbox', "$CFG->libdir/form/advcheckbox.php", 'MoodleQuickForm_advcheckbox');
-MoodleQuickForm::registerElementType('autocomplete', "$CFG->libdir/form/autocomplete.php", 'MoodleQuickForm_autocomplete');
 MoodleQuickForm::registerElementType('button', "$CFG->libdir/form/button.php", 'MoodleQuickForm_button');
 MoodleQuickForm::registerElementType('cancel', "$CFG->libdir/form/cancel.php", 'MoodleQuickForm_cancel');
 MoodleQuickForm::registerElementType('searchableselector', "$CFG->libdir/form/searchableselector.php", 'MoodleQuickForm_searchableselector');

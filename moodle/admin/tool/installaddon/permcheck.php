@@ -36,7 +36,7 @@ if (!has_capability('moodle/site:config', context_system::instance())) {
     die();
 }
 
-if (!empty($CFG->disableupdateautodeploy)) {
+if (!empty($CFG->disableonclickaddoninstall)) {
     header('HTTP/1.1 403 Forbidden');
     die();
 }
@@ -52,9 +52,9 @@ if (is_null($plugintype)) {
     die();
 }
 
-$pluginman = core_plugin_manager::instance();
+$installer = tool_installaddon_installer::instance();
 
-$plugintypepath = $pluginman->get_plugintype_root($plugintype);
+$plugintypepath = $installer->get_plugintype_root($plugintype);
 
 if (empty($plugintypepath)) {
     header('HTTP/1.1 400 Bad Request');
@@ -63,7 +63,7 @@ if (empty($plugintypepath)) {
 
 $response = array('path' => $plugintypepath);
 
-if ($pluginman->is_plugintype_writable($plugintype)) {
+if ($installer->is_plugintype_writable($plugintype)) {
     $response['writable'] = 1;
 } else {
     $response['writable'] = 0;

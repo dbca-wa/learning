@@ -160,13 +160,6 @@ abstract class restore_subplugin {
     }
 
     /**
-     * Call the log function from the step.
-     */
-    public function log($message, $level, $a = null, $depth = null, $display = false) {
-        return $this->step->log($message, $level, $a, $depth, $display);
-    }
-
-    /**
      * Returns the value of one (task/plan) setting
      */
     protected function get_setting_value($name) {

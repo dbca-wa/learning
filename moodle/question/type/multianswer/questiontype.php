@@ -26,8 +26,8 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-require_once($CFG->dirroot . '/question/type/questiontypebase.php');
 require_once($CFG->dirroot . '/question/type/multichoice/question.php');
+
 
 /**
  * The multi-answer question type class.
@@ -71,6 +71,7 @@ class qtype_multianswer extends question_type {
             $wrapped->maxmark = $wrapped->defaultmark;
             $question->options->questions[$sequence[$wrapped->id]] = $wrapped;
         }
+
         $question->hints = $DB->get_records('question_hints',
                 array('questionid' => $question->id), 'id ASC');
 
@@ -205,15 +206,11 @@ class qtype_multianswer extends question_type {
             $question->textfragments[$i] = array_shift($bits);
             $i += 1;
         }
+
         foreach ($questiondata->options->questions as $key => $subqdata) {
             $subqdata->contextid = $questiondata->contextid;
-            if ($subqdata->qtype == 'multichoice') {
-                $answerregs = array();
-                if ($subqdata->options->shuffleanswers == 1 &&  isset($questiondata->options->shuffleanswers)
-                    && $questiondata->options->shuffleanswers == 0 ) {
-                    $subqdata->options->shuffleanswers = 0;
-                }
-            }
+            $subqdata->options->shuffleanswers = !isset($questiondata->options->shuffleanswers) ||
+                    $questiondata->options->shuffleanswers;
             $question->subquestions[$key] = question_bank::make_question($subqdata);
             $question->subquestions[$key]->maxmark = $subqdata->defaultmark;
             if (isset($subqdata->options->layout)) {
@@ -278,8 +275,7 @@ define('NUMERICAL_ABS_ERROR_MARGIN', 6);
 // Remaining ANSWER regexes.
 define('ANSWER_TYPE_DEF_REGEX',
         '(NUMERICAL|NM)|(MULTICHOICE|MC)|(MULTICHOICE_V|MCV)|(MULTICHOICE_H|MCH)|' .
-        '(SHORTANSWER|SA|MW)|(SHORTANSWER_C|SAC|MWC)|' .
-        '(MULTICHOICE_S|MCS)|(MULTICHOICE_VS|MCVS)|(MULTICHOICE_HS|MCHS)');
+                '(SHORTANSWER|SA|MW)|(SHORTANSWER_C|SAC|MWC)');
 define('ANSWER_START_REGEX',
        '\{([0-9]*):(' . ANSWER_TYPE_DEF_REGEX . '):');
 
@@ -298,32 +294,7 @@ define('ANSWER_REGEX_ANSWER_TYPE_MULTICHOICE_REGULAR', 5);
 define('ANSWER_REGEX_ANSWER_TYPE_MULTICHOICE_HORIZONTAL', 6);
 define('ANSWER_REGEX_ANSWER_TYPE_SHORTANSWER', 7);
 define('ANSWER_REGEX_ANSWER_TYPE_SHORTANSWER_C', 8);
-define('ANSWER_REGEX_ANSWER_TYPE_MULTICHOICE_SHUFFLED', 9);
-define('ANSWER_REGEX_ANSWER_TYPE_MULTICHOICE_REGULAR_SHUFFLED', 10);
-define('ANSWER_REGEX_ANSWER_TYPE_MULTICHOICE_HORIZONTAL_SHUFFLED', 11);
-define('ANSWER_REGEX_ALTERNATIVES', 12);
-
-/**
- * Initialise subquestion fields that are constant across all MULTICHOICE
- * types.
- *
- * @param objet $wrapped  The subquestion to initialise
- *
- */
-function qtype_multianswer_initialise_multichoice_subquestion($wrapped) {
-    $wrapped->qtype = 'multichoice';
-    $wrapped->single = 1;
-    $wrapped->answernumbering = 0;
-    $wrapped->correctfeedback['text'] = '';
-    $wrapped->correctfeedback['format'] = FORMAT_HTML;
-    $wrapped->correctfeedback['itemid'] = '';
-    $wrapped->partiallycorrectfeedback['text'] = '';
-    $wrapped->partiallycorrectfeedback['format'] = FORMAT_HTML;
-    $wrapped->partiallycorrectfeedback['itemid'] = '';
-    $wrapped->incorrectfeedback['text'] = '';
-    $wrapped->incorrectfeedback['format'] = FORMAT_HTML;
-    $wrapped->incorrectfeedback['itemid'] = '';
-}
+define('ANSWER_REGEX_ALTERNATIVES', 9);
 
 function qtype_multianswer_extract_question($text) {
     // Variable $text is an array [text][format][itemid].
@@ -345,7 +316,7 @@ function qtype_multianswer_extract_question($text) {
         $wrapped->generalfeedback['text'] = '';
         $wrapped->generalfeedback['format'] = FORMAT_HTML;
         $wrapped->generalfeedback['itemid'] = '';
-        if (isset($answerregs[ANSWER_REGEX_NORM]) && $answerregs[ANSWER_REGEX_NORM] !== '') {
+        if (isset($answerregs[ANSWER_REGEX_NORM])&& $answerregs[ANSWER_REGEX_NORM]!== '') {
             $wrapped->defaultmark = $answerregs[ANSWER_REGEX_NORM];
         } else {
             $wrapped->defaultmark = '1';
@@ -364,28 +335,49 @@ function qtype_multianswer_extract_question($text) {
             $wrapped->qtype = 'shortanswer';
             $wrapped->usecase = 1;
         } else if (!empty($answerregs[ANSWER_REGEX_ANSWER_TYPE_MULTICHOICE])) {
-            qtype_multianswer_initialise_multichoice_subquestion($wrapped);
-            $wrapped->shuffleanswers = 0;
-            $wrapped->layout = qtype_multichoice_base::LAYOUT_DROPDOWN;
-        } else if (!empty($answerregs[ANSWER_REGEX_ANSWER_TYPE_MULTICHOICE_SHUFFLED])) {
-            qtype_multianswer_initialise_multichoice_subquestion($wrapped);
+            $wrapped->qtype = 'multichoice';
+            $wrapped->single = 1;
             $wrapped->shuffleanswers = 1;
+            $wrapped->answernumbering = 0;
+            $wrapped->correctfeedback['text'] = '';
+            $wrapped->correctfeedback['format'] = FORMAT_HTML;
+            $wrapped->correctfeedback['itemid'] = '';
+            $wrapped->partiallycorrectfeedback['text'] = '';
+            $wrapped->partiallycorrectfeedback['format'] = FORMAT_HTML;
+            $wrapped->partiallycorrectfeedback['itemid'] = '';
+            $wrapped->incorrectfeedback['text'] = '';
+            $wrapped->incorrectfeedback['format'] = FORMAT_HTML;
+            $wrapped->incorrectfeedback['itemid'] = '';
             $wrapped->layout = qtype_multichoice_base::LAYOUT_DROPDOWN;
         } else if (!empty($answerregs[ANSWER_REGEX_ANSWER_TYPE_MULTICHOICE_REGULAR])) {
-            qtype_multianswer_initialise_multichoice_subquestion($wrapped);
+            $wrapped->qtype = 'multichoice';
+            $wrapped->single = 1;
             $wrapped->shuffleanswers = 0;
-            $wrapped->layout = qtype_multichoice_base::LAYOUT_VERTICAL;
-        } else if (!empty($answerregs[ANSWER_REGEX_ANSWER_TYPE_MULTICHOICE_REGULAR_SHUFFLED])) {
-            qtype_multianswer_initialise_multichoice_subquestion($wrapped);
-            $wrapped->shuffleanswers = 1;
+            $wrapped->answernumbering = 0;
+            $wrapped->correctfeedback['text'] = '';
+            $wrapped->correctfeedback['format'] = FORMAT_HTML;
+            $wrapped->correctfeedback['itemid'] = '';
+            $wrapped->partiallycorrectfeedback['text'] = '';
+            $wrapped->partiallycorrectfeedback['format'] = FORMAT_HTML;
+            $wrapped->partiallycorrectfeedback['itemid'] = '';
+            $wrapped->incorrectfeedback['text'] = '';
+            $wrapped->incorrectfeedback['format'] = FORMAT_HTML;
+            $wrapped->incorrectfeedback['itemid'] = '';
             $wrapped->layout = qtype_multichoice_base::LAYOUT_VERTICAL;
         } else if (!empty($answerregs[ANSWER_REGEX_ANSWER_TYPE_MULTICHOICE_HORIZONTAL])) {
-            qtype_multianswer_initialise_multichoice_subquestion($wrapped);
+            $wrapped->qtype = 'multichoice';
+            $wrapped->single = 1;
             $wrapped->shuffleanswers = 0;
-            $wrapped->layout = qtype_multichoice_base::LAYOUT_HORIZONTAL;
-        } else if (!empty($answerregs[ANSWER_REGEX_ANSWER_TYPE_MULTICHOICE_HORIZONTAL_SHUFFLED])) {
-            qtype_multianswer_initialise_multichoice_subquestion($wrapped);
-            $wrapped->shuffleanswers = 1;
+            $wrapped->answernumbering = 0;
+            $wrapped->correctfeedback['text'] = '';
+            $wrapped->correctfeedback['format'] = FORMAT_HTML;
+            $wrapped->correctfeedback['itemid'] = '';
+            $wrapped->partiallycorrectfeedback['text'] = '';
+            $wrapped->partiallycorrectfeedback['format'] = FORMAT_HTML;
+            $wrapped->partiallycorrectfeedback['itemid'] = '';
+            $wrapped->incorrectfeedback['text'] = '';
+            $wrapped->incorrectfeedback['format'] = FORMAT_HTML;
+            $wrapped->incorrectfeedback['itemid'] = '';
             $wrapped->layout = qtype_multichoice_base::LAYOUT_HORIZONTAL;
         } else {
             print_error('unknownquestiontype', 'question', '', $answerregs[2]);

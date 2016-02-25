@@ -34,7 +34,7 @@
  * @copyright  2012 Petr Skoda {@link http://skodak.org}
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-abstract class basic_testcase extends base_testcase {
+abstract class basic_testcase extends PHPUnit_Framework_TestCase {
 
     /**
      * Constructs a test case with the given name.
@@ -62,15 +62,7 @@ abstract class basic_testcase extends base_testcase {
 
         try {
             parent::runBare();
-
-        } catch (Exception $ex) {
-            $e = $ex;
-        } catch (Throwable $ex) {
-            // Engine errors in PHP7 throw exceptions of type Throwable (this "catch" will be ignored in PHP5).
-            $e = $ex;
-        }
-
-        if (isset($e)) {
+        } catch (Exception $e) {
             // cleanup after failed expectation
             phpunit_util::reset_all_data();
             throw $e;

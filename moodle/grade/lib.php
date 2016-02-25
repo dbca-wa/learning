@@ -887,6 +887,20 @@ function grade_get_plugin_info($courseid, $active_type, $active_plugin) {
         }
     }
 
+    foreach ($plugin_info as $plugin_type => $plugins) {
+        if (!empty($plugins->id) && $active_plugin == $plugins->id) {
+            $plugin_info['strings']['active_plugin_str'] = $plugins->string;
+            break;
+        }
+        foreach ($plugins as $plugin) {
+            if (is_a($plugin, 'grade_plugin_info')) {
+                if ($active_plugin == $plugin->id) {
+                    $plugin_info['strings']['active_plugin_str'] = $plugin->string;
+                }
+            }
+        }
+    }
+
     return $plugin_info;
 }
 
@@ -960,14 +974,12 @@ class grade_plugin_info {
  * @param boolean $shownavigation should the gradebook navigation drop down (or tabs) be shown?
  * @param string  $headerhelpidentifier The help string identifier if required.
  * @param string  $headerhelpcomponent The component for the help string.
- * @param stdClass $user The user object for use with the user context header.
  *
  * @return string HTML code or nothing if $return == false
  */
 function print_grade_page_head($courseid, $active_type, $active_plugin=null,
                                $heading = false, $return=false,
-                               $buttons=false, $shownavigation=true, $headerhelpidentifier = null, $headerhelpcomponent = null,
-                               $user = null) {
+                               $buttons=false, $shownavigation=true, $headerhelpidentifier = null, $headerhelpcomponent = null) {
     global $CFG, $OUTPUT, $PAGE;
 
     if ($active_type === 'preferences') {
@@ -1014,16 +1026,9 @@ function print_grade_page_head($courseid, $active_type, $active_plugin=null,
     }
 
     if ($shownavigation) {
-        $navselector = null;
         if ($courseid != SITEID &&
                 ($CFG->grade_navmethod == GRADE_NAVMETHOD_COMBO || $CFG->grade_navmethod == GRADE_NAVMETHOD_DROPDOWN)) {
-            // It's absolutely essential that this grade plugin selector is shown after the user header. Just ask Fred.
-            $navselector = print_grade_plugin_selector($plugin_info, $active_type, $active_plugin, true);
-            if ($return) {
-                $returnval .= $navselector;
-            } else if (!isset($user)) {
-                echo $navselector;
-            }
+            $returnval .= print_grade_plugin_selector($plugin_info, $active_type, $active_plugin, $return);
         }
 
         $output = '';
@@ -1031,17 +1036,7 @@ function print_grade_page_head($courseid, $active_type, $active_plugin=null,
         if (isset($headerhelpidentifier)) {
             $output = $OUTPUT->heading_with_help($heading, $headerhelpidentifier, $headerhelpcomponent);
         } else {
-            if (isset($user)) {
-                $output = $OUTPUT->context_header(
-                        array(
-                            'heading' => fullname($user),
-                            'user' => $user,
-                            'usercontext' => context_user::instance($user->id)
-                        ), 2
-                    ) . $navselector;
-            } else {
-                $output = $OUTPUT->heading($heading);
-            }
+            $output = $OUTPUT->heading($heading);
         }
 
         if ($return) {
@@ -1085,7 +1080,7 @@ class grade_plugin_return {
      *
      * @param array $params - associative array with return parameters, if null parameter are taken from _GET or _POST
      */
-    public function __construct($params = null) {
+    public function grade_plugin_return($params = null) {
         if (empty($params)) {
             $this->type     = optional_param('gpr_type', null, PARAM_SAFEDIR);
             $this->plugin   = optional_param('gpr_plugin', null, PARAM_PLUGIN);
@@ -1100,13 +1095,6 @@ class grade_plugin_return {
                 }
             }
         }
-    }
-
-    /**
-     * Old syntax of class constructor. Deprecated in PHP7.
-     */
-    public function grade_plugin_return($params = null) {
-        self::__construct($params);
     }
 
     /**
@@ -1416,22 +1404,10 @@ class grade_structure {
         global $CFG, $OUTPUT;
         require_once $CFG->libdir.'/filelib.php';
 
-        $outputstr = '';
-
-        // Object holding pix_icon information before instantiation.
-        $icon = new stdClass();
-        $icon->attributes = array(
-            'class' => 'icon itemicon'
-        );
-        $icon->component = 'moodle';
-
-        $none = true;
         switch ($element['type']) {
             case 'item':
             case 'courseitem':
             case 'categoryitem':
-                $none = false;
-
                 $is_course   = $element['object']->is_course_item();
                 $is_category = $element['object']->is_category_item();
                 $is_scale    = $element['object']->gradetype == GRADE_TYPE_SCALE;
@@ -1439,68 +1415,71 @@ class grade_structure {
                 $is_outcome  = !empty($element['object']->outcomeid);
 
                 if ($element['object']->is_calculated()) {
-                    $icon->pix = 'i/calc';
-                    $icon->title = s(get_string('calculatedgrade', 'grades'));
+                    $strcalc = get_string('calculatedgrade', 'grades');
+                    return '<img src="'.$OUTPUT->pix_url('i/calc') . '" class="icon itemicon" title="'.
+                            s($strcalc).'" alt="'.s($strcalc).'"/>';
 
                 } else if (($is_course or $is_category) and ($is_scale or $is_value)) {
                     if ($category = $element['object']->get_item_category()) {
                         $aggrstrings = grade_helper::get_aggregation_strings();
                         $stragg = $aggrstrings[$category->aggregation];
-
-                        $icon->pix = 'i/calc';
-                        $icon->title = s($stragg);
-
                         switch ($category->aggregation) {
                             case GRADE_AGGREGATE_MEAN:
                             case GRADE_AGGREGATE_MEDIAN:
                             case GRADE_AGGREGATE_WEIGHTED_MEAN:
                             case GRADE_AGGREGATE_WEIGHTED_MEAN2:
                             case GRADE_AGGREGATE_EXTRACREDIT_MEAN:
-                                $icon->pix = 'i/agg_mean';
-                                break;
+                                return '<img src="'.$OUTPUT->pix_url('i/agg_mean') . '" ' .
+                                        'class="icon itemicon" title="'.s($stragg).'" alt="'.s($stragg).'"/>';
                             case GRADE_AGGREGATE_SUM:
-                                $icon->pix = 'i/agg_sum';
-                                break;
+                                return '<img src="'.$OUTPUT->pix_url('i/agg_sum') . '" ' .
+                                        'class="icon itemicon" title="'.s($stragg).'" alt="'.s($stragg).'"/>';
+                            default:
+                                return '<img src="'.$OUTPUT->pix_url('i/calc') . '" ' .
+                                        'class="icon itemicon" title="'.s($stragg).'" alt="'.s($stragg).'"/>';
                         }
                     }
 
                 } else if ($element['object']->itemtype == 'mod') {
-                    // Prevent outcomes displaying the same icon as the activity they are attached to.
+                    //prevent outcomes being displaying the same icon as the activity they are attached to
                     if ($is_outcome) {
-                        $icon->pix = 'i/outcomes';
-                        $icon->title = s(get_string('outcome', 'grades'));
+                        $stroutcome = s(get_string('outcome', 'grades'));
+                        return '<img src="'.$OUTPUT->pix_url('i/outcomes') . '" ' .
+                            'class="icon itemicon" title="'.$stroutcome.
+                            '" alt="'.$stroutcome.'"/>';
                     } else {
-                        $icon->pix = 'icon';
-                        $icon->component = $element['object']->itemmodule;
-                        $icon->title = s(get_string('modulename', $element['object']->itemmodule));
+                        $strmodname = get_string('modulename', $element['object']->itemmodule);
+                        return '<img src="'.$OUTPUT->pix_url('icon',
+                            $element['object']->itemmodule) . '" ' .
+                            'class="icon itemicon" title="' .s($strmodname).
+                            '" alt="' .s($strmodname).'"/>';
                     }
                 } else if ($element['object']->itemtype == 'manual') {
                     if ($element['object']->is_outcome_item()) {
-                        $icon->pix = 'i/outcomes';
-                        $icon->title = s(get_string('outcome', 'grades'));
+                        $stroutcome = get_string('outcome', 'grades');
+                        return '<img src="'.$OUTPUT->pix_url('i/outcomes') . '" ' .
+                                'class="icon itemicon" title="'.s($stroutcome).
+                                '" alt="'.s($stroutcome).'"/>';
                     } else {
-                        $icon->pix = 'i/manual_item';
-                        $icon->title = s(get_string('manualitem', 'grades'));
+                        $strmanual = get_string('manualitem', 'grades');
+                        return '<img src="'.$OUTPUT->pix_url('i/manual_item') . '" '.
+                                'class="icon itemicon" title="'.s($strmanual).
+                                '" alt="'.s($strmanual).'"/>';
                     }
                 }
                 break;
 
             case 'category':
-                $none = false;
-                $icon->pix = 'i/folder';
-                $icon->title = s(get_string('category', 'grades'));
-                break;
+                $strcat = get_string('category', 'grades');
+                return '<img src="'.$OUTPUT->pix_url('i/folder') . '" class="icon itemicon" ' .
+                        'title="'.s($strcat).'" alt="'.s($strcat).'" />';
         }
 
-        if ($none) {
-            if ($spacerifnone) {
-                $outputstr = $OUTPUT->spacer() . ' ';
-            }
+        if ($spacerifnone) {
+            return $OUTPUT->spacer().' ';
         } else {
-            $outputstr = $OUTPUT->pix_icon($icon->pix, $icon->title, $icon->component, $icon->attributes);
+            return '';
         }
-
-        return $outputstr;
     }
 
     /**
@@ -2040,7 +2019,7 @@ class grade_seq extends grade_structure {
      * @param bool $category_grade_last category grade item is the last child
      * @param bool $nooutcomes Whether or not outcomes should be included
      */
-    public function __construct($courseid, $category_grade_last=false, $nooutcomes=false) {
+    public function grade_seq($courseid, $category_grade_last=false, $nooutcomes=false) {
         global $USER, $CFG;
 
         $this->courseid   = $courseid;
@@ -2054,13 +2033,6 @@ class grade_seq extends grade_structure {
         foreach ($this->elements as $key=>$unused) {
             $this->items[$this->elements[$key]['object']->id] =& $this->elements[$key]['object'];
         }
-    }
-
-    /**
-     * Old syntax of class constructor. Deprecated in PHP7.
-     */
-    public function grade_seq($courseid, $category_grade_last=false, $nooutcomes=false) {
-        self::__construct($courseid, $category_grade_last, $nooutcomes);
     }
 
     /**
@@ -2199,7 +2171,7 @@ class grade_tree extends grade_structure {
      * @param array $collapsed array of collapsed categories
      * @param bool  $nooutcomes Whether or not outcomes should be included
      */
-    public function __construct($courseid, $fillers=true, $category_grade_last=false,
+    public function grade_tree($courseid, $fillers=true, $category_grade_last=false,
                                $collapsed=null, $nooutcomes=false) {
         global $USER, $CFG, $COURSE, $DB;
 
@@ -2241,14 +2213,6 @@ class grade_tree extends grade_structure {
 
         grade_tree::fill_levels($this->levels, $this->top_element, 0);
 
-    }
-
-    /**
-     * Old syntax of class constructor. Deprecated in PHP7.
-     */
-    public function grade_tree($courseid, $fillers=true, $category_grade_last=false,
-                               $collapsed=null, $nooutcomes=false) {
-        self::__construct($courseid, $fillers, $category_grade_last, $collapsed, $nooutcomes);
     }
 
     /**
@@ -2370,44 +2334,6 @@ class grade_tree extends grade_structure {
     }
 
     /**
-     * Determines whether the grade tree item can be displayed.
-     * This is particularly targeted for grade categories that have no total (None) when rendering the grade tree.
-     * It checks if the grade tree item is of type 'category', and makes sure that the category, or at least one of children,
-     * can be output.
-     *
-     * @param array $element The grade category element.
-     * @return bool True if the grade tree item can be displayed. False, otherwise.
-     */
-    public static function can_output_item($element) {
-        $canoutput = true;
-
-        if ($element['type'] === 'category') {
-            $object = $element['object'];
-            $category = grade_category::fetch(array('id' => $object->id));
-            // Category has total, we can output this.
-            if ($category->get_grade_item()->gradetype != GRADE_TYPE_NONE) {
-                return true;
-            }
-
-            // Category has no total and has no children, no need to output this.
-            if (empty($element['children'])) {
-                return false;
-            }
-
-            $canoutput = false;
-            // Loop over children and make sure at least one child can be output.
-            foreach ($element['children'] as $child) {
-                $canoutput = self::can_output_item($child);
-                if ($canoutput) {
-                    break;
-                }
-            }
-        }
-
-        return $canoutput;
-    }
-
-    /**
      * Static recursive helper - makes full tree (all leafes are at the same level)
      *
      * @param array &$element The seed of the recursion
@@ -2434,9 +2360,6 @@ class grade_tree extends grade_structure {
         $maxdepth = reset($chdepths);
         foreach ($chdepths as $chid=>$chd) {
             if ($chd == $maxdepth) {
-                continue;
-            }
-            if (!self::can_output_item($element['children'][$chid])) {
                 continue;
             }
             for ($i=0; $i < $maxdepth-$chd; $i++) {
@@ -2470,9 +2393,6 @@ class grade_tree extends grade_structure {
         }
         $count = 0;
         foreach ($element['children'] as $key=>$child) {
-            if (!self::can_output_item($child)) {
-                continue;
-            }
             $count += grade_tree::inject_colspans($element['children'][$key]);
         }
         $element['colspan'] = $count;
@@ -2845,6 +2765,7 @@ abstract class grade_helper {
      * letter => get_string('letters', 'grades'),
      * export => get_string('export', 'grades'),
      * import => get_string('import'),
+     * preferences => get_string('mypreferences', 'grades'),
      * settings => get_string('settings')
      *
      * @return array
@@ -2899,9 +2820,9 @@ abstract class grade_helper {
         $context = context_course::instance($courseid);
         self::$managesetting = array();
         if ($courseid != SITEID && has_capability('moodle/grade:manage', $context)) {
-            self::$managesetting['gradebooksetup'] = new grade_plugin_info('setup',
+            self::$managesetting['categoriesanditems'] = new grade_plugin_info('setup',
                 new moodle_url('/grade/edit/tree/index.php', array('id' => $courseid)),
-                get_string('gradebooksetup', 'grades'));
+                get_string('categoriesanditems', 'grades'));
             self::$managesetting['coursesettings'] = new grade_plugin_info('coursesettings',
                 new moodle_url('/grade/edit/settings/index.php', array('id'=>$courseid)),
                 get_string('coursegradesettings', 'grades'));
@@ -2954,7 +2875,7 @@ abstract class grade_helper {
             if (file_exists($plugindir.'/preferences.php')) {
                 $url = new moodle_url('/grade/report/'.$plugin.'/preferences.php', array('id'=>$courseid));
                 $gradepreferences[$plugin] = new grade_plugin_info($plugin, $url,
-                    get_string('preferences', 'grades') . ': ' . $pluginstr);
+                    get_string('mypreferences', 'grades') . ': ' . $pluginstr);
             }
         }
         if (count($gradereports) == 0) {
@@ -3079,9 +3000,8 @@ abstract class grade_helper {
                 $importplugins[$plugin] = new grade_plugin_info($plugin, $url, $pluginstr);
             }
 
-            // Show key manager if grade publishing is enabled and the user has xml publishing capability.
-            // XML is the only grade import plugin that has publishing feature.
-            if ($CFG->gradepublishing && has_capability('gradeimport/xml:publish', $context)) {
+
+            if ($CFG->gradepublishing) {
                 $url = new moodle_url('/grade/import/keymanager.php', array('id'=>$courseid));
                 $importplugins['keymanager'] = new grade_plugin_info('keymanager', $url, get_string('keymanager', 'grades'));
             }
@@ -3108,24 +3028,17 @@ abstract class grade_helper {
         }
         $context = context_course::instance($courseid);
         $exportplugins = array();
-        $canpublishgrades = 0;
         if (has_capability('moodle/grade:export', $context)) {
             foreach (core_component::get_plugin_list('gradeexport') as $plugin => $plugindir) {
                 if (!has_capability('gradeexport/'.$plugin.':view', $context)) {
                     continue;
                 }
-                // All the grade export plugins has grade publishing capabilities.
-                if (has_capability('gradeexport/'.$plugin.':publish', $context)) {
-                    $canpublishgrades++;
-                }
-
                 $pluginstr = get_string('pluginname', 'gradeexport_'.$plugin);
                 $url = new moodle_url('/grade/export/'.$plugin.'/index.php', array('id'=>$courseid));
                 $exportplugins[$plugin] = new grade_plugin_info($plugin, $url, $pluginstr);
             }
 
-            // Show key manager if grade publishing is enabled and the user has at least one grade publishing capability.
-            if ($CFG->gradepublishing && $canpublishgrades != 0) {
+            if ($CFG->gradepublishing) {
                 $url = new moodle_url('/grade/export/keymanager.php', array('id'=>$courseid));
                 $exportplugins['keymanager'] = new grade_plugin_info('keymanager', $url, get_string('keymanager', 'grades'));
             }

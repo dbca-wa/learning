@@ -1,8 +1,6 @@
 <?php
 /*
-@version   v5.20.1  06-Dec-2015
-@copyright (c) 2000-2013 John Lim (jlim#natsoft.com). All rights reserved.
-@copyright (c) 2014      Damien Regad, Mark Newnham and the ADOdb community
+V5.19  23-Apr-2014  (c) 2000-2014 John Lim (jlim#natsoft.com). All rights reserved.
   Released under both BSD license and Lesser GPL library license.
   Whenever there is any discrepancy between the two licenses,
   the BSD license will take precedence.
@@ -40,6 +38,11 @@ class  ADODB_ado_mssql extends ADODB_ado {
 	var $_dropSeqSQL = "drop table %s";
 
 	//var $_inTransaction = 1; // always open recordsets, so no transaction problems.
+
+	function ADODB_ado_mssql()
+	{
+	        $this->ADODB_ado();
+	}
 
 	function _insertid()
 	{
@@ -143,8 +146,8 @@ class  ADODB_ado_mssql extends ADODB_ado {
 
 	var $databaseType = 'ado_mssql';
 
-	function __construct($id,$mode=false)
+	function ADORecordSet_ado_mssql($id,$mode=false)
 	{
-	        return parent::__construct($id,$mode);
+	        return $this->ADORecordSet_ado($id,$mode);
 	}
 }

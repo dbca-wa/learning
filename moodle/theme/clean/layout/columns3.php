@@ -31,17 +31,10 @@
 // Get the HTML for the settings bits.
 $html = theme_clean_get_html_for_settings($OUTPUT, $PAGE);
 
-// Set default (LTR) layout mark-up for a three column page.
-$regionmainbox = 'span9';
-$regionmain = 'span8 pull-right';
-$sidepre = 'span4 desktop-first-column';
-$sidepost = 'span3 pull-right';
-// Reset layout mark-up for RTL languages.
 if (right_to_left()) {
-    $regionmainbox = 'span9 pull-right';
-    $regionmain = 'span8';
-    $sidepre = 'span4 pull-right';
-    $sidepost = 'span3 desktop-first-column';
+    $regionbsid = 'region-bs-main-and-post';
+} else {
+    $regionbsid = 'region-bs-main-and-pre';
 }
 
 echo $OUTPUT->doctype() ?>
@@ -63,7 +56,11 @@ echo $OUTPUT->doctype() ?>
             <a class="brand" href="<?php echo $CFG->wwwroot;?>"><?php echo
                 format_string($SITE->shortname, true, array('context' => context_course::instance(SITEID)));
                 ?></a>
-            <?php echo $OUTPUT->navbar_button(); ?>
+            <a class="btn btn-navbar" data-toggle="workaround-collapse" data-target=".nav-collapse">
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </a>
             <?php echo $OUTPUT->user_menu(); ?>
             <div class="nav-collapse collapse">
                 <?php echo $OUTPUT->custom_menu(); ?>
@@ -76,21 +73,32 @@ echo $OUTPUT->doctype() ?>
 </header>
 
 <div id="page" class="container-fluid">
-    <?php echo $OUTPUT->full_header(); ?>
+
+    <header id="page-header" class="clearfix">
+        <?php echo $html->heading; ?>
+        <div id="page-navbar" class="clearfix">
+            <nav class="breadcrumb-nav"><?php echo $OUTPUT->navbar(); ?></nav>
+            <div class="breadcrumb-button"><?php echo $OUTPUT->page_heading_button(); ?></div>
+        </div>
+        <div id="course-header">
+            <?php echo $OUTPUT->course_header(); ?>
+        </div>
+    </header>
+
     <div id="page-content" class="row-fluid">
-        <div id="region-main-box" class="<?php echo $regionmainbox; ?>">
+        <div id="<?php echo $regionbsid ?>" class="span9">
             <div class="row-fluid">
-                <section id="region-main" class="<?php echo $regionmain; ?>">
+                <section id="region-main" class="span8 pull-right">
                     <?php
                     echo $OUTPUT->course_content_header();
                     echo $OUTPUT->main_content();
                     echo $OUTPUT->course_content_footer();
                     ?>
                 </section>
-                <?php echo $OUTPUT->blocks('side-pre', $sidepre); ?>
+                <?php echo $OUTPUT->blocks('side-pre', 'span4 desktop-first-column'); ?>
             </div>
         </div>
-        <?php echo $OUTPUT->blocks('side-post', $sidepost); ?>
+        <?php echo $OUTPUT->blocks('side-post', 'span3'); ?>
     </div>
 
     <footer id="page-footer">

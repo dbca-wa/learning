@@ -58,7 +58,7 @@ Y.namespace('M.atto_indent').Button = Y.Base.create('button', Y.M.editor_atto.Ed
      */
     indent: function() {
         // Save the current selection - we want to restore this.
-        var selection = window.rangy.saveSelection(),
+        var selection = rangy.saveSelection(),
             blockquotes = this.editor.all('blockquote'),
             count = blockquotes.size();
 
@@ -80,14 +80,14 @@ Y.namespace('M.atto_indent').Button = Y.Base.create('button', Y.M.editor_atto.Ed
             // We don't want blockquotes, we're going to convert them to divs.
             this.replaceBlockquote(this.editor);
             // Finally restore the seelction. The content has changed - sometimes this works - but not always :(
-            window.rangy.restoreSelection(selection);
+            rangy.restoreSelection(selection);
         } else if (blockquotes.size() > 0) {
             // There were no new blockquotes, this happens if the user is indenting/outdenting a list.
             blockquotes.removeClass('pre-existing');
         }
 
         // Remove the selection markers - a clean up really.
-        window.rangy.removeMarkers(selection);
+        rangy.removeMarkers(selection);
 
         // Mark the text as having been updated.
         this.markUpdated();
@@ -100,7 +100,7 @@ Y.namespace('M.atto_indent').Button = Y.Base.create('button', Y.M.editor_atto.Ed
      */
     outdent: function() {
         // Save the selection we will want to restore it.
-        var selection = window.rangy.saveSelection(),
+        var selection = rangy.saveSelection(),
             blockquotes = this.editor.all('blockquote'),
             count = blockquotes.size();
 
@@ -111,9 +111,9 @@ Y.namespace('M.atto_indent').Button = Y.Base.create('button', Y.M.editor_atto.Ed
         this.replaceEditorIndents(this.editor);
 
         // Restore the users selection - otherwise the next outdent operation won't work!
-        window.rangy.restoreSelection(selection);
+        rangy.restoreSelection(selection);
         // And save it once more.
-        selection = window.rangy.saveSelection();
+        selection = rangy.saveSelection();
 
         // Outdent.
         document.execCommand('outdent', false, null);
@@ -125,7 +125,7 @@ Y.namespace('M.atto_indent').Button = Y.Base.create('button', Y.M.editor_atto.Ed
             // The number of blockquotes hasn't changed.
             // This occurs when the user has outdented a list item.
             this.replaceBlockquote(this.editor);
-            window.rangy.restoreSelection(selection);
+            rangy.restoreSelection(selection);
         } else if (blockquotes.size() > 0) {
             // The number of blockquotes is the same and is more than 0 we just need to clean up the class
             // we added to mark pre-existing blockquotes.
@@ -133,7 +133,7 @@ Y.namespace('M.atto_indent').Button = Y.Base.create('button', Y.M.editor_atto.Ed
         }
 
         // Clean up any left over selection markers.
-        window.rangy.removeMarkers(selection);
+        rangy.removeMarkers(selection);
 
         // Mark the text as having been updated.
         this.markUpdated();
@@ -153,10 +153,7 @@ Y.namespace('M.atto_indent').Button = Y.Base.create('button', Y.M.editor_atto.Ed
             if (blockquote.hasClass('pre-existing')) {
                 blockquote.removeClass('pre-existing');
             } else {
-                var clone = Y.Node.create('<div></div>')
-                        .setAttrs(blockquote.getAttrs())
-                        .setStyle(margindir, '30px')
-                        .addClass('editor-indent');
+                var clone = Y.Node.create('<div></div>').setAttrs(blockquote.getAttrs()).setStyle(margindir, '30px').addClass('editor-indent');
                 // We use childNodes here because we are interested in both type 1 and 3 child nodes.
                 var children = blockquote.getDOMNode().childNodes, child;
                 child = children[0];
@@ -179,10 +176,7 @@ Y.namespace('M.atto_indent').Button = Y.Base.create('button', Y.M.editor_atto.Ed
         // We use the editor-indent class because it is preserved between saves.
         var indent = editor.one('.editor-indent');
         while (indent) {
-            var clone = Y.Node.create('<blockquote></blockquote>')
-                    .setAttrs(indent
-                    .getAttrs())
-                    .removeClass('editor-indent');
+            var clone = Y.Node.create('<blockquote></blockquote>').setAttrs(indent.getAttrs()).removeClass('editor-indent');
             // We use childNodes here because we are interested in both type 1 and 3 child nodes.
             var children = indent.getDOMNode().childNodes, child;
             child = children[0];

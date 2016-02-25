@@ -163,17 +163,15 @@ class enrol_self_edit_form extends moodleform {
         $checkpassword = false;
 
         if ($instance->id) {
-            // Check the password if we are enabling the plugin again.
-            if (($instance->status == ENROL_INSTANCE_DISABLED) && ($data['status'] == ENROL_INSTANCE_ENABLED)) {
-                $checkpassword = true;
-            }
-
-            // Check the password if the instance is enabled and the password has changed.
-            if (($data['status'] == ENROL_INSTANCE_ENABLED) && ($instance->password !== $data['password'])) {
-                $checkpassword = true;
+            if ($data['status'] == ENROL_INSTANCE_ENABLED) {
+                if ($instance->password !== $data['password']) {
+                    $checkpassword = true;
+                }
             }
         } else {
-            $checkpassword = true;
+            if ($data['status'] == ENROL_INSTANCE_ENABLED) {
+                $checkpassword = true;
+            }
         }
 
         if ($checkpassword) {
@@ -181,8 +179,8 @@ class enrol_self_edit_form extends moodleform {
             $policy  = $plugin->get_config('usepasswordpolicy');
             if ($require and trim($data['password']) === '') {
                 $errors['password'] = get_string('required');
-            } else if (!empty($data['password']) && $policy) {
-                $errmsg = '';
+            } else if ($policy) {
+                $errmsg = '';//prevent eclipse warning
                 if (!check_password_policy($data['password'], $errmsg)) {
                     $errors['password'] = $errmsg;
                 }

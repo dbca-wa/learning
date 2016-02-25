@@ -96,9 +96,5 @@ class category_deleted extends \core\event\base {
             throw new \coding_exception('Context level must be CONTEXT_MODULE.');
         }
     }
-
-    public static function get_objectid_mapping() {
-        return array('db' => 'glossary_categories', 'restore' => 'glossary_category');
-    }
 }
 

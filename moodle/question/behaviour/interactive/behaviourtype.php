@@ -40,8 +40,4 @@ class qbehaviour_interactive_type extends question_behaviour_type {
     public function allows_multiple_submitted_responses() {
         return true;
     }
-
-    public function can_questions_finish_during_the_attempt() {
-        return true;
-    }
 }

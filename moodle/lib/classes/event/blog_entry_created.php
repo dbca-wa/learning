@@ -140,9 +140,4 @@ class blog_entry_created extends base {
             throw new \coding_exception('The \'relateduserid\' must be set.');
         }
     }
-
-    public static function get_objectid_mapping() {
-        // Blogs are not backed up, so no mapping required for restore.
-        return array('db' => 'post', 'restore' => base::NOT_MAPPED);
-    }
 }

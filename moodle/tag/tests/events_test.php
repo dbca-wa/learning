@@ -28,6 +28,7 @@ defined('MOODLE_INTERNAL') || die();
 global $CFG;
 
 require_once($CFG->dirroot . '/tag/lib.php');
+require_once($CFG->dirroot . '/tag/coursetagslib.php');
 
 // Used to create a wiki page to tag.
 require_once($CFG->dirroot . '/mod/wiki/locallib.php');
@@ -165,7 +166,6 @@ class core_tag_events_testcase extends advanced_testcase {
         // Trigger and capture the event for untagging a course.
         $sink = $this->redirectEvents();
         coursetag_delete_keyword($tag->id, 2, $course->id);
-        $this->assertDebuggingCalled();
         $events = $sink->get_events();
         $event = reset($events);
 
@@ -415,7 +415,6 @@ class core_tag_events_testcase extends advanced_testcase {
         // Trigger and capture the event for deleting a personal tag for a user for a course.
         $sink = $this->redirectEvents();
         coursetag_delete_keyword($tag->id, 2, $course->id);
-        $this->assertDebuggingCalled();
         $events = $sink->get_events();
         $event = $events[1];
 
@@ -433,7 +432,6 @@ class core_tag_events_testcase extends advanced_testcase {
         // Trigger and capture the event for deleting all tags in a course.
         $sink = $this->redirectEvents();
         coursetag_delete_course_tags($course->id);
-        $this->assertDebuggingCalled();
         $events = $sink->get_events();
         $event = $events[1];
 
@@ -453,7 +451,6 @@ class core_tag_events_testcase extends advanced_testcase {
         // Trigger and capture the event for deleting all tags in a course.
         $sink = $this->redirectEvents();
         coursetag_delete_course_tags($course->id);
-        $this->assertDebuggingCalled();
         $events = $sink->get_events();
         $events = array($events[1], $events[3]);
 

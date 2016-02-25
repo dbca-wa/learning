@@ -21,6 +21,7 @@ var LOGNS = 'moodle-core-dock',
         dockeditemcontainer: 'dockeditem_container',
         dockedtitle: 'dockedtitle',      // CSS class added to the item's title in each dock
         activeitem: 'activeitem',        // CSS class added to the active item
+        contentonly: 'content-only',
         dockonload: 'dock_on_load'
     },
     SELECTOR = {
@@ -116,7 +117,7 @@ M.core.dock.dockBlock = function(id) {
         if (typeof id === 'object' && typeof id.getData === 'function' && !id.ancestor('.'+CSS.dock)) {
             id = id.getData('instanceid');
         } else {
-            Y.log('Invalid instanceid given to dockBlockByInstanceID', 'warn', LOGNS);
+            Y.log('Invalid instanceid given to dockBlockByInstanceID', 'warn', LOADERNAME);
             return;
         }
     }
@@ -142,8 +143,7 @@ M.core.dock.fixTitleOrientation = function(title, text) {
         test,
         width,
         height,
-        container,
-        verticaldirection = M.util.get_string('thisdirectionvertical', 'langconfig');
+        container;
     title = Y.one(title);
 
     if (dock.get('orientation') !== 'vertical') {
@@ -154,10 +154,10 @@ M.core.dock.fixTitleOrientation = function(title, text) {
 
     if (Y.UA.ie > 0 && Y.UA.ie < 8) {
         // IE 6/7 can't rotate text so force ver
-        verticaldirection = 'ver';
+        M.str.langconfig.thisdirectionvertical = 'ver';
     }
 
-    switch (verticaldirection) {
+    switch (M.str.langconfig.thisdirectionvertical) {
         case 'ver':
             // Stacked is easy
             return title.set('innerHTML', text.split('').join('<br />'));
@@ -178,8 +178,7 @@ M.core.dock.fixTitleOrientation = function(title, text) {
     }
 
     // We need to fix a font-size - sorry theme designers.
-    test = Y.Node.create('<h2 class="transform-test-heading"><span class="transform-test-node" style="font-size:' +
-            fontsize + ';">' + text + '</span></h2>');
+    test = Y.Node.create('<h2 class="transform-test-heading"><span class="transform-test-node" style="font-size:'+fontsize+';">'+text+'</span></h2>');
     BODY.insert(test, 0);
     width = test.one('span').get('offsetWidth') * 1.2;
     height = test.one('span').get('offsetHeight');
@@ -197,7 +196,7 @@ M.core.dock.fixTitleOrientation = function(title, text) {
     });
 
     // Positioning is different when in RTL mode.
-    if (window.right_to_left()) {
+    if (right_to_left()) {
         title.setStyle('left', width/2 - height);
     } else {
         title.setStyle('right', width/2 - height);
@@ -489,7 +488,7 @@ DOCK.prototype = {
             };
             try {
                 // Run the customisation function
-                window.customise_dock_for_theme(this);
+                customise_dock_for_theme(this);
             } catch (exception) {
                 // Do nothing at the moment.
                 Y.log('Exception while attempting to apply theme customisations.', 'error', LOGNS);
@@ -516,9 +515,7 @@ DOCK.prototype = {
                         warned = true;
                     }
                     // Damn, the've set something.
-                    Y.log('Note for customise_dock_for_theme code: M.core_dock.cfg.' + key +
-                            ' is now dock.set(\'' + key + '\', value)',
-                            'debug', LOGNS);
+                    Y.log('Note for customise_dock_for_theme code: M.core_dock.cfg.'+key+' is now dock.set(\''+key+'\', value)', 'debug', LOGNS);
                     this.set(cfgmap[key], value);
                 }
             }
@@ -534,8 +531,7 @@ DOCK.prototype = {
                         warned = true;
                     }
                     // Damn, they've set something.
-                    Y.log('Note for customise_dock_for_theme code: M.core_dock.css.' + key + ' is now CSS.' + key + ' = value',
-                            'debug', LOGNS);
+                    Y.log('Note for customise_dock_for_theme code: M.core_dock.css.'+key+' is now CSS.'+key+' = value', 'debug', LOGNS);
                     CSS[key] = value;
                 }
             }
@@ -740,126 +736,78 @@ DOCK.prototype = {
             // Do not resize during initial load
             return;
         }
-
-        var populatedRegionCount = 0,
-            populatedBlockRegions = [],
-            unpopulatedBlockRegions = [],
-            isMoving = false,
-            populatedLegacyRegions = [],
-            containsLegacyRegions = false,
-            classesToAdd = [],
-            classesToRemove = [];
-
+        var blockregions = [],
+            populatedblockregions = 0,
+            allnewregions = true,
+            showregions = false,
+            i;
         // First look for understood regions.
         Y.all(SELECTOR.blockregion).each(function(region){
             var regionname = region.getData('blockregion');
             if (region.all('.block').size() > 0) {
-                populatedBlockRegions.push(regionname);
-                populatedRegionCount++;
+                populatedblockregions++;
+                BODY.addClass('used-region-'+regionname);
+                BODY.removeClass('empty-region-'+regionname);
+                BODY.removeClass('docked-region-'+regionname);
             } else if (region.all('.block_dock_placeholder').size() > 0) {
-                unpopulatedBlockRegions.push(regionname);
+                // There are no blocks in the region but there are placeholders.
+                // All blocks in this region have been docked.
+                BODY.addClass('empty-region-'+regionname);
+                BODY.addClass('docked-region-'+regionname);
+                BODY.removeClass('used-region-'+regionname);
             }
         });
-
         // Next check for legacy regions.
         Y.all('.block-region').each(function(region){
             if (region.test(SELECTOR.blockregion)) {
                 // This is a new region, we've already processed it.
                 return;
             }
-
-            // Sigh - there are legacy regions.
-            containsLegacyRegions = true;
-
-            var regionname = region.get('id').replace(/^region\-/, 'side-'),
-                hasblocks = (region.all('.block').size() > 0);
-
+            var hasblocks = (region.all('.block').size() > 0);
             if (hasblocks) {
-                populatedLegacyRegions.push(regionname);
-                populatedRegionCount++;
-            } else {
-                // This legacy region has no blocks so cannot have the -only body tag.
-                classesToRemove.push(
-                        regionname + '-only'
-                    );
+                populatedblockregions++;
             }
+            allnewregions = false;
+            blockregions[region.get('id')] = {
+                hasblocks : hasblocks,
+                bodyclass : region.get('id').replace(/^region\-/, 'side-')+'-only'
+            };
         });
-
         if (BODY.hasClass('blocks-moving')) {
-            // When we're moving blocks, we do not want to collapse.
-            isMoving = true;
+            // open up blocks during blocks positioning
+            showregions = true;
+        }
+        if (populatedblockregions === 0 && showregions === false) {
+            BODY.addClass(CSS.contentonly);
+        } else {
+            BODY.removeClass(CSS.contentonly);
         }
 
-        Y.each(unpopulatedBlockRegions, function(regionname) {
-            classesToAdd.push(
-                    // This block region is empty.
-                    'empty-region-' + regionname,
-
-                    // Which has the same effect as being docked.
-                    'docked-region-' + regionname
-                );
-            classesToRemove.push(
-                    // It is no-longer used.
-                    'used-region-' + regionname,
-
-                    // It cannot be the only region on screen if it is empty.
-                    regionname + '-only'
-                );
-        }, this);
-
-        Y.each(populatedBlockRegions, function(regionname) {
-            classesToAdd.push(
-                    // This block region is in use.
-                    'used-region-' + regionname
-                );
-            classesToRemove.push(
-                    // It is not empty.
-                    'empty-region-' + regionname,
-
-                    // Is it not docked.
-                    'docked-region-' + regionname
-                );
-
-            if (populatedRegionCount === 1 && isMoving === false) {
-                // There was only one populated region, and we are not moving blocks.
-                classesToAdd.push(regionname + '-only');
+        if (!allnewregions) {
+            if (populatedblockregions === 0 && showregions === false) {
+                for (i in blockregions) {
+                    if (blockregions[i].bodyclass) {
+                        BODY.removeClass(blockregions[i].bodyclass);
+                    }
+                }
+            } else if (populatedblockregions === 1 && showregions === false) {
+                for (i in blockregions) {
+                    if (blockregions[i].bodyclass) {
+                        if (!blockregions[i].hasblocks) {
+                            BODY.removeClass(blockregions[i].bodyclass);
+                        } else {
+                            BODY.addClass(blockregions[i].bodyclass);
+                        }
+                    }
+                }
             } else {
-                // There were multiple block regions visible - remove any 'only' classes.
-                classesToRemove.push(regionname + '-only');
-            }
-        }, this);
-
-        if (containsLegacyRegions) {
-            // Handle the classing for legacy blocks. These have slightly different class names for the body.
-            if (isMoving || populatedRegionCount !== 1) {
-                Y.each(populatedLegacyRegions, function(regionname) {
-                    classesToRemove.push(regionname + '-only');
-                });
-            } else {
-                Y.each(populatedLegacyRegions, function(regionname) {
-                    classesToAdd.push(regionname + '-only');
-                });
+                for (i in blockregions) {
+                    if (blockregions[i].bodyclass) {
+                        BODY.removeClass(blockregions[i].bodyclass);
+                    }
+                }
             }
         }
-
-        if (!BODY.hasClass('has-region-content')) {
-            // This page does not have a content region, therefore content-only is implied when all block regions are docked.
-            if (populatedRegionCount === 0 && isMoving === false) {
-                // If all blocks are docked, ensure that the content-only class is added anyway.
-                classesToAdd.push('content-only');
-            } else {
-                // Otherwise remove it.
-                classesToRemove.push('content-only');
-            }
-        }
-
-        // Modify the body clases.
-        Y.each(classesToRemove, function(className) {
-            BODY.removeClass(className);
-        });
-        Y.each(classesToAdd, function(className) {
-            BODY.addClass(className);
-        });
     },
     /**
      * Adds an item to the dock.
@@ -1149,8 +1097,8 @@ Y.extend(DOCK, Y.Base, DOCK.prototype, {
          * @type String
          * @default t/dock_to_block
          */
-        undockAllIconUrl: {
-            value : M.util.image_url((window.right_to_left()) ? 't/dock_to_block_rtl' : 't/dock_to_block', 'moodle'),
+        undockAllIconUrl : {
+            value : M.util.image_url((right_to_left()) ? 't/dock_to_block_rtl' : 't/dock_to_block', 'moodle'),
             validator : Y.Lang.isString
         }
     }
@@ -1744,7 +1692,7 @@ BLOCK.prototype = {
         var dock = M.core.dock.get(),
             id = this.get('id'),
             blockcontent = Y.one('#inst'+id).one('.content'),
-            icon = (window.right_to_left()) ? 't/dock_to_block_rtl' : 't/dock_to_block',
+            icon = (right_to_left()) ? 't/dock_to_block_rtl' : 't/dock_to_block',
             breakchar = (location.href.match(/\?/)) ? '&' : '?',
             blocktitle,
             blockcommands,
@@ -1770,7 +1718,7 @@ BLOCK.prototype = {
             blockcommands = Y.Node.create('<div class="commands"></div>');
         }
         movetoimg = Y.Node.create('<img />').setAttrs({
-            alt : Y.Escape.html(M.util.get_string('undockitem', 'block')),
+            alt : Y.Escape.html(M.str.block.undockitem),
             title : Y.Escape.html(M.util.get_string('undockblock', 'block', blocktitle.get('innerHTML'))),
             src : M.util.image_url(icon, 'moodle')
         });
@@ -1983,8 +1931,7 @@ DOCKEDITEM.prototype = {
         dockitem.append(docktitle);
         dock.append(dockitem);
 
-        closeiconimg = create('<img alt="' + M.util.get_string('hidepanel', 'block') +
-                '" title="' + M.util.get_string('hidedockpanel', 'block') + '" />');
+        closeiconimg = create('<img alt="'+M.str.block.hidepanel+'" title="'+M.str.block.hidedockpanel+'" />');
         closeiconimg.setAttribute('src', M.util.image_url('t/dockclose', 'moodle'));
         closeicon = create('<span class="hidepanelicon" tabindex="0"></span>').append(closeiconimg);
         closeicon.on('forceclose|click', this.hide, this);
@@ -2011,8 +1958,7 @@ DOCKEDITEM.prototype = {
         this.fire('dockeditem:showstart');
         Y.log('Showing '+this._getLogDescription(), 'debug', LOGNS);
         panel.setHeader(this.get('titlestring'), this.get('commands'));
-        panel.setBody(Y.Node.create('<div class="block_' + this.get('blockclass') + ' block_docked"></div>')
-             .append(this.get('contents')));
+        panel.setBody(Y.Node.create('<div class="block_'+this.get('blockclass')+' block_docked"></div>').append(this.get('contents')));
         if (M.core.actionmenu !== undefined) {
             M.core.actionmenu.newDOMNode(panel.get('node'));
         }

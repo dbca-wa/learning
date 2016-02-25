@@ -27,7 +27,7 @@
  * @param Number y
  * @class point
  */
-var POINT = function(x, y) {
+POINT = function(x, y) {
 
     /**
      * X coordinate.

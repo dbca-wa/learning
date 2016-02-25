@@ -25,7 +25,7 @@
  * @namespace M.assignfeedback_editpdf
  * @class edit
  */
-var EDIT = function() {
+EDIT = function() {
 
     /**
      * Starting point for the edit.

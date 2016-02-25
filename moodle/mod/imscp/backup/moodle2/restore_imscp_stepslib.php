@@ -1,4 +1,5 @@
 <?php
+
 // This file is part of Moodle - http://moodle.org/
 //
 // Moodle is free software: you can redistribute it and/or modify
@@ -15,8 +16,6 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Define all the restore steps that will be used by the restore_imscp_activity_task
- *
  * @package mod_imscp
  * @subpackage backup-moodle2
  * @copyright 2010 onwards Eloy Lafuente (stronk7) {@link http://stronk7.com}
@@ -24,10 +23,11 @@
  */
 
 /**
+ * Define all the restore steps that will be used by the restore_imscp_activity_task
+ */
+
+/**
  * Structure step to restore one imscp activity
- *
- * @copyright 2010 onwards Eloy Lafuente (stronk7) {@link http://stronk7.com}
- * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class restore_imscp_activity_structure_step extends restore_activity_structure_step {
 
@@ -36,7 +36,7 @@ class restore_imscp_activity_structure_step extends restore_activity_structure_s
         $paths = array();
         $paths[] = new restore_path_element('imscp', '/activity/imscp');
 
-        // Return the paths wrapped into standard activity structure.
+        // Return the paths wrapped into standard activity structure
         return $this->prepare_activity_structure($paths);
     }
 
@@ -48,15 +48,19 @@ class restore_imscp_activity_structure_step extends restore_activity_structure_s
         $data->course = $this->get_courseid();
         $data->timemodified = $this->apply_date_offset($data->timemodified);
 
-        // Insert the imscp record.
+        // insert the imscp record
         $newitemid = $DB->insert_record('imscp', $data);
-        // Immediately after inserting "activity" record, call this.
+        // immediately after inserting "activity" record, call this
         $this->apply_activity_instance($newitemid);
     }
 
     protected function after_execute() {
-        // Add imscp related files, no need to match by itemname (just internally handled context).
-        // Eloy Lafuente: I don't like itemid used for "imaginative" things like "revisions"!
+        // Add imscp related files, no need to match by itemname (just internally handled context)
+        /**
+         * I don't like itemid used for "imaginative" things like "revisions"!
+         * I don't like itemid used for "imaginative" things like "revisions"!
+         * I don't like itemid used for "imaginative" things like "revisions"!
+         */
         $this->add_related_files('mod_imscp', 'intro', null);
         $this->add_related_files('mod_imscp', 'backup', null);
         $this->add_related_files('mod_imscp', 'content', null);

@@ -1,7 +1,7 @@
 @core @core_grades @gradereport_user
 Feature: We can use the user report
   As a user
-  I browse to the User report
+  I browse the User report
 
   Background:
     Given the following "courses" exist:

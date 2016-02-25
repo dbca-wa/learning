@@ -51,8 +51,7 @@ if ($data = $mform->get_data()) {
     raise_memory_limit(MEMORY_EXTRA);
 
     if ($text = $mform->get_file_content('userfile')) {
-        print_grade_page_head($COURSE->id, 'import', 'xml',
-                              get_string('importxml', 'grades'), false, false, true, 'importxml', 'gradeimport_xml');
+        print_grade_page_head($COURSE->id, 'import', 'xml', get_string('importxml', 'grades'));
 
         $error = '';
         $importcode = import_xml_grades($text, $course, $error);
@@ -75,8 +74,7 @@ if ($data = $mform->get_data()) {
             $data->key = create_user_key('grade/import', $USER->id, $course->id, $data->iprestriction, $data->validuntil);
         }
 
-        print_grade_page_head($COURSE->id, 'import', 'xml',
-                              get_string('importxml', 'grades'), false, false, true, 'importxml', 'gradeimport_xml');
+        print_grade_page_head($COURSE->id, 'import', 'xml', get_string('importxml', 'grades'));
 
         echo '<div class="gradeexportlink">';
         $link = $CFG->wwwroot.'/grade/import/xml/fetch.php?id='.$id.'&amp;feedback='.(int)($data->feedback).'&amp;url='.urlencode($data->url).'&amp;key='.$data->key;
@@ -87,9 +85,10 @@ if ($data = $mform->get_data()) {
     }
 }
 
-print_grade_page_head($COURSE->id, 'import', 'xml',
-                      get_string('importxml', 'grades'), false, false, true, 'importxml', 'gradeimport_xml');
+print_grade_page_head($COURSE->id, 'import', 'xml', get_string('importxml', 'grades'));
 
 $mform->display();
 
 echo $OUTPUT->footer();
+
+

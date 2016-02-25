@@ -16,7 +16,7 @@ M.mod_survey.init = function(Y) {
                 }
             }
             if (error) {
-                alert(M.util.get_string('questionsnotanswered', 'survey'));
+                alert(M.str.survey.questionsnotanswered);
                 Y.YUI2.util.Event.preventDefault(e);
                 return false;
             } else {

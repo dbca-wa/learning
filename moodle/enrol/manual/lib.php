@@ -226,19 +226,14 @@ class enrol_manual_plugin extends enrol_plugin {
         $button->class .= ' enrol_manual_plugin';
 
         $startdate = $manager->get_course()->startdate;
-        if (!$defaultstart = get_config('enrol_manual', 'enrolstart')) {
-            // Default to now if there is no system setting.
-            $defaultstart = 4;
-        }
         $startdateoptions = array();
-        $dateformat = get_string('strftimedatefullshort');
+        $timeformat = get_string('strftimedatefullshort');
         if ($startdate > 0) {
-            $startdateoptions[2] = get_string('coursestart') . ' (' . userdate($startdate, $dateformat) . ')';
+            $startdateoptions[2] = get_string('coursestart') . ' (' . userdate($startdate, $timeformat) . ')';
         }
-        $now = time();
-        $today = make_timestamp(date('Y', $now), date('m', $now), date('d', $now), 0, 0, 0);
-        $startdateoptions[3] = get_string('today') . ' (' . userdate($today, $dateformat) . ')';
-        $startdateoptions[4] = get_string('now', 'enrol_manual') . ' (' . userdate($now, get_string('strftimedatetimeshort')) . ')';
+        $today = time();
+        $today = make_timestamp(date('Y', $today), date('m', $today), date('d', $today), 0, 0, 0);
+        $startdateoptions[3] = get_string('today') . ' (' . userdate($today, $timeformat) . ')' ;
         $defaultduration = $instance->enrolperiod > 0 ? $instance->enrolperiod / 86400 : '';
 
         $modules = array('moodle-enrol_manual-quickenrolment', 'moodle-enrol_manual-quickenrolment-skin');
@@ -250,7 +245,6 @@ class enrol_manual_plugin extends enrol_plugin {
             'optionsStartDate'    => $startdateoptions,
             'defaultRole'         => $instance->roleid,
             'defaultDuration'     => $defaultduration,
-            'defaultStartDate'    => (int)$defaultstart,
             'disableGradeHistory' => $CFG->disablegradehistory,
             'recoverGradesDefault'=> '',
             'cohortsAvailable'    => cohort_get_available_cohorts($manager->get_context(), COHORT_WITH_NOTENROLLED_MEMBERS_ONLY, 0, 1) ? true : false

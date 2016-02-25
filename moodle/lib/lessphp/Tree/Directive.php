@@ -31,7 +31,7 @@ class Less_Tree_Directive extends Less_Tree{
 	}
 
 
-    public function accept( $visitor ){
+	function accept( $visitor ){
 		if( $this->rules ){
 			$this->rules = $visitor->visitObj( $this->rules );
 		}
@@ -44,7 +44,7 @@ class Less_Tree_Directive extends Less_Tree{
     /**
      * @see Less_Tree::genCSS
      */
-    public function genCSS( $output ){
+	function genCSS( $output ){
 		$value = $this->value;
 		$rules = $this->rules;
 		$output->add( $this->name, $this->currentFileInfo, $this->index );

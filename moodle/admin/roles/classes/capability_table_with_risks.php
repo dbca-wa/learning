@@ -163,16 +163,15 @@ abstract class core_role_capability_table_with_risks extends core_role_capabilit
     protected abstract function add_permission_cells($capability);
 
     protected function add_row_cells($capability) {
-        $cells = $this->add_permission_cells($capability);
+        $this->add_permission_cells($capability);
         // One cell for each possible risk.
         foreach ($this->allrisks as $riskname => $risk) {
-            $cells .= '<td class="risk ' . str_replace('risk', '', $riskname) . '">';
+            echo '<td class="risk ' . str_replace('risk', '', $riskname) . '">';
             if ($risk & (int)$capability->riskbitmask) {
-                $cells .= $this->get_risk_icon($riskname);
+                echo $this->get_risk_icon($riskname);
             }
-            $cells .= '</td>';
+            echo '</td>';
         }
-        return $cells;
     }
 
     /**

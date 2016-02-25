@@ -82,9 +82,9 @@ Y.extend(SHOWADVANCED, Y.Base, {
         var morelesslink = Y.Node.create('<a href="#"></a>');
         morelesslink.addClass(CSS.MORELESSTOGGLER);
         if (statuselement.get('value') === '0') {
-            morelesslink.setHTML(M.util.get_string('showmore', 'form'));
+            morelesslink.setHTML(M.str.form.showmore);
         } else {
-            morelesslink.setHTML(M.util.get_string('showless', 'form'));
+            morelesslink.setHTML(M.str.form.showless);
             morelesslink.addClass(CSS.SHOWLESS);
             fieldset.all(SELECTORS.DIVFITEMADVANCED).addClass(CSS.SHOW);
         }

@@ -38,16 +38,10 @@ class HTML_QuickForm_header extends HTML_QuickForm_static
     * @access public
     * @return void
     */
-    public function __construct($elementName = null, $text = null) {
-        parent::__construct($elementName, null, $text);
+    function HTML_QuickForm_header($elementName = null, $text = null)
+    {
+        $this->HTML_QuickForm_static($elementName, null, $text);
         $this->_type = 'header';
-    }
-
-    /**
-     * Old syntax of class constructor for backward compatibility.
-     */
-    public function HTML_QuickForm_header($elementName = null, $text = null) {
-        self::__construct($elementName, $text);
     }
 
     // }}}

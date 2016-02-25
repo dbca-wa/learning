@@ -65,14 +65,6 @@ M.core_availability.form = {
     idCounter : 0,
 
     /**
-     * The 'Restrict by group' button if present.
-     *
-     * @property restrictByGroup
-     * @type Y.Node
-     */
-    restrictByGroup : null,
-
-    /**
      * Called to initialise the system when the page loads. This method will
      * also call the init method for each plugin.
      *
@@ -127,22 +119,6 @@ M.core_availability.form = {
         this.field.ancestor('form').on('submit', function() {
             this.mainDiv.all('input,textarea,select').set('disabled', true);
         }, this);
-
-        // If the form has group mode and/or grouping options, there is a
-        // 'add restriction' button there.
-        this.restrictByGroup = Y.one('#restrictbygroup');
-        if (this.restrictByGroup) {
-            this.restrictByGroup.on('click', this.addRestrictByGroup, this);
-            var groupmode = Y.one('#id_groupmode');
-            var groupingid = Y.one('#id_groupingid');
-            if (groupmode) {
-                groupmode.on('change', this.updateRestrictByGroup, this);
-            }
-            if (groupingid) {
-                groupingid.on('change', this.updateRestrictByGroup, this);
-            }
-            this.updateRestrictByGroup();
-        }
     },
 
     /**
@@ -165,75 +141,6 @@ M.core_availability.form = {
 
         // Set into hidden form field, JS-encoded.
         this.field.set('value', Y.JSON.stringify(jsValue));
-
-        // Also update the restrict by group button if present.
-        this.updateRestrictByGroup();
-    },
-
-    /**
-     * Updates the status of the 'restrict by group' button (enables or disables
-     * it) based on current availability restrictions and group/grouping settings.
-     */
-    updateRestrictByGroup : function() {
-        if (!this.restrictByGroup) {
-            return;
-        }
-
-        // If the root list is anything other than the default 'and' type, disable.
-        if (this.rootList.getValue().op !== '&') {
-            this.restrictByGroup.set('disabled', true);
-            return;
-        }
-
-        // If there's already a group restriction, disable it.
-        var alreadyGot = this.rootList.hasItemOfType('group') ||
-                this.rootList.hasItemOfType('grouping');
-        if (alreadyGot) {
-            this.restrictByGroup.set('disabled', true);
-            return;
-        }
-
-        // If the groupmode and grouping id aren't set, disable it.
-        var groupmode = Y.one('#id_groupmode');
-        var groupingid = Y.one('#id_groupingid');
-        if ((!groupmode || Number(groupmode.get('value')) === 0) &&
-                (!groupingid || Number(groupingid.get('value')) === 0)) {
-            this.restrictByGroup.set('disabled', true);
-            return;
-        }
-
-        this.restrictByGroup.set('disabled', false);
-    },
-
-    /**
-     * Called when the user clicks on the 'restrict by group' button. This is
-     * a special case that adds a group or grouping restriction.
-     *
-     * By default this restriction is not shown which makes it similar to the
-     *
-     * @param e Button click event
-     */
-    addRestrictByGroup : function(e) {
-        // If you don't prevent default, it submits the form for some reason.
-        e.preventDefault();
-
-        // Add the condition.
-        var groupingid = Y.one('#id_groupingid');
-        var newChild;
-        if (groupingid && Number(groupingid.get('value')) !== 0) {
-            // Add a grouping restriction if one is specified.
-            newChild = new M.core_availability.Item(
-                    {type : 'grouping', id : Number(groupingid.get('value'))}, true);
-        } else {
-            // Otherwise just add a group restriction.
-            newChild = new M.core_availability.Item({type : 'group'}, true);
-        }
-
-        // Refresh HTML.
-        this.rootList.addChild(newChild);
-        this.update();
-        this.rootList.renumber();
-        this.rootList.updateHtml();
     }
 };
 
@@ -351,23 +258,24 @@ M.core_availability.List = function(json, root, parentRoot) {
     if (root !== undefined) {
         this.root = root;
     }
+    var strings = M.str.availability;
     // Create DIV structure (without kids).
     this.node = Y.Node.create('<div class="availability-list"><h3 class="accesshide"></h3>' +
             '<div class="availability-inner">' +
-            '<div class="availability-header">' + M.util.get_string('listheader_sign_before', 'availability') +
-            ' <label><span class="accesshide">' + M.util.get_string('label_sign', 'availability') +
-            ' </span><select class="availability-neg" title="' + M.util.get_string('label_sign', 'availability') + '">' +
-            '<option value="">' + M.util.get_string('listheader_sign_pos', 'availability') + '</option>' +
-            '<option value="!">' + M.util.get_string('listheader_sign_neg', 'availability') + '</option></select></label> ' +
-            '<span class="availability-single">' + M.util.get_string('listheader_single', 'availability') + '</span>' +
-            '<span class="availability-multi">' + M.util.get_string('listheader_multi_before', 'availability') +
-            ' <label><span class="accesshide">' + M.util.get_string('label_multi', 'availability') + ' </span>' +
-            '<select class="availability-op" title="' + M.util.get_string('label_multi', 'availability') + '"><option value="&">' +
-            M.util.get_string('listheader_multi_and', 'availability') + '</option>' +
-            '<option value="|">' + M.util.get_string('listheader_multi_or', 'availability') + '</option></select></label> ' +
-            M.util.get_string('listheader_multi_after', 'availability') + '</span></div>' +
+            '<div class="availability-header">' + strings.listheader_sign_before +
+            ' <label><span class="accesshide">' + strings.label_sign +
+            ' </span><select class="availability-neg" title="' + strings.label_sign + '">' +
+            '<option value="">' + strings.listheader_sign_pos + '</option>' +
+            '<option value="!">' + strings.listheader_sign_neg + '</option></select></label> ' +
+            '<span class="availability-single">' + strings.listheader_single + '</span>' +
+            '<span class="availability-multi">' + strings.listheader_multi_before +
+            ' <label><span class="accesshide">' + strings.label_multi + ' </span>' +
+            '<select class="availability-op" title="' + strings.label_multi + '"><option value="&">' +
+            strings.listheader_multi_and + '</option>' +
+            '<option value="|">' + strings.listheader_multi_or + '</option></select></label> ' +
+            strings.listheader_multi_after + '</span></div>' +
             '<div class="availability-children"></div>' +
-            '<div class="availability-none">' + M.util.get_string('none', 'moodle') + '</div>' +
+            '<div class="availability-none">' + M.str.moodle.none + '</div>' +
             '<div class="availability-button"></div></div></div>');
     if (!root) {
         this.node.addClass('availability-childlist');
@@ -403,12 +311,12 @@ M.core_availability.List = function(json, root, parentRoot) {
 
         // Also if it's not the root, none is actually invalid, so add a label.
         noneNode.appendChild(Y.Node.create('<span class="label label-warning">' +
-                M.util.get_string('invalid', 'availability') + '</span>'));
+                M.str.availability.invalid + '</span>'));
     }
 
     // Create the button and add it.
     var button = Y.Node.create('<button type="button" class="btn btn-default">' +
-            M.util.get_string('addrestriction', 'availability') + '</button>');
+            M.str.availability.addrestriction + '</button>');
     button.on("click", function() { this.clickAdd(); }, this);
     this.node.one('div.availability-button').appendChild(button);
 
@@ -599,9 +507,9 @@ M.core_availability.List.prototype.updateHtml = function() {
     // Update connector text.
     var connectorText;
     if (this.inner.one('.availability-op').get('value') === '&') {
-        connectorText = M.util.get_string('and', 'availability');
+        connectorText = M.str.availability.and;
     } else {
-        connectorText = M.util.get_string('or', 'availability');
+        connectorText = M.str.availability.or;
     }
     this.inner.all('> .availability-children > .availability-connector span.label').each(function(span) {
         span.set('innerHTML', connectorText);
@@ -663,7 +571,7 @@ M.core_availability.List.prototype.clickAdd = function() {
     var content = Y.Node.create('<div>' +
             '<ul class="list-unstyled"></ul>' +
             '<div class="availability-buttons mdl-align">' +
-            '<button type="button" class="btn btn-default">' + M.util.get_string('cancel', 'moodle') +
+            '<button type="button" class="btn btn-default">' + M.str.moodle.cancel +
             '</button></div></div>');
     var cancel = content.one('button');
 
@@ -679,12 +587,13 @@ M.core_availability.List.prototype.clickAdd = function() {
         // Add entry for plugin.
         li = Y.Node.create('<li class="clearfix"></li>');
         id = 'availability_addrestriction_' + type;
+        var pluginStrings = M.str['availability_' + type];
         button = Y.Node.create('<button type="button" class="btn btn-default"' +
-                'id="' + id + '">' + M.util.get_string('title', 'availability_' + type) + '</button>');
+                'id="' + id + '">' + pluginStrings.title + '</button>');
         button.on('click', this.getAddHandler(type, dialogRef), this);
         li.appendChild(button);
         label = Y.Node.create('<label for="' + id + '">' +
-                M.util.get_string('description', 'availability_' + type) + '</label>');
+                pluginStrings.description + '</label>');
         li.appendChild(label);
         ul.appendChild(li);
     }
@@ -692,16 +601,16 @@ M.core_availability.List.prototype.clickAdd = function() {
     li = Y.Node.create('<li class="clearfix"></li>');
     id = 'availability_addrestriction_list_';
     button = Y.Node.create('<button type="button" class="btn btn-default"' +
-            'id="' + id + '">' + M.util.get_string('condition_group', 'availability') + '</button>');
+            'id="' + id + '">' + M.str.availability.condition_group + '</button>');
     button.on('click', this.getAddHandler(null, dialogRef), this);
     li.appendChild(button);
     label = Y.Node.create('<label for="' + id + '">' +
-            M.util.get_string('condition_group_info', 'availability') + '</label>');
+            M.str.availability.condition_group_info + '</label>');
     li.appendChild(label);
     ul.appendChild(li);
 
     var config = {
-        headerContent : M.util.get_string('addrestriction', 'availability'),
+        headerContent : M.str.availability.addrestriction,
         bodyContent : content,
         additionalBaseClass : 'availability-dialogue',
         draggable : true,
@@ -729,7 +638,6 @@ M.core_availability.List.prototype.clickAdd = function() {
  */
 M.core_availability.List.prototype.getAddHandler = function(type, dialogRef) {
     return function() {
-        var newItem;
         if (type) {
             // Create an Item object to represent the child.
             newItem = new M.core_availability.Item({ type: type, creating: true }, this.root);
@@ -802,31 +710,6 @@ M.core_availability.List.prototype.fillErrors = function(errors) {
 };
 
 /**
- * Checks whether the list contains any items of the given type name.
- *
- * @method hasItemOfType
- * @param {String} pluginType Required plugin type (name)
- * @return {Boolean} True if there is one
- */
-M.core_availability.List.prototype.hasItemOfType = function(pluginType) {
-    // Check each item.
-    for (var i = 0; i < this.children.length; i++) {
-        var child = this.children[i];
-        if (child instanceof M.core_availability.List) {
-            // Recursive call.
-            if (child.hasItemOfType(pluginType)) {
-                return true;
-            }
-        } else {
-            if (child.pluginType === pluginType) {
-                return true;
-            }
-        }
-    }
-    return false;
-};
-
-/**
  * Eye icon for this list (null if none).
  *
  * @property eyeIcon
@@ -881,7 +764,7 @@ M.core_availability.Item = function(json, root) {
         // Handle undefined plugins.
         this.plugin = null;
         this.pluginNode = Y.Node.create('<div class="availability-warning">' +
-                M.util.get_string('missingplugin', 'availability') + '</div>');
+                M.str.availability.missingplugin + '</div>');
     } else {
         // Plugin is known.
         this.plugin = M.core_availability.form.plugins[json.type];
@@ -925,7 +808,7 @@ M.core_availability.Item = function(json, root) {
  * @return {Object} JavaScript object containing value of this item
  */
 M.core_availability.Item.prototype.getValue = function() {
-    var value = { 'type' : this.pluginType };
+    value = { 'type' : this.pluginType };
     if (this.plugin) {
         this.plugin.fillValue(value, this.pluginNode);
     }
@@ -952,7 +835,7 @@ M.core_availability.Item.prototype.fillErrors = function(errors) {
     // If any errors were added, add the marker to this item.
     var errorLabel = this.node.one('> .label-warning');
     if (errors.length !== before && !errorLabel.get('firstChild')) {
-        errorLabel.appendChild(document.createTextNode(M.util.get_string('invalid', 'availability')));
+        errorLabel.appendChild(document.createTextNode(M.str.availability.invalid));
     } else if (errors.length === before && errorLabel.get('firstChild')) {
         errorLabel.get('firstChild').remove();
     }
@@ -968,7 +851,7 @@ M.core_availability.Item.prototype.renumber = function(number) {
     // Update heading for item.
     var headingParams = { number: number };
     if (this.plugin) {
-        headingParams.type = M.util.get_string('title', 'availability_' + this.pluginType);
+        headingParams.type = M.str['availability_' + this.pluginType].title;
     } else {
         headingParams.type = '[' + this.pluginType + ']';
     }
@@ -1047,21 +930,19 @@ M.core_availability.EyeIcon = function(individual, shown) {
     this.span.appendChild(icon);
 
     // Set up button text and icon.
-    var suffix = individual ? '_individual' : '_all',
-        setHidden = function() {
-            var hiddenStr = M.util.get_string('hidden' + suffix, 'availability');
-            icon.set('src', M.util.image_url('i/show', 'core'));
-            icon.set('alt', hiddenStr);
-            this.span.set('title', hiddenStr + ' \u2022 ' +
-                    M.util.get_string('show_verb', 'availability'));
-        },
-        setShown = function() {
-            var shownStr = M.util.get_string('shown' + suffix, 'availability');
-            icon.set('src', M.util.image_url('i/hide', 'core'));
-            icon.set('alt', shownStr);
-            this.span.set('title', shownStr + ' \u2022 ' +
-                    M.util.get_string('hide_verb', 'availability'));
-        };
+    var suffix = individual ? '_individual' : '_all';
+    var setHidden = function() {
+        icon.set('src', M.util.image_url('i/show', 'core'));
+        icon.set('alt', M.str.availability['hidden' + suffix]);
+        this.span.set('title', M.str.availability['hidden' + suffix] + ' \u2022 ' +
+                M.str.availability.show_verb);
+    };
+    var setShown = function() {
+        icon.set('src', M.util.image_url('i/hide', 'core'));
+        icon.set('alt', M.str.availability['shown' + suffix]);
+        this.span.set('title', M.str.availability['shown' + suffix] + ' \u2022 ' +
+                M.str.availability.hide_verb);
+    };
     if(shown) {
         setShown.call(this);
     } else {
@@ -1106,8 +987,8 @@ M.core_availability.EyeIcon.prototype.span = null;
  * @return {Boolean} True if this icon is set to 'hidden'
  */
 M.core_availability.EyeIcon.prototype.isHidden = function() {
-    var suffix = this.individual ? '_individual' : '_all',
-        compare = M.util.get_string('hidden' + suffix, 'availability');
+    var suffix = this.individual ? '_individual' : '_all';
+    var compare = M.str.availability['hidden' + suffix];
     return this.span.one('img').get('alt') === compare;
 };
 
@@ -1121,9 +1002,9 @@ M.core_availability.EyeIcon.prototype.isHidden = function() {
  */
 M.core_availability.DeleteIcon = function(toDelete) {
     this.span = Y.Node.create('<a class="availability-delete" href="#" title="' +
-            M.util.get_string('delete', 'moodle') + '" role="button">');
+            M.str.moodle['delete'] + '" role="button">');
     var img = Y.Node.create('<img src="' + M.util.image_url('t/delete', 'core') +
-            '" alt="' + M.util.get_string('delete', 'moodle') + '" />');
+            '" alt="' + M.str.moodle['delete'] + '" />');
     this.span.appendChild(img);
     var click = function(e) {
         e.preventDefault();
