@@ -20,7 +20,8 @@ Feature: Block tags displaying tag cloud
       | teacher1 | c1     | editingteacher |
       | student1 | c1     | student        |
     And I log in as "teacher1"
-    And I navigate to "Edit profile" node in "My profile settings"
+    And I follow "Preferences" in the user menu
+    And I follow "Edit profile"
     And I expand all fieldsets
     And I set the field "Enter tags separated by commas" to "Dogs, Cats"
     And I press "Update profile"

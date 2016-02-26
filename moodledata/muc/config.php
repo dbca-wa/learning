@@ -69,8 +69,8 @@
   array (
     0 => 
     array (
-      'mode' => 1,
-      'store' => 'default_application',
+      'mode' => 4,
+      'store' => 'default_request',
       'sort' => -1,
     ),
     1 => 
@@ -81,8 +81,8 @@
     ),
     2 => 
     array (
-      'mode' => 4,
-      'store' => 'default_request',
+      'mode' => 1,
+      'store' => 'default_application',
       'sort' => -1,
     ),
   ),
@@ -317,6 +317,16 @@
       'area' => 'gradecondition',
       'selectedsharingoption' => 2,
       'userinputsharingkey' => '',
+    ),
+    'core/completion' => 
+    array (
+      'mode' => 1,
+      'simplekeys' => true,
+      'ttl' => 3600,
+      'staticacceleration' => true,
+      'staticaccelerationsize' => 2,
+      'component' => 'core',
+      'area' => 'completion',
     ),
     'core/navigation_expandcourse' => 
     array (

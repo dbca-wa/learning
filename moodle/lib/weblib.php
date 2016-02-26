@@ -707,7 +707,7 @@ class moodle_url {
     public function set_slashargument($path, $parameter = 'file', $supported = null) {
         global $CFG;
         if (is_null($supported)) {
-            $supported = $CFG->slasharguments;
+            $supported = !empty($CFG->slasharguments);
         }
 
         if ($supported) {
@@ -3593,7 +3593,7 @@ function get_formatted_help_string($identifier, $component, $ajax = false, $a = 
 /**
  * Renders a hidden password field so that browsers won't incorrectly autofill password fields with the user's password.
  *
- * @since 2.8.8
+ * @since 2.9.2
  * @return string HTML to prevent password autofill
  */
 function prevent_form_autofill_password() {

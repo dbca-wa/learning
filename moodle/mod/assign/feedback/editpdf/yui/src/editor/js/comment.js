@@ -33,7 +33,7 @@
  * @param String colour
  * @param String rawtext
  */
-COMMENT = function(editor, gradeid, pageno, x, y, width, colour, rawtext) {
+var COMMENT = function(editor, gradeid, pageno, x, y, width, colour, rawtext) {
 
     /**
      * Reference to M.assignfeedback_editpdf.editor.
@@ -159,7 +159,7 @@ COMMENT = function(editor, gradeid, pageno, x, y, width, colour, rawtext) {
     this.draw = function(focus) {
         var drawable = new M.assignfeedback_editpdf.drawable(this.editor),
             node,
-            drawingregion = Y.one(SELECTOR.DRAWINGREGION),
+            drawingregion = this.editor.get_dialogue_element(SELECTOR.DRAWINGREGION),
             container,
             menu,
             position,

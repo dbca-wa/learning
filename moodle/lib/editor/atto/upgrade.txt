@@ -1,6 +1,6 @@
 This files describes API changes in the editor_atto code.
 
-=== 2.8.2 ===
+=== 2.9 ===
 
 * When adding a shortcut to the button of a plugin, atto will add a layer of validation
 to ensure that only the required keys are pressed. However, if you are using a custom

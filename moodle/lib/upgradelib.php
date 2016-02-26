@@ -371,6 +371,8 @@ function upgrade_stale_php_files_present() {
     global $CFG;
 
     $someexamplesofremovedfiles = array(
+        // Removed in 2.9.
+        '/lib/timezone.txt',
         // Removed in 2.8.
         '/course/delete_category_form.php',
         // Removed in 2.7.
@@ -2262,7 +2264,7 @@ function check_database_tables_row_format(environment_results $result) {
 
         foreach ($DB->get_tables(false) as $table) {
             $columns = $DB->get_columns($table, false);
-            $size = $generator->guess_antolope_row_size($columns);
+            $size = $generator->guess_antelope_row_size($columns);
             $format = $DB->get_row_format($table);
 
             if ($size <= $generator::ANTELOPE_MAX_ROW_SIZE) {

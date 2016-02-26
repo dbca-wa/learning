@@ -27,9 +27,10 @@
 
 require_once(__DIR__ . '/../../behat/behat_base.php');
 
-use Behat\Behat\Context\Step\Given as Given,
-    Behat\Behat\Context\Step\When as When,
-    Behat\Mink\Exception\ExpectationException as ExpectationException;
+use Behat\Behat\Context\Step\Given as Given;
+use Behat\Mink\Exception\ExpectationException as ExpectationException;
+use Behat\Mink\Exception\DriverException as DriverException;
+use Behat\Behat\Context\Step\When as When;
 
 /**
  * Steps definitions to navigate through the navigation tree nodes.
@@ -137,6 +138,30 @@ class behat_navigation extends behat_base {
     }
 
     /**
+     * Click on an entry in the user menu.
+     * @Given /^I follow "(?P<nodetext_string>(?:[^"]|\\")*)" in the user menu$/
+     *
+     * @param string $nodetext
+     * @return bool|void
+     */
+    public function i_follow_in_the_user_menu($nodetext) {
+        $steps = array();
+
+        if ($this->running_javascript()) {
+            // The user menu must be expanded when JS is enabled.
+            $xpath = "//div[@class='usermenu']//a[contains(concat(' ', @class, ' '), ' toggle-display ')]";
+            $steps[] = new When('I click on "'.$xpath.'" "xpath_element"');
+        }
+
+        // Now select the link.
+        // The CSS path is always present, with or without JS.
+        $csspath = ".usermenu [data-rel='menu-content']";
+        $steps[] = new When('I click on "'.$nodetext.'" "link" in the "'.$csspath.'" "css_element"');
+
+        return $steps;
+    }
+
+    /**
      * Expands the selected node of the navigation tree that matches the text.
      * @Given /^I expand "(?P<nodetext_string>(?:[^"]|\\")*)" node$/
      *
@@ -237,7 +262,20 @@ class behat_navigation extends behat_base {
                 $nodetoexpand = $node->find('xpath', $xpath);
 
                 $this->ensure_node_is_visible($nodetoexpand);
-                $nodetoexpand->click();
+
+                // If node is a link then some driver click in the middle of the node, which click on link and
+                // page gets redirected. To ensure expansion works in all cases, check if the node to expand is a
+                // link and if yes then click on link and wait for it to navigate to next page with node expanded.
+                $nodetoexpandliteral = $this->getSession()->getSelectorsHandler()->xpathLiteral($parentnodes[$i]);
+                $nodetoexpandxpathlink = $xpath . "/a[normalize-space(.)=" . $nodetoexpandliteral . "]";
+
+                if ($nodetoexpandlink = $node->find('xpath', $nodetoexpandxpathlink)) {
+                    $behatgeneralcontext = behat_context_helper::get('behat_general');
+                    $nodetoexpandlink->click();
+                    $behatgeneralcontext->wait_until_the_page_is_ready();
+                } else {
+                    $nodetoexpand->click();
+                }
 
                 // Wait for node to load, if not loaded before.
                 if ($nodetoexpand->hasAttribute('data-loaded') && $nodetoexpand->getAttribute('data-loaded') == 0) {
@@ -262,30 +300,6 @@ class behat_navigation extends behat_base {
         }
 
         $nodetoclick->click();
-    }
-
-    /**
-     * Click on an entry in the user menu.
-     * @Given /^I follow "(?P<nodetext_string>(?:[^"]|\\")*)" in the user menu$/
-     *
-     * @param string $nodetext
-     * @return bool|void
-     */
-    public function i_follow_in_the_user_menu($nodetext) {
-        $steps = array();
-
-        if ($this->running_javascript()) {
-            // The user menu must be expanded when JS is enabled.
-            $xpath = "//div[@class='usermenu']//a[contains(concat(' ', @class, ' '), ' toggle-display ')]";
-            $steps[] = new When('I click on "'.$xpath.'" "xpath_element"');
-        }
-
-        // Now select the link.
-        // The CSS path is always present, with or without JS.
-        $csspath = ".usermenu [data-rel='menu-content']";
-        $steps[] = new When('I click on "'.$nodetext.'" "link" in the "'.$csspath.'" "css_element"');
-
-        return $steps;
     }
 
     /**

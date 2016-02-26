@@ -243,7 +243,7 @@ class cache_definition {
 
     /**
      * Deprecated - this is completely unused.
-     * @deprecated since 2.8.2
+     * @deprecated since 2.9
      * @var string
      */
     protected $datasourceaggregate = null;

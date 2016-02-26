@@ -158,6 +158,17 @@ h6 img.iconhelp {
     padding: 4px;
 }
 
+/** Table caption support */
+table caption {
+    font-size: 24px;
+    font-weight: bold;
+    line-height: 42px;
+    text-align: left;
+}
+.dir-rtl table caption {
+    text-align: right;
+}
+
 /** The 1-pixel padding is there to avoid phantom scroll bars on OS X (FF, Safari and Chrome)**/
 .no-overflow {overflow:auto;padding-bottom:1px;}
 .pagelayout-report .no-overflow {overflow:visible;}
@@ -474,6 +485,7 @@ a.skip:active {position: static;display: block;}
 .dir-rtl .mform .fdescription.required {text-align:left;}
 .mform .fpassword .unmask {display:inline;margin-left:0.5em;}
 .mform .ftextarea #id_alltext {width: 100%;}
+.mform .fstaticlabel {font-weight:bold;}
 .mform ul.file-list {padding:0;margin:0;list-style:none;}
 .mform label { display: inline-block; }
 .mform .iconhelp { margin-left: 4px; }
@@ -1217,7 +1229,7 @@ x#fitem_id_availabilityconditionsjson input[type=text] {
 audio.mediaplugin_html5audio {width: 300px}
 
 /* TinyMCE moodle media preview frame should not have padding */
-.core_media_preview.pagelayout-embedded #content {padding:0;}
+.core_media_preview.pagelayout-embedded #page-content {padding:0;}
 .core_media_preview.pagelayout-embedded #maincontent {height:0;}
 .core_media_preview.pagelayout-embedded .mediaplugin {margin:0;}
 
@@ -1630,6 +1642,14 @@ sup {vertical-align: super;}
     -webkit-box-shadow: inset 0px 0px 30px 0px #CCCCCC;
     -moz-box-shadow: inset 0px 0px 30px 0px #CCCCCC;
 }
+.jschooser .choosercontainer #chooseform .alloptions .option input[type=radio],
+.jschooser .choosercontainer #chooseform .alloptions .option .modicon {
+    display: inline-block;
+}
+.jschooser .choosercontainer #chooseform .alloptions .option .typename {
+    display: inline-block;
+    width: 65%;
+}
 .dir-rtl.jschooser .choosercontainer #chooseform .alloptions {
     max-width: 18.3em;
 }
@@ -1877,8 +1897,8 @@ body.jsenabled .formlisting {
 #page-badges-view .collection { width: 90%; margin: 1em auto; }
 #page-badges-index .collection { width: 85%; margin: 1em auto; }
 
-table.collection th { font-size: inherit !important; border-width: 1px; border-style: solid; border-color: #CCCCCC; vertical-align: middle; padding-left: 5px; padding-right: 5px; vertical-align: top; text-align: center !important; }
-table.collection td { border-width: 1px; border-style: solid; border-color: #CCCCCC; vertical-align: middle; padding-left: 5px; padding-right: 5px; vertical-align: top; }
+table.collection th { font-size: inherit !important; border-width: 1px; border-style: solid; border-color: #CCCCCC; padding-left: 5px; padding-right: 5px; vertical-align: top; text-align: center !important; }
+table.collection td { border-width: 1px; border-style: solid; border-color: #CCCCCC; padding-left: 5px; padding-right: 5px; vertical-align: top; }
 table.collection > tbody > tr:nth-of-type(even) { background-color: #FFFFFF; }
 table.collection > tbody > tr:nth-of-type(odd) { background-color: #F6F6F6; }
 table.collection ul { margin: 0.5em 0.5em 0.5em 2em; }
@@ -2128,15 +2148,6 @@ a:hover .caret {
 }
 
 @-moz-keyframes progress-bar-stripes {
-    from {
-        background-position: 40px 0;
-    }
-    to {
-        background-position: 0 0;
-    }
-}
-
-@-ms-keyframes progress-bar-stripes {
     from {
         background-position: 40px 0;
     }

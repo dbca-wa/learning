@@ -577,6 +577,11 @@ abstract class moodle_database {
     protected function where_clause($table, array $conditions=null) {
         // We accept nulls in conditions
         $conditions = is_null($conditions) ? array() : $conditions;
+
+        if (empty($conditions)) {
+            return array('', array());
+        }
+
         // Some checks performed under debugging only
         if (debugging()) {
             $columns = $this->get_columns($table);
@@ -600,9 +605,6 @@ abstract class moodle_database {
         }
 
         $allowed_types = $this->allowed_param_types();
-        if (empty($conditions)) {
-            return array('', array());
-        }
         $where = array();
         $params = array();
 
@@ -1083,11 +1085,13 @@ abstract class moodle_database {
 
     /**
      * Enable/disable detailed sql logging
+     *
+     * @deprecated since Moodle 2.9
+     * @todo MDL-49824 This will be deleted in Moodle 3.1.
      * @param bool $state
      */
     public function set_logging($state) {
-        // adodb sql logging shares one table without prefix per db - this is no longer acceptable :-(
-        // we must create one table shared by all drivers
+        debugging('set_logging() is deprecated and will not be replaced.', DEBUG_DEVELOPER);
     }
 
     /**

@@ -333,6 +333,7 @@ function install_print_header($config, $stagename, $heading, $stagetext, $stagec
 
     echo '<link rel="stylesheet" type="text/css" href="'.$CFG->wwwroot.'/install/css.php" />
           <title>'.get_string('installation','install').' - Moodle '.$CFG->target_release.'</title>
+          <meta name="robots" content="noindex">
           <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
           <meta http-equiv="pragma" content="no-cache" />
           <meta http-equiv="expires" content="0" />';
@@ -402,7 +403,7 @@ function install_print_footer($config, $reload=false) {
 
     $homelink  = '<div class="sitelink">'.
        '<a title="Moodle '. $CFG->target_release .'" href="http://docs.moodle.org/en/Administrator_documentation" onclick="this.target=\'_blank\'">'.
-       '<img src="pix/moodlelogo.png" alt="moodlelogo" /></a></div>';
+       '<img src="pix/moodlelogo.png" alt="'.get_string('moodlelogo').'" /></a></div>';
 
     echo '</form></div>';
     echo '<div id="page-footer">'.$homelink.'</div>';
@@ -488,6 +489,11 @@ function install_cli_database(array $options, $interactive) {
     // set up admin user password
     $DB->set_field('user', 'password', hash_internal_user_password($options['adminpass']), array('username' => 'admin'));
 
+    // Set the admin email address if specified.
+    if (isset($options['adminemail'])) {
+        $DB->set_field('user', 'email', $options['adminemail'], array('username' => 'admin'));
+    }
+
     // rename admin username if needed
     if (isset($options['adminuser']) and $options['adminuser'] !== 'admin' and $options['adminuser'] !== 'guest') {
         $DB->set_field('user', 'username', $options['adminuser'], array('username' => 'admin'));
@@ -511,5 +517,8 @@ function install_cli_database(array $options, $interactive) {
     }
     if (isset($options['fullname']) and $options['fullname'] !== '') {
         $DB->set_field('course', 'fullname', $options['fullname'], array('format' => 'site'));
+    }
+    if (isset($options['summary'])) {
+        $DB->set_field('course', 'summary', $options['summary'], array('format' => 'site'));
     }
 }

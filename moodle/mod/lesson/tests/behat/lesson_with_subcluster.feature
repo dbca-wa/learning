@@ -117,7 +117,7 @@ Feature: In a lesson activity, students can see questions in random order and a 
       | id_jumpto_1 | This page |
       | id_score_1 | 0 |
     And I press "Save page"
-     And I click on "Add an end of branch" "link" in the "//div[contains(concat(' ', normalize-space(@class), ' '), ' addlinks ')][9]" "xpath_element"
+    And I click on "Add an end of branch" "link" in the "//div[contains(concat(' ', normalize-space(@class), ' '), ' addlinks ')][9]" "xpath_element"
     And I click on "Add a question page here" "link" in the "//div[contains(concat(' ', normalize-space(@class), ' '), ' addlinks ')][10]" "xpath_element"
     And I set the field "Select a question type" to "Multichoice"
     And I press "Add a question page"

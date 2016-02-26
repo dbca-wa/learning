@@ -6,7 +6,7 @@ Feature: Add a quiz
 
   Background:
     Given the following "users" exist:
-      | username | firstname | lastname | email               |
+      | username | firstname | lastname | email                |
       | teacher1 | Terry1    | Teacher1 | teacher1@example.com |
       | student1 | Sam1      | Student1 | student1@example.com |
     And the following "courses" exist:

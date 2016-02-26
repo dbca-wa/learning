@@ -1,5 +1,4 @@
 <?php
-
 // This file is part of Moodle - http://moodle.org/
 //
 // Moodle is free software: you can redistribute it and/or modify
@@ -18,7 +17,7 @@
 /**
  * Strings for component 'role', language 'en', branch 'MOODLE_20_STABLE'
  *
- * @package   role
+ * @package   core_role
  * @copyright 1999 onwards Martin Dougiamas  {@link http://moodle.com}
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -249,8 +248,8 @@ $string['manageroles'] = 'Manage roles';
 $string['maybeassignedin'] = 'Context types where this role may be assigned';
 $string['morethan'] = 'More than {$a}';
 $string['multipleroles'] = 'Multiple roles';
-$string['my:manageblocks'] = 'Manage My home page blocks';
-$string['my:configsyspages'] = 'Configure system templates for My home pages';
+$string['my:manageblocks'] = 'Manage Dashboard page blocks';
+$string['my:configsyspages'] = 'Configure system templates for Dashboard pages';
 $string['neededroles'] = 'Roles with permission';
 $string['nocapabilitiesincontext'] = 'No capabilities available in this context';
 $string['noneinthisx'] = 'None in this {$a}';

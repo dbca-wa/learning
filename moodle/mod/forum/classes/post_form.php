@@ -175,6 +175,27 @@ class mod_forum_post_form extends moodleform {
             }
             $groupcount = count($groupinfo);
 
+            // Check whether a user can post to all of their own groups.
+
+            // Posts to all of my groups are copied to each group that the user is a member of. Certain conditions must be met.
+            // 1) It only makes sense to allow this when a user is in more than one group.
+            // Note: This check must come before we consider adding accessallgroups, because that is not a real group.
+            $canposttoowngroups = empty($post->edit) && $groupcount > 1;
+
+            // 2) Important: You can *only* post to multiple groups for a top level post. Never any reply.
+            $canposttoowngroups = $canposttoowngroups && empty($post->parent);
+
+            // 3) You also need the canposttoowngroups capability.
+            $canposttoowngroups = $canposttoowngroups && has_capability('mod/forum:canposttomygroups', $modcontext);
+            if ($canposttoowngroups) {
+                // This user is in multiple groups, and can post to all of their own groups.
+                // Note: This is not the same as accessallgroups. This option will copy a post to all groups that a
+                // user is a member of.
+                $mform->addElement('checkbox', 'posttomygroups', get_string('posttomygroups', 'forum'));
+                $mform->addHelpButton('posttomygroups', 'posttomygroups', 'forum');
+                $mform->disabledIf('groupinfo', 'posttomygroups', 'checked');
+            }
+
             // Check whether this user can post to all groups.
             // Posts to the 'All participants' group go to all groups, not to each group in a list.
             // It makes sense to allow this, even if there currently aren't any groups because there may be in the future.
@@ -218,6 +239,7 @@ class mod_forum_post_form extends moodleform {
         } else {
             $submit_string = get_string('posttoforum', 'forum');
         }
+
         $this->add_action_buttons(true, $submit_string);
 
         $mform->addElement('hidden', 'course');

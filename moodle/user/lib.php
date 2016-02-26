@@ -88,6 +88,9 @@ function user_create_user($user, $updatepassword = true, $triggerevent = true) {
     if (!isset($user->trackforums)) {
         $user->trackforums = $CFG->defaultpreference_trackforums;
     }
+    if (!isset($user->lang)) {
+        $user->lang = $CFG->lang;
+    }
 
     $user->timecreated = time();
     $user->timemodified = $user->timecreated;
@@ -693,6 +696,11 @@ function user_convert_text_to_menu_items($text, $page) {
             $bits[1] = null;
             $child->itemtype = "invalid";
         } else {
+            // Nasty hack to replace the grades with the direct url.
+            if (strpos($bits[1], '/grade/report/mygrades.php') !== false) {
+                $bits[1] = user_mygrades_url();
+            }
+
             // Make sure the url is a moodle url.
             $bits[1] = new moodle_url(trim($bits[1]));
         }
@@ -820,7 +828,7 @@ function user_get_user_navigation_info($user, $page) {
         }
     }
 
-    // Links: My Home.
+    // Links: Dashboard.
     $myhome = new stdClass();
     $myhome->itemtype = 'link';
     $myhome->url = new moodle_url('/my/');
@@ -832,7 +840,7 @@ function user_get_user_navigation_info($user, $page) {
     $myprofile = new stdClass();
     $myprofile->itemtype = 'link';
     $myprofile->url = new moodle_url('/user/profile.php', array('id' => $user->id));
-    $myprofile->title = get_string('myprofile');
+    $myprofile->title = get_string('profile');
     $myprofile->pix = "i/user";
     $returnobject->navitems[] = $myprofile;
 
@@ -917,4 +925,155 @@ function user_get_user_navigation_info($user, $page) {
     }
 
     return $returnobject;
+}
+
+/**
+ * Add password to the list of used hashes for this user.
+ *
+ * This is supposed to be used from:
+ *  1/ change own password form
+ *  2/ password reset process
+ *  3/ user signup in auth plugins if password changing supported
+ *
+ * @param int $userid user id
+ * @param string $password plaintext password
+ * @return void
+ */
+function user_add_password_history($userid, $password) {
+    global $CFG, $DB;
+    require_once($CFG->libdir.'/password_compat/lib/password.php');
+
+    if (empty($CFG->passwordreuselimit) or $CFG->passwordreuselimit < 0) {
+        return;
+    }
+
+    // Note: this is using separate code form normal password hashing because
+    //       we need to have this under control in the future. Also the auth
+    //       plugin might not store the passwords locally at all.
+
+    $record = new stdClass();
+    $record->userid = $userid;
+    $record->hash = password_hash($password, PASSWORD_DEFAULT);
+    $record->timecreated = time();
+    $DB->insert_record('user_password_history', $record);
+
+    $i = 0;
+    $records = $DB->get_records('user_password_history', array('userid' => $userid), 'timecreated DESC, id DESC');
+    foreach ($records as $record) {
+        $i++;
+        if ($i > $CFG->passwordreuselimit) {
+            $DB->delete_records('user_password_history', array('id' => $record->id));
+        }
+    }
+}
+
+/**
+ * Was this password used before on change or reset password page?
+ *
+ * The $CFG->passwordreuselimit setting determines
+ * how many times different password needs to be used
+ * before allowing previously used password again.
+ *
+ * @param int $userid user id
+ * @param string $password plaintext password
+ * @return bool true if password reused
+ */
+function user_is_previously_used_password($userid, $password) {
+    global $CFG, $DB;
+    require_once($CFG->libdir.'/password_compat/lib/password.php');
+
+    if (empty($CFG->passwordreuselimit) or $CFG->passwordreuselimit < 0) {
+        return false;
+    }
+
+    $reused = false;
+
+    $i = 0;
+    $records = $DB->get_records('user_password_history', array('userid' => $userid), 'timecreated DESC, id DESC');
+    foreach ($records as $record) {
+        $i++;
+        if ($i > $CFG->passwordreuselimit) {
+            $DB->delete_records('user_password_history', array('id' => $record->id));
+            continue;
+        }
+        // NOTE: this is slow but we cannot compare the hashes directly any more.
+        if (password_verify($password, $record->hash)) {
+            $reused = true;
+        }
+    }
+
+    return $reused;
+}
+
+/**
+ * Remove a user device from the Moodle database (for PUSH notifications usually).
+ *
+ * @param string $uuid The device UUID.
+ * @param string $appid The app id. If empty all the devices matching the UUID for the user will be removed.
+ * @return bool true if removed, false if the device didn't exists in the database
+ * @since Moodle 2.9
+ */
+function user_remove_user_device($uuid, $appid = "") {
+    global $DB, $USER;
+
+    $conditions = array('uuid' => $uuid, 'userid' => $USER->id);
+    if (!empty($appid)) {
+        $conditions['appid'] = $appid;
+    }
+
+    if (!$DB->count_records('user_devices', $conditions)) {
+        return false;
+    }
+
+    $DB->delete_records('user_devices', $conditions);
+
+    return true;
+}
+
+/**
+ * Trigger user_list_viewed event.
+ *
+ * @param stdClass  $course course  object
+ * @param stdClass  $context course context object
+ * @since Moodle 2.9
+ */
+function user_list_view($course, $context) {
+
+    $event = \core\event\user_list_viewed::create(array(
+        'objectid' => $course->id,
+        'courseid' => $course->id,
+        'context' => $context,
+        'other' => array(
+            'courseshortname' => $course->shortname,
+            'coursefullname' => $course->fullname
+        )
+    ));
+    $event->trigger();
+}
+
+/**
+ * Returns the url to use for the "Grades" link in the user navigation.
+ *
+ * @param int $userid The user's ID.
+ * @param int $courseid The course ID if available.
+ * @return mixed A URL to be directed to for "Grades".
+ */
+function user_mygrades_url($userid = null, $courseid = SITEID) {
+    global $CFG, $USER;
+    $url = null;
+    if (isset($CFG->grade_mygrades_report) && $CFG->grade_mygrades_report != 'external') {
+        if (isset($userid) && $USER->id != $userid) {
+            // Send to the gradebook report.
+            $url = new moodle_url('/grade/report/' . $CFG->grade_mygrades_report . '/index.php',
+                    array('id' => $courseid, 'userid' => $userid));
+        } else {
+            $url = new moodle_url('/grade/report/' . $CFG->grade_mygrades_report . '/index.php');
+        }
+    } else if (isset($CFG->grade_mygrades_report) && $CFG->grade_mygrades_report == 'external'
+            && !empty($CFG->gradereport_mygradeurl)) {
+        $url = $CFG->gradereport_mygradeurl;
+    } else {
+        $url = $CFG->wwwroot;
+    }
+    return $url;
 }

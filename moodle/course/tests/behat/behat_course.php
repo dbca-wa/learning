@@ -108,7 +108,7 @@ class behat_course extends behat_base {
             $steps[] = new Given('I set the following fields to these values:', $table);
         }
 
-        $steps[] = new Given('I press "' . get_string('savechanges') . '"');
+        $steps[] = new Given('I press "' . get_string('savechangesanddisplay') . '"');
 
         return $steps;
     }
@@ -139,6 +139,7 @@ class behat_course extends behat_base {
 
         return array(
             new Given('I add a "' . $this->escape($activity) . '" to section "' . $this->escape($section) . '"'),
+            new Given('I wait to be redirected'),
             new Given('I set the following fields to these values:', $data),
             new Given('I press "' . get_string('savechangesandreturntocourse') . '"')
         );

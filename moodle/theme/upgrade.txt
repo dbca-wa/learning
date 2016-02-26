@@ -1,12 +1,25 @@
 This files describes API changes in /theme/* themes,
 information provided here is intended especially for theme designer.
 
-=== 2.8.8 ===
+=== 2.9.2 ===
 
 * Themes Clean and More page header logo only displays on front page and login page.
 
+=== 2.9 ===
+
+* Themes Bootstrapbase, Clean and More have undergone some changes for RTL layouts see - MDL-48160.
+
+* Themes Clean amd More page header background logo, if loaded, no longer links to the home page.
+* Themes Clean and More have been updated to use the renderer full_header(). This renderer (when in a user context) displays a message button
+  and consequently the link to message users have been removed from various pages. It is recommended that theme developers use this
+  renderer to ensure that they do not suffer from a reduction in access to this feature.
+* $OUTPUT->context_header() has been introduced to produce headers similar to what full_header() creates. This renderer is used for creating
+  subsequent headers in a page. If provided with user information, this render will also display a message button like full_header().
+
 === 2.8 ===
 
+* Themes Base and Canvas layout/embedded.php has changed.
+  The div id="content" has been changed to id="page-content" - see MDL-47915.
 * All mod_assign CSS selectors have been qualified with ".path-mod-assign". This means any custom CSS
   rules for mod_assign in a theme may need to be updated.
 * The following render methods were renamed, if you have overridden any of these you will need to update your renderer:
@@ -25,15 +38,15 @@ information provided here is intended especially for theme designer.
 
 * CSS related functions in theme class and csslib.php were refactored, addons that are
   using this private API need to be updated
-* Please update your css to use 'tr:nth-of-type(odd/even)' instead of '.ro/.r1' to apply tr specific css for various tables.
+* Please update your css to use 'tr:nth-of-type(odd/even)' instead of '.r0/.r1' to apply tr specific css for various tables.
   These classes are deprecated now and will be removed in Moodle 2.9. This has done to better support styling tables that will be altered by JavaScript.
   Here is an example to update your css:
   Old code:
     table.generaltable .r0 {background-color: #F0F0F0;}
     table.generaltable .r1 {background-color: #F0F0F0;}
   New code:
-    table.generaltable > tbody > tr:nth-of-type(odd) {background-color: #F0F0F0;}
     table.generaltable > tbody > tr:nth-of-type(even) {background-color: #F0F0F0;}
+    table.generaltable > tbody > tr:nth-of-type(odd) {background-color: #F0F0F0;}
 
 Removed themes:
 * afterburner, anomaly, arialist, binarius, boxxie, brick, formal_white, formfactor, fusion, leatherbound,

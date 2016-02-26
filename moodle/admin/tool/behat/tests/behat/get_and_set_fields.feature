@@ -39,7 +39,7 @@ Feature: Verify that all form fields values can be get and set
     # Select (multi-select) - We will check "I set the field...".
     And I set the field "otagsadd" to "OT1, OT2, OT3, OT4, OT5"
     And I press "Add official tags"
-    And I am on homepage
+    And I am on site homepage
     And I follow "Course 1"
     And I turn editing mode on
     And I follow "Test this one"
@@ -144,7 +144,7 @@ Feature: Verify that all form fields values can be get and set
     And I set the field with xpath "//input[@id='id_idnumber']" to "Course id number"
     And the field with xpath "//input[@name='idnumber']" matches value "Course id number"
     And the field with xpath "//input[@name='idnumber']" does not match value ""
-    And I press "Save changes"
+    And I press "Save and display"
     And I navigate to "Edit settings" node in "Course administration"
     And the field "Course ID number" matches value "Course id number"
 

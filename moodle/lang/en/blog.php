@@ -1,5 +1,4 @@
 <?php
-
 // This file is part of Moodle - http://moodle.org/
 //
 // Moodle is free software: you can redistribute it and/or modify
@@ -18,8 +17,7 @@
 /**
  * Strings for core subsystem 'blog'
  *
- * @package    core
- * @subpackage blog
+ * @package    core_blog
  * @copyright  1999 onwards Martin Dougiamas  {@link http://moodle.com}
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -110,6 +108,7 @@ $string['invalidgroupid'] = 'Invalid group ID';
 $string['invalidurl'] = 'This URL is unreachable';
 $string['linktooriginalentry'] = 'Link to original blog entry';
 $string['maxexternalblogsperuser'] = 'Maximum number of external blogs per user';
+$string['myprofileuserblogs'] = 'View all blog entries';
 $string['name'] = 'Name';
 $string['name_help'] = 'Enter a descriptive name for your external blog. (If no name is supplied, the title of your external blog will be used).';
 $string['noentriesyet'] = 'No visible entries here';
@@ -123,7 +122,7 @@ $string['numberoftags'] = 'Number of tags to display';
 $string['pagesize'] = 'Blog entries per page';
 $string['permalink'] = 'Permalink';
 $string['personalblogs'] = 'Users can only see their own blog';
-$string['preferences'] = 'Preferences';
+$string['preferences'] = 'Blog preferences';
 $string['publishto'] = 'Publish to';
 $string['publishto_help'] = 'There are 3 options:
 
@@ -145,7 +144,7 @@ $string['retrievedfrom'] = 'Retrieved from';
 $string['rssfeed'] = 'Blog RSS feed';
 $string['searchterm'] = 'Search: {$a}';
 $string['settingsupdatederror'] = 'An error has occurred, blog preference setting could not be updated';
-$string['siteblog'] = 'Site blog: {$a}';
+$string['siteblogheading'] = 'Site blog';
 $string['siteblogdisable'] = 'Site blog is not enabled';
 $string['siteblogs'] = 'All site users can see all blog entries';
 $string['tagdatelastused'] = 'Date tag was last used';
@@ -184,3 +183,6 @@ $string['wrongpostid'] = 'Wrong blog post id';
 $string['page-blog-edit'] = 'Blog editing pages';
 $string['page-blog-index'] = 'Blog listing pages';
 $string['page-blog-x'] = 'All blog pages';
+
+// Deprecated since Moodle 2.9.
+$string['siteblog'] = 'Site blog: {$a}';

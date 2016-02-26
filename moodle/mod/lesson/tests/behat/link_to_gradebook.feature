@@ -39,6 +39,7 @@ Feature: link to gradebook on the end of lesson page
       | id_answer_editor_1 | Next page |
       | id_jumpto_1 | Next page |
     And I press "Save page"
+
   @javascript
   Scenario: Link to gradebook for non practice lesson
     Given I log out
@@ -91,7 +92,7 @@ Feature: link to gradebook on the end of lesson page
     And I click on "Edit settings" "link" in the "Administration" "block"
     And I set the following fields to these values:
       | Show gradebook to students | No |
-    And I press "Save changes"
+    And I press "Save and display"
     And I log out
     When I log in as "student1"
     And I follow "Course 1"

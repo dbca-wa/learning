@@ -58,7 +58,7 @@ Feature: In an assignment, teacher can annotate PDF files during grading
     And I click on ".stampbutton" "css_element"
     And I click on ".linebutton" "css_element"
     And I click on ".commentcolourbutton" "css_element"
-    And I click on "//img[@alt=\"Blue\"]" "xpath_element"
+    And I click on "//img[@alt=\"Blue\"]/parent::button" "xpath_element"
     And I change window size to "medium"
     And I wait until the page is ready
     And I click on "Close" "button"
@@ -138,4 +138,4 @@ Feature: In an assignment, teacher can annotate PDF files during grading
     And I press "Save changes"
     And I should see "The grade changes were saved"
     And I press "Continue"
-    And I should see "View annotated PDF..." in the "Student 1" "table_row"
+    And I should see "View annotated PDF..." in the "student1@example.com" "table_row"

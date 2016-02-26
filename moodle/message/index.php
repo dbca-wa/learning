@@ -125,8 +125,9 @@ if (substr($viewing, 0, 7) == MESSAGE_VIEW_COURSE) {
     $PAGE->set_pagelayout('incourse');
 } else {
     $PAGE->set_pagelayout('standard');
-    $PAGE->set_context(context_user::instance($user1->id));
 }
+// Page context should always be set to user.
+$PAGE->set_context(context_user::instance($user1->id));
 if (!empty($user1->id) && $user1->id != $USER->id) {
     $PAGE->navigation->extend_for_user($user1);
 }
@@ -153,17 +154,12 @@ if ($unblockcontact and confirm_sesskey()) {
 $messageerror = null;
 if ($currentuser && !empty($user2) && has_capability('moodle/site:sendmessage', $systemcontext)) {
     // Check that the user is not blocking us!!
-    if ($contact = $DB->get_record('message_contacts', array('userid' => $user2->id, 'contactid' => $user1->id))) {
-        if ($contact->blocked and !has_capability('moodle/site:readallmessages', $systemcontext)) {
-            $messageerror = get_string('userisblockingyou', 'message');
-        }
+    if (message_is_user_blocked($user2, $user1)) {
+        $messageerror = get_string('userisblockingyou', 'message');
     }
-    $userpreferences = get_user_preferences(NULL, NULL, $user2->id);
-
-    if (!empty($userpreferences['message_blocknoncontacts'])) {  // User is blocking non-contacts
-        if (empty($contact)) {   // We are not a contact!
-            $messageerror = get_string('userisblockingyounoncontact', 'message', fullname($user2));
-        }
+    // Check that we're not non-contact block by the user.
+    if (message_is_user_non_contact_blocked($user2, $user1)) {
+        $messageerror = get_string('userisblockingyounoncontact', 'message', fullname($user2));
     }
 
     if (empty($messageerror)) {
@@ -194,10 +190,22 @@ if ($user2realuser) {
     $user2fullname = fullname($user2);
 
     $PAGE->set_title("$strmessages: $user2fullname");
-    $PAGE->set_heading("$strmessages: $user2fullname");
 } else {
     $PAGE->set_title("{$SITE->shortname}: $strmessages");
-    $PAGE->set_heading("{$SITE->shortname}: $strmessages");
+}
+$PAGE->set_heading(fullname($user1));
+
+// Remove the user node from the main navigation for this page.
+$usernode = $PAGE->navigation->find('users', null);
+$usernode->remove();
+
+$settings = $PAGE->settingsnav->find('messages', null);
+// Add the user we are contacting to the breadcrumb.
+if (!empty($user2realuser)) {
+    $usernode = $settings->add(fullname($user2), $url);
+    $usernode->make_active();
+} else {
+    $settings->make_active();
 }
 
 //now the page contents
@@ -302,13 +310,9 @@ echo html_writer::start_tag('div', array('class' => 'messagearea mdl-align'));
                 } else {
                     // Display a warning if the current user is blocking non-contacts and is about to message to a non-contact
                     // Otherwise they may wonder why they never get a reply
-                    $blocknoncontacts = get_user_preferences('message_blocknoncontacts', '', $user1->id);
-                    if (!empty($blocknoncontacts)) {
-                        $contact = $DB->get_record('message_contacts', array('userid' => $user1->id, 'contactid' => $user2->id));
-                        if (empty($contact)) {
-                            $msg = get_string('messagingblockednoncontact', 'message', fullname($user2));
-                            echo html_writer::tag('span', $msg, array('id' => 'messagewarning'));
-                        }
+                    if (message_is_user_non_contact_blocked($user1, $user2)) {
+                        $msg = get_string('messagingblockednoncontact', 'message', fullname($user2));
+                        echo html_writer::tag('span', $msg, array('id' => 'messagewarning'));
                     }
 
                     $mform = new send_form();
