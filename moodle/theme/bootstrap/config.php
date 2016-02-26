@@ -47,6 +47,9 @@ $THEME->plugins_exclude_sheets = array(
     ),
 );
 
+$THEME->lessvariablescallback = 'theme_elegance_less_variables';
+$THEME->extralesscallback = 'theme_elegance_extra_less';
+
 $THEME->rendererfactory = 'theme_overridden_renderer_factory';
 $THEME->csspostprocess = 'theme_bootstrap_process_css';
 
@@ -156,7 +159,7 @@ $THEME->layouts = array(
     ),
     // The pagelayout used for safebrowser and securewindow.
     'secure' => array(
-        'file' => 'secure.php',
+        'file' => 'default.php',
         'regions' => array('side-pre', 'side-post'),
         'defaultregion' => 'side-pre'
     ),
@@ -164,12 +167,9 @@ $THEME->layouts = array(
 
 $THEME->javascripts = array(
 );
+
 $THEME->javascripts_footer = array(
     'moodlebootstrap', 'dock'
 );
-
-if (core_useragent::is_ie() && !core_useragent::check_ie_version('9.0')) {
-    $THEME->javascripts[] = 'html5shiv';
-}
 
 $THEME->hidefromselector = false;

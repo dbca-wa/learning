@@ -1,5 +1,5 @@
 <?php
-// This file is part of The Bootstrap 3 Moodle theme
+// This file is part of The Bootstrap Moodle theme
 //
 // Moodle is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -66,6 +66,16 @@ class theme_bootstrap_core_admin_renderer extends core_admin_renderer {
             return $this->notification($message, 'notifyproblem');
         }
     }
+
+    /**
+     * Output a warning message, of the type that appears on the admin notifications page.
+     * @param string $message the message to display.
+     * @param string $type type class
+     * @return string HTML to output.
+     */
+    // protected function warning($message, $type = 'warning') {
+    //     return $this->box($message, 'generalbox admin' . $type);
+    // }
 
     protected function test_site_warning($testsite) {
         if (!$testsite) {

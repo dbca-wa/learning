@@ -118,3 +118,103 @@
 2016-02-26 00:20:04 Current plugin code location: /var/www/moodle-uat.8053/moodle/theme/bootstrap
 2016-02-26 00:20:04 Moving the current code into archive: /var/www/moodle-uat.8053/.data/mdeploy/archive/bootstrap_1456446004.0
 2016-02-26 00:20:05 Package successfully extracted
+2016-02-26 07:27:54 === MDEPLOY EXECUTION START ===
+2016-02-26 07:27:54 Successfully authorized using the passphrase file
+2016-02-26 07:27:54 Plugin upgrade requested
+2016-02-26 07:27:54 Downloading package https://moodle.org/plugins/download.php/9989/mod_certificate_moodle29_2015083101.zip
+2016-02-26 07:27:54 Using operating system CA certificates.
+2016-02-26 07:27:57 Package downloaded into /var/www/moodle-uat.8053/moodledata/mdeploy/var/c22c99e5e1851864513a49f3dcbaa453.0.zip
+2016-02-26 07:27:57 MD5 checksum ok
+2016-02-26 07:27:57 Current plugin code location: /var/www/moodle-uat.8053/moodle/mod/certificate
+2016-02-26 07:27:57 Moving the current code into archive: /var/www/moodle-uat.8053/moodledata/mdeploy/archive/certificate_1456471677.0
+2016-02-26 07:27:57 Package successfully extracted
+2016-02-26 07:28:36 === MDEPLOY EXECUTION START ===
+2016-02-26 07:28:36 Successfully authorized using the passphrase file
+2016-02-26 07:28:36 Plugin upgrade requested
+2016-02-26 07:28:36 Downloading package https://moodle.org/plugins/download.php/9703/mod_checklist_moodle30_2015110800.zip
+2016-02-26 07:28:36 Using operating system CA certificates.
+2016-02-26 07:28:38 Package downloaded into /var/www/moodle-uat.8053/moodledata/mdeploy/var/f4917182d6f633c979f8c694bcc7f325.0.zip
+2016-02-26 07:28:38 MD5 checksum ok
+2016-02-26 07:28:38 Current plugin code location: /var/www/moodle-uat.8053/moodle/mod/checklist
+2016-02-26 07:28:38 Moving the current code into archive: /var/www/moodle-uat.8053/moodledata/mdeploy/archive/checklist_1456471718.0
+2016-02-26 07:28:38 Package successfully extracted
+2016-02-26 07:28:54 === MDEPLOY EXECUTION START ===
+2016-02-26 07:28:54 Successfully authorized using the passphrase file
+2016-02-26 07:28:54 Plugin upgrade requested
+2016-02-26 07:28:54 Downloading package https://moodle.org/plugins/download.php/9764/block_checklist_moodle30_2015102300.zip
+2016-02-26 07:28:54 Using operating system CA certificates.
+2016-02-26 07:28:55 Package downloaded into /var/www/moodle-uat.8053/moodledata/mdeploy/var/2a9d2b32c6553d571c03b846cf045946.0.zip
+2016-02-26 07:28:55 MD5 checksum ok
+2016-02-26 07:28:55 Current plugin code location: /var/www/moodle-uat.8053/moodle/blocks/checklist
+2016-02-26 07:28:55 Moving the current code into archive: /var/www/moodle-uat.8053/moodledata/mdeploy/archive/checklist_1456471735.0
+2016-02-26 07:28:55 Package successfully extracted
+2016-02-26 07:29:09 === MDEPLOY EXECUTION START ===
+2016-02-26 07:29:09 Successfully authorized using the passphrase file
+2016-02-26 07:29:09 Plugin upgrade requested
+2016-02-26 07:29:09 Downloading package https://moodle.org/plugins/download.php/10537/block_configurable_reports_moodle29_2011040121.zip
+2016-02-26 07:29:09 Using operating system CA certificates.
+2016-02-26 07:29:12 Package downloaded into /var/www/moodle-uat.8053/moodledata/mdeploy/var/b029239a1d89e6c64fc5d7d29f186cc2.0.zip
+2016-02-26 07:29:12 MD5 checksum ok
+2016-02-26 07:29:12 Current plugin code location: /var/www/moodle-uat.8053/moodle/blocks/configurable_reports
+2016-02-26 07:29:12 Moving the current code into archive: /var/www/moodle-uat.8053/moodledata/mdeploy/archive/configurable_reports_1456471752.0
+2016-02-26 07:29:13 Package successfully extracted
+2016-02-26 07:29:24 === MDEPLOY EXECUTION START ===
+2016-02-26 07:29:24 Successfully authorized using the passphrase file
+2016-02-26 07:29:24 Plugin upgrade requested
+2016-02-26 07:29:24 Downloading package https://moodle.org/plugins/download.php/10381/qtype_ddmatch_moodle30_2016012300.zip
+2016-02-26 07:29:24 Using operating system CA certificates.
+2016-02-26 07:29:26 Package downloaded into /var/www/moodle-uat.8053/moodledata/mdeploy/var/78dc029e04c805ebcbbcb92d44b3318b.0.zip
+2016-02-26 07:29:26 MD5 checksum ok
+2016-02-26 07:29:26 Current plugin code location: /var/www/moodle-uat.8053/moodle/question/type/ddmatch
+2016-02-26 07:29:26 Moving the current code into archive: /var/www/moodle-uat.8053/moodledata/mdeploy/archive/ddmatch_1456471766.0
+2016-02-26 07:29:26 Package successfully extracted
+2016-02-26 07:29:37 === MDEPLOY EXECUTION START ===
+2016-02-26 07:29:37 Successfully authorized using the passphrase file
+2016-02-26 07:29:37 Plugin upgrade requested
+2016-02-26 07:29:37 Downloading package https://moodle.org/plugins/download.php/10376/qtype_multichoiceset_moodle30_2016012300.zip
+2016-02-26 07:29:37 Using operating system CA certificates.
+2016-02-26 07:29:38 Package downloaded into /var/www/moodle-uat.8053/moodledata/mdeploy/var/6591be6eef9ec12a80dd708080dabfa1.0.zip
+2016-02-26 07:29:38 MD5 checksum ok
+2016-02-26 07:29:38 Current plugin code location: /var/www/moodle-uat.8053/moodle/question/type/multichoiceset
+2016-02-26 07:29:38 Moving the current code into archive: /var/www/moodle-uat.8053/moodledata/mdeploy/archive/multichoiceset_1456471778.0
+2016-02-26 07:29:38 Package successfully extracted
+2016-02-26 07:30:10 === MDEPLOY EXECUTION START ===
+2016-02-26 07:30:10 Successfully authorized using the passphrase file
+2016-02-26 07:30:10 Plugin upgrade requested
+2016-02-26 07:30:10 Downloading package https://moodle.org/plugins/download.php/9925/filter_jwplayer_moodle30_2015112500.zip
+2016-02-26 07:30:10 Using operating system CA certificates.
+2016-02-26 07:30:12 Package downloaded into /var/www/moodle-uat.8053/moodledata/mdeploy/var/344bfcf2f45c55e5c81576f198d2fa4e.0.zip
+2016-02-26 07:30:12 MD5 checksum ok
+2016-02-26 07:30:12 Current plugin code location: /var/www/moodle-uat.8053/moodle/filter/jwplayer
+2016-02-26 07:30:12 Moving the current code into archive: /var/www/moodle-uat.8053/moodledata/mdeploy/archive/jwplayer_1456471812.0
+2016-02-26 07:30:12 Package successfully extracted
+2016-02-26 07:30:24 === MDEPLOY EXECUTION START ===
+2016-02-26 07:30:24 Successfully authorized using the passphrase file
+2016-02-26 07:30:24 Plugin upgrade requested
+2016-02-26 07:30:24 Downloading package https://moodle.org/plugins/download.php/9891/auth_mcae_moodle29_2015112818.zip
+2016-02-26 07:30:24 Using operating system CA certificates.
+2016-02-26 07:30:25 Package downloaded into /var/www/moodle-uat.8053/moodledata/mdeploy/var/1f0cdc5ef25fd1e97141b56ffbed0f6a.0.zip
+2016-02-26 07:30:25 MD5 checksum ok
+2016-02-26 07:30:25 Current plugin code location: /var/www/moodle-uat.8053/moodle/auth/mcae
+2016-02-26 07:30:25 Moving the current code into archive: /var/www/moodle-uat.8053/moodledata/mdeploy/archive/mcae_1456471825.0
+2016-02-26 07:30:25 Package successfully extracted
+2016-02-26 07:43:01 === MDEPLOY EXECUTION START ===
+2016-02-26 07:43:01 Successfully authorized using the passphrase file
+2016-02-26 07:43:01 Plugin upgrade requested
+2016-02-26 07:43:01 Downloading package https://moodle.org/plugins/download.php/9687/theme_bootstrap_moodle29_2015110600.zip
+2016-02-26 07:43:01 Using operating system CA certificates.
+2016-02-26 07:43:04 Package downloaded into /var/www/moodle-uat.8053/moodledata/mdeploy/var/8fcb6bc4aa9d10267fa98e13eb55f977.0.zip
+2016-02-26 07:43:04 MD5 checksum ok
+2016-02-26 07:43:04 Current plugin code location: /var/www/moodle-uat.8053/moodle/theme/bootstrap
+2016-02-26 07:43:04 Moving the current code into archive: /var/www/moodle-uat.8053/moodledata/mdeploy/archive/bootstrap_1456472584.0
+2016-02-26 07:43:04 Package successfully extracted
+2016-02-26 07:43:20 === MDEPLOY EXECUTION START ===
+2016-02-26 07:43:20 Successfully authorized using the passphrase file
+2016-02-26 07:43:20 Plugin upgrade requested
+2016-02-26 07:43:20 Downloading package https://moodle.org/plugins/download.php/9741/theme_elegance_moodle30_2015111500.zip
+2016-02-26 07:43:20 Using operating system CA certificates.
+2016-02-26 07:43:24 Package downloaded into /var/www/moodle-uat.8053/moodledata/mdeploy/var/c982985197735676bff57de2bb8593b4.0.zip
+2016-02-26 07:43:24 MD5 checksum ok
+2016-02-26 07:43:24 Current plugin code location: /var/www/moodle-uat.8053/moodle/theme/elegance
+2016-02-26 07:43:24 Moving the current code into archive: /var/www/moodle-uat.8053/moodledata/mdeploy/archive/elegance_1456472604.0
+2016-02-26 07:43:24 Package successfully extracted

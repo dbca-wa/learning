@@ -24,9 +24,9 @@ $knownregionpost = $PAGE->blocks->is_known_region('side-post');
 $regions = bootstrap_grid($hassidepre, $hassidepost);
 $PAGE->set_popup_notification_allowed(false);
 if ($knownregionpre || $knownregionpost) {
-    theme_bootstrap_initialise_zoom($PAGE);
+    //theme_bootstrap_initialise_zoom($PAGE);
 }
-$setzoom = theme_bootstrap_get_zoom();
+//$setzoom = theme_bootstrap_get_zoom();
 
 echo $OUTPUT->doctype() ?>
 <html <?php echo $OUTPUT->htmlattributes(); ?>>
@@ -38,7 +38,7 @@ echo $OUTPUT->doctype() ?>
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css">
 </head>
 
-<body <?php echo $OUTPUT->body_attributes($setzoom); ?>>
+<body <?php echo $OUTPUT->body_attributes(); ?>>
 
 <?php echo $OUTPUT->standard_top_of_body_html() ?>
 <nav class="navbar navbar-inverse navbar-fixed-top">
