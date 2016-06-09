@@ -91,6 +91,7 @@ echo $OUTPUT->doctype() ?>
     </div>
 
     <footer id="page-footer">
+        <p>All contents copyright (c) Government of Western Australia. All rights reserved.</p>
         <div id="course-footer"><?php echo $OUTPUT->course_footer(); ?></div>
         <p class="helplink"><?php echo $OUTPUT->page_doc_link(); ?></p>
         <?php
