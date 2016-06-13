@@ -36,16 +36,7 @@ $THEME->supportscssoptimisation = false;
 $THEME->yuicssmodules = array();
 $THEME->enable_dock = true;
 $THEME->editor_sheets = array();
-// Fix for YUI and Bootstrap bug
-$THEME->plugins_exclude_sheets = array(
-    'block' => array(
-        'html'
-    )
-);
-	
 $THEME->csspostprocess = 'theme_dpawbs3_process_css';
-
-
 
 $THEME->layouts = array(
     // Most backwards compatible layout without the blocks - this is the layout used by default.
@@ -159,5 +150,4 @@ $THEME->layouts = array(
     ),
 );
 
-$THEME->javascripts = array('jquery-1.11.3.min','bootstrap.min', 'custom');
-$THEME->javascripts_footer = array();
+$THEME->javascripts_footer = array('bootstrap.min', 'custom');

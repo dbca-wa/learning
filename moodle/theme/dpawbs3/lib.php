@@ -104,3 +104,10 @@ function theme_dpawbs3_set_customcss($css, $customcss) {
 
     return $css;
 }
+
+/**
+ * Page requires jQuery.
+ */
+function theme_dpawbs3_page_init(moodle_page $page) {
+    $page->requires->jquery();
+}

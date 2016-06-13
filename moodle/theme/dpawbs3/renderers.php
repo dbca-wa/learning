@@ -91,7 +91,9 @@ protected function add_category_to_custommenu(custom_menu_item $parent, stdClass
         }
         if (!empty($category->courses)) {
             foreach ($category->courses as $course) {
-                $branch->add($course->shortname, new moodle_url('/course/view.php', array('id' => $course->id)), $course->fullname);
+                $branch->add($course->shortname,
+                    new moodle_url('/course/view.php',
+                    array('id' => $course->id)), $course->fullname);
             }
         }
     }
@@ -112,15 +114,15 @@ protected function add_category_to_custommenu(custom_menu_item $parent, stdClass
 
 
         $content = '<ul class="nav navbar-nav">';
-        
+
         $content .= '<li><a href="'.$CFG->wwwroot.'">Home</a></li>';
 
        // Start custom add category and courses to menu
         /*
-	foreach ($categorytree as $category) {
+    foreach ($categorytree as $category) {
             $content .= $this->add_category_to_custommenu($branch, $category);
         }
-	*/
+    */
         // -- end --
 
         foreach ($menu->get_children() as $item) {
@@ -276,10 +278,10 @@ protected function add_category_to_custommenu(custom_menu_item $parent, stdClass
     }
 
     public function content_zoom() {
-        $zoomin = html_writer::span(get_string('fullscreen', 'theme_bootstrap'), 'zoomin');
-        $zoomout = html_writer::span(get_string('closefullscreen', 'theme_bootstrap'), 'zoomout');
-        $content = html_writer::link('#',  $zoomin . $zoomout,
-            array('class' => 'btn btn-default pull-right moodlezoom'));
+        $zoomin = get_string('fullscreen', 'theme_bootstrap');
+        $zoomout = get_string('closefullscreen' , 'theme_bootstrap');
+        $content = '<button class="zoomin" onclick="launchFullscreen(document.documentElement);">' . $zoomin . '</button>' .
+                   '<button class="zoomout" onclick="exitFullscreen();">' . $zoomout . '</button>';
         return $content;
     }
 }
