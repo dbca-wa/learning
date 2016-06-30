@@ -1,0 +1,9 @@
+.block_graph_stats .content {
+    text-align: center;
+}
+
+.block_graph_stats .content img, .block_graph_stats .content #chart_div {
+    display: inline-block;
+    margin-left: auto;
+    margin-right: auto;
+}
