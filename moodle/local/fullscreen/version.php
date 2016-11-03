@@ -1,5 +1,5 @@
 <?php
-// This file is part of Moodle - http://moodle.org/
+// This file is part of the local fullscreen plugin for Moodle
 //
 // Moodle is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -15,20 +15,19 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Theme More version file.
+ * Version details
  *
- * @package    theme_dpawbs3
- * @copyright  2016 Parks and Wildlife
+ * @package    local_fullscreen
+ * @copyright  2014 onwards - University of Nottingham <www.nottingham.ac.uk>
+ * @author     Barry Oosthuizen <barry.oosthuizen@nottingham.ac.uk>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+if (!defined('MOODLE_INTERNAL')) {
+    die('Direct access to this script is forbidden.');
+}
 
-defined('MOODLE_INTERNAL') || die;
-
-$plugin->version   = 2014051301;
-$plugin->requires  = 2014051200;
-$plugin->release  = 2014051300;
-$plugin->maturity  = MATURITY_BETA;
-$plugin->component = 'theme_dpawbs3';
-$plugin->dependencies = array(
-    'theme_bootstrap'  => 2014051300
-);
+$plugin->version = 2015051100;
+$plugin->component = 'local_fullscreen';
+$plugin->release = '2.6+';
+$plugin->requires = 2013111801;
+$plugin->maturity = MATURITY_STABLE;

@@ -22,10 +22,9 @@ function exitFullscreen() {
     document.webkitExitFullscreen();
   }
 }
-
 jQuery(function($) {
-    var images = ['clms-mainpic-1.jpg', 'clms-mainpic-2.jpg', 'clms-mainpic-3.jpg'];
-    $('.sitetopic').css({'background': 'linear-gradient(rgba(0,0,0,0.4),rgba(0,0,0,0.4)), url(http://learning-uat.dpaw.wa.gov.au/theme/dpawbs3/pix/' + images[Math.floor(Math.random() * images.length)] + ')'});
+    var images = ['clms-mainpic-1.jpg', 'clms-mainpic-2.jpg', 'clms-mainpic-3.jpg', 'our-wa-parks-bg-3.jpg', 'marupials.jpg', 'echidna.jpg', 'marsupials.jpg', 'Carolynn_Hill.jpg', 'Keith_Boombi.jpg', 'instruction.jpg', 'Ross_mead.jpg', 'snakelake.jpg', 'spraying.jpg', 'weedscourse.jpg'];
+    $('.sitetopic').css({'background': 'linear-gradient(rgba(0,0,0,0.4),rgba(0,0,0,0.4)), url(https://learning-dev.dpaw.wa.gov.au/theme/dpawbs3/pix/' + images[Math.floor(Math.random() * images.length)] + ')'});
 });
 
 jQuery(function($){

@@ -25,7 +25,7 @@ $CFG->dataroot  = $dataroot;
 $CFG->admin     = 'admin';
 
 $CFG->debug = 6143;
-$CFG->debugdisplay = 1;
+$CFG->debugdisplay = 0;
 
 $CFG->directorypermissions = 0777;
 

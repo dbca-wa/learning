@@ -1,0 +1,10 @@
+{
+  "name": "moodle-local_fullscreen-fullscreen",
+  "builds": {
+    "moodle-local_fullscreen-fullscreen": {
+      "jsfiles": [
+        "fullscreen.js"
+      ]
+    }
+  }
+}

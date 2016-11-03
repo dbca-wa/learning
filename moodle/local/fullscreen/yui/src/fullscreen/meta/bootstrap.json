@@ -1,0 +1,9 @@
+{
+  "moodle-local_fullscreen-fullscreen": {
+    "requires": [
+        "node",
+        "event",
+        "base"
+    ]
+  }
+}
