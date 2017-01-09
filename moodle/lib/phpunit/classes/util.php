@@ -215,6 +215,8 @@ class phpunit_util extends testing_util {
         get_message_processors(false, true, true);
         filter_manager::reset_caches();
         core_filetypes::reset_caches();
+        \core_search\manager::clear_static();
+        core_user::reset_caches();
 
         // Reset static unit test options.
         if (class_exists('\availability_date\condition', false)) {
@@ -240,9 +242,6 @@ class phpunit_util extends testing_util {
         if (class_exists('\core\update\checker')) {
             \core\update\checker::reset_caches(true);
         }
-        if (class_exists('\core\update\deployer')) {
-            \core\update\deployer::reset_caches(true);
-        }
 
         // Clear static cache within restore.
         if (class_exists('restore_section_structure_step')) {
@@ -266,6 +265,9 @@ class phpunit_util extends testing_util {
 
         // Make sure the time locale is consistent - that is Australian English.
         setlocale(LC_TIME, $localename);
+
+        // Reset the log manager cache.
+        get_log_manager(true);
 
         // verify db writes just in case something goes wrong in reset
         if (self::$lastdbwrites != $DB->perf_get_writes()) {
@@ -596,28 +598,19 @@ class phpunit_util extends testing_util {
         $backtrace = debug_backtrace();
 
         foreach ($backtrace as $bt) {
-            $intest = false;
-            if (isset($bt['object']) and is_object($bt['object'])) {
-                if ($bt['object'] instanceof PHPUnit_Framework_TestCase) {
-                    if (strpos($bt['function'], 'test') === 0) {
-                        $intest = true;
-                        break;
-                    }
-                }
+            if (isset($bt['object']) and is_object($bt['object'])
+                    && $bt['object'] instanceof PHPUnit_Framework_TestCase) {
+                $debug = new stdClass();
+                $debug->message = $message;
+                $debug->level   = $level;
+                $debug->from    = $from;
+
+                self::$debuggings[] = $debug;
+
+                return true;
             }
         }
-        if (!$intest) {
-            return false;
-        }
-
-        $debug = new stdClass();
-        $debug->message = $message;
-        $debug->level   = $level;
-        $debug->from    = $from;
-
-        self::$debuggings[] = $debug;
-
-        return true;
+        return false;
     }
 
     /**
@@ -638,16 +631,24 @@ class phpunit_util extends testing_util {
 
     /**
      * Prints out any debug messages accumulated during test execution.
-     * @return bool false if no debug messages, true if debug triggered
+     *
+     * @param bool $return true to return the messages or false to print them directly. Default false.
+     * @return bool|string false if no debug messages, true if debug triggered or string of messages
      */
-    public static function display_debugging_messages() {
+    public static function display_debugging_messages($return = false) {
         if (empty(self::$debuggings)) {
             return false;
         }
+
+        $debugstring = '';
         foreach(self::$debuggings as $debug) {
-            echo 'Debugging: ' . $debug->message . "\n" . trim($debug->from) . "\n";
+            $debugstring .= 'Debugging: ' . $debug->message . "\n" . trim($debug->from) . "\n";
         }
 
+        if ($return) {
+            return $debugstring;
+        }
+        echo $debugstring;
         return true;
     }
 

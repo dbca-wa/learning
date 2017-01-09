@@ -275,10 +275,8 @@
                 if ($question->multi) {
                     echo $OUTPUT->heading($question->text . ':', 4);
 
-                    $subquestions = $DB->get_records_list("survey_questions", "id", explode(',', $question->multi));
-                    $subquestionorder = explode(",", $question->multi);
-                    foreach ($subquestionorder as $key => $val) {
-                        $subquestion = $subquestions[$val];
+                    $subquestions = survey_get_subquestions($question);
+                    foreach ($subquestions as $subquestion) {
                         if ($subquestion->type > 0) {
                             echo "<p class=\"centerpara\">";
                             echo "<a title=\"$strseemoredetail\" href=\"report.php?action=question&amp;id=$id&amp;qid=$subquestion->id\">";
@@ -389,15 +387,15 @@
          if ($notes != '' and confirm_sesskey()) {
              if (survey_get_analysis($survey->id, $user->id)) {
                  if (! survey_update_analysis($survey->id, $user->id, $notes)) {
-                     echo $OUTPUT->notification("An error occurred while saving your notes.  Sorry.");
+                     echo $OUTPUT->notification(get_string("errorunabletosavenotes", "survey"), "notifyproblem");
                  } else {
-                     echo $OUTPUT->notification(get_string("savednotes", "survey"));
+                     echo $OUTPUT->notification(get_string("savednotes", "survey"), "notifysuccess");
                  }
              } else {
                  if (! survey_add_analysis($survey->id, $user->id, $notes)) {
-                     echo $OUTPUT->notification("An error occurred while saving your notes.  Sorry.");
+                     echo $OUTPUT->notification(get_string("errorunabletosavenotes", "survey"), "notifyproblem");
                  } else {
-                     echo $OUTPUT->notification(get_string("savednotes", "survey"));
+                     echo $OUTPUT->notification(get_string("savednotes", "survey"), "notifysuccess");
                  }
              }
          }

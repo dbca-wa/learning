@@ -1094,7 +1094,7 @@ M.gradereport_grader.classes.textfield.prototype.attach_key_events = function() 
         }
     }
 
-    // Setup the arrow key events
+    // Setup the arrow key events.
     // Handle CTRL + arrow keys.
     this.keyevents.push(this.report.Y.on('key', a.keypress_arrows, this.inputdiv.ancestor('td'), 'down:37,38,39,40+ctrl', a));
 

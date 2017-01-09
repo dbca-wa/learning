@@ -131,6 +131,7 @@ class user_edit_form extends moodleform {
             $fields = get_user_fieldnames();
             $authplugin = get_auth_plugin($user->auth);
             $customfields = $authplugin->get_custom_user_profile_fields();
+            $customfieldsdata = profile_user_record($userid, false);
             $fields = array_merge($fields, $customfields);
             foreach ($fields as $field) {
                 if ($field === 'description') {
@@ -142,7 +143,15 @@ class user_edit_form extends moodleform {
                 if (!$mform->elementExists($formfield)) {
                     continue;
                 }
-                $value = $mform->getElement($formfield)->exportValue($mform->getElementValue($formfield)) ?: '';
+
+                // Get the original value for the field.
+                if (in_array($field, $customfields)) {
+                    $key = str_replace('profile_field_', '', $field);
+                    $value = isset($customfieldsdata->{$key}) ? $customfieldsdata->{$key} : '';
+                } else {
+                    $value = $user->{$field};
+                }
+
                 $configvariable = 'field_lock_' . $field;
                 if (isset($authplugin->config->{$configvariable})) {
                     if ($authplugin->config->{$configvariable} === 'locked') {
@@ -182,7 +191,9 @@ class user_edit_form extends moodleform {
             // Mail not confirmed yet.
         } else if (!validate_email($usernew->email)) {
             $errors['email'] = get_string('invalidemail');
-        } else if (($usernew->email !== $user->email) and $DB->record_exists('user', array('email' => $usernew->email, 'mnethostid' => $CFG->mnet_localhost_id))) {
+        } else if (($usernew->email !== $user->email)
+                and empty($CFG->allowaccountssameemail)
+                and $DB->record_exists('user', array('email' => $usernew->email, 'mnethostid' => $CFG->mnet_localhost_id))) {
             $errors['email'] = get_string('emailexists');
         }
 

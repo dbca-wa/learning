@@ -743,9 +743,7 @@ M.course_dndupload = {
         var self = this;
 
         if (file.size > this.maxbytes) {
-            new M.core.alert({
-                message: "'" + file.name + "' " + M.util.get_string('filetoolarge', 'moodle')
-            });
+            new M.core.alert({message: M.util.get_string('namedfiletoolarge', 'moodle', {filename: file.name})});
             return;
         }
 

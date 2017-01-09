@@ -39,8 +39,7 @@ class html_parser extends nwiki_parser {
      */
     protected function find_min_header_level($text) {
         preg_match_all($this->tagrules['header']['expression'], $text, $matches);
-        $level = !empty($matches[1]) ? min($matches[1]) : 1;
-        return $level >= 3 ? 3 : 1;
+        return !empty($matches[1]) ? min($matches[1]) : 1;
     }
 
     protected function before_parsing() {
@@ -56,7 +55,7 @@ class html_parser extends nwiki_parser {
      * @return string
      */
     protected function header_tag_rule($match) {
-        return $this->generate_header($match[2], $match[1]);
+        return $this->generate_header($match[2], (int)$match[1] - $this->minheaderlevel + 1);
     }
 
     /**
@@ -100,32 +99,5 @@ class html_parser extends nwiki_parser {
         }
 
         return $match[0];
-    }
-
-    /**
-     * Header generation
-     *
-     * @param string $text
-     * @param int $level
-     * @return string
-     */
-    protected function generate_header($text, $level) {
-        $text = trim($text);
-
-        $normlevel = $level - $this->minheaderlevel + 1;
-
-        if (!$this->pretty_print && $normlevel == 1) {
-            $text .= ' ' . parser_utils::h('a', '['.get_string('editsection', 'wiki').']',
-                    array('href' => "edit.php?pageid={$this->wiki_page_id}&section=" . urlencode($text),
-                        'class' => 'wiki_edit_section'));
-        }
-
-        if ($normlevel <= $this->maxheaderdepth) {
-            $this->toc[] = array($normlevel, $text);
-            $num = count($this->toc);
-            $text = parser_utils::h('a', "", array('name' => "toc-$num")) . $text;
-        }
-
-        return parser_utils::h('h' . $level, $text) . "\n\n";
     }
 }

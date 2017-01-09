@@ -9,6 +9,8 @@ M.yui.add_module = function(modules) {
     for (var modname in modules) {
         YUI_config.modules[modname] = modules[modname];
     }
+    // Ensure thaat the YUI_config is applied to the main YUI instance.
+    Y.applyConfig(YUI_config);
 };
 /**
  * The gallery version to use when loading YUI modules from the gallery.
@@ -289,10 +291,16 @@ M.util.show_confirm_dialog = function(e, args) {
                 if (target.get('name') && target.get('value')) {
                     targetform.append('<input type="hidden" name="' + target.get('name') +
                                     '" value="' + target.get('value') + '">');
+                    if (typeof M.core_formchangechecker !== 'undefined') {
+                        M.core_formchangechecker.set_form_submitted();
+                    }
                 }
                 targetform.submit();
 
             } else if (target.test('form')) {
+                if (typeof M.core_formchangechecker !== 'undefined') {
+                    M.core_formchangechecker.set_form_submitted();
+                }
                 target.submit();
 
             } else {
@@ -608,7 +616,7 @@ M.util.init_block_hider = function(Y, config) {
                             .setAttrs({
                                 alt:        config.tooltipVisible,
                                 src:        this.get('iconVisible'),
-                                tabindex:   0,
+                                tabIndex:   0,
                                 'title':    config.tooltipVisible
                             });
                         hide.on('keypress', this.updateStateKey, this, true);
@@ -619,7 +627,7 @@ M.util.init_block_hider = function(Y, config) {
                             .setAttrs({
                                 alt:        config.tooltipHidden,
                                 src:        this.get('iconHidden'),
-                                tabindex:   0,
+                                tabIndex:   0,
                                 'title':    config.tooltipHidden
                             });
                         show.on('keypress', this.updateStateKey, this, false);
@@ -632,8 +640,10 @@ M.util.init_block_hider = function(Y, config) {
                     M.util.set_user_preference(this.get('preference'), hide);
                     if (hide) {
                         this.get('block').addClass('hidden');
+                        this.get('block').one('.block-hider-show').focus();
                     } else {
                         this.get('block').removeClass('hidden');
+                        this.get('block').one('.block-hider-hide').focus();
                     }
                 },
                 updateStateKey : function(e, hide) {
@@ -1827,4 +1837,20 @@ M.util.load_flowplayer = function() {
         fileref.onreadystatechange = embed_function;
         document.getElementsByTagName('head')[0].appendChild(fileref);
     }
+};
+
+/**
+ * Initiates the listeners for skiplink interaction
+ *
+ * @param {YUI} Y
+ */
+M.util.init_skiplink = function(Y) {
+    Y.one(Y.config.doc.body).delegate('click', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        var node = Y.one(this.getAttribute('href'));
+        node.setAttribute('tabindex', '-1');
+        node.focus();
+        return true;
+    }, 'a.skip');
 };

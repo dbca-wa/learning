@@ -2,9 +2,14 @@
 /* COURSE CONTENT */
 .section_add_menus {
     text-align: right;
+    clear: both;
+}
+.section-modchooser {
+    clear: both;
 }
 .dir-rtl .section_add_menus {
     text-align: left;
+    clear: both;
 }
 .section_add_menus .horizontal div,
 .section_add_menus .horizontal form {
@@ -41,6 +46,14 @@
     margin: 1em;
 }
 .section {
+    .side {
+        &.left {
+            float: left;
+        }
+        &.right {
+            float: right;
+        }
+    }
     .spinner {
         height: 16px;
         width: 16px;
@@ -50,21 +63,6 @@
             left: 100%;
             position: absolute;
             vertical-align: text-bottom;
-        }
-
-        .editing_move {
-            /* Move the move icon to the start of the line */
-            position: absolute;
-            left: 0;
-            top: 0;
-        }
-
-        .mod-indent-outer {
-            /**
-             * Add appropriate padding such that nothing overlaps the
-             * absolute positioned move icon.
-             */
-            padding-left: 32px;
         }
 
         /* The command block for each activity */
@@ -130,19 +128,18 @@
 }
 
 .dir-rtl .section {
+    .side {
+        &.left {
+            float: right;
+        }
+        &.right {
+            float: left;
+        }
+    }
     .activity {
         .spinner {
             left: auto;
             right: 100%;
-        }
-
-        .mod-indent-outer {
-            /**
-             * Add appropriate padding such that nothing overlaps the
-             * absolute positioned move icon.
-             */
-            padding-left: initial;
-            padding-right: 32px;
         }
 
         /* The command block for each activity */
@@ -161,12 +158,6 @@
 
 .dir-rtl .section {
     .activity {
-        .editing_move {
-            /* Move the move icon to the start of the line */
-            left: auto;
-            right: 0;
-        }
-
         &.editor_displayed {
             div.activityinstance {
                 padding-left: initial;
@@ -190,6 +181,19 @@
 .editing {
     .section {
         .activity {
+            .editing_move {
+                /* Move the move icon to the start of the line */
+                position: absolute;
+                left: 0;
+                top: 0;
+            }
+            .mod-indent-outer {
+                /**
+                * Add appropriate padding such that nothing overlaps the
+                * absolute positioned move icon.
+                */
+                padding-left: 32px;
+            }
             .contentwithoutlink,
             .activityinstance {
                 padding-right: 200px;
@@ -205,6 +209,19 @@
             .activityinstance {
                 padding-left: 200px;
                 padding-right: 0;
+            }
+           .editing_move {
+               /* Move the move icon to the start of the line */
+               left: auto;
+               right: 0;
+            }
+            .mod-indent-outer {
+                /**
+                 * Add appropriate padding such that nothing overlaps the
+                 * absolute positioned move icon.
+                 */
+                padding-left: 0px;
+                padding-right: 32px;
             }
         }
     }
@@ -317,23 +334,17 @@
     margin-top: 0;
 }
 .course-content ul li.section.hidden {
-    .sectionname,
+    .sectionname > span,
     .content > div,  /* All the divs but the activities which are in a UL. */
     .activity .activityinstance {
         opacity: .5;
+    }
+    .sectionname > span,
+    .activity .activityinstance {
         margin-left: 10px;
         margin-right: 10px;
     }
-    .content > div.visibleifjs {
-        &.addresourcemodchooser,
-        &.addresourcedropdown {
-            /* The add functionality should not be marginned */
-            margin-left: 0;
-            margin-right: 0;
-        }
-    }
 }
-
 .course-content ul.topics li.section .content,
 .course-content ul.weeks li.section .content {
     margin-right: 20px;
@@ -389,7 +400,6 @@
     float: right;
     height: 20px;
     position: relative;
-    z-index: 1000;
 }
 
 #page-site-index .subscribelink {
@@ -500,8 +510,6 @@ span.editinstructions {
     z-index: 9999;
     .box-shadow(2px 2px 5px 1px #ccc);
     border: 1px solid @infoBorder;
-}
-.dir-rtl span.editinstructions {
 }
 
 /* Course drag and drop upload styles */

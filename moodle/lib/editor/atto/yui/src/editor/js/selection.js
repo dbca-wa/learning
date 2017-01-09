@@ -12,6 +12,7 @@
 //
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+/* global rangy */
 
 /**
  * @module moodle-editor_atto-editor
@@ -118,7 +119,10 @@ EditorSelection.prototype = {
                 return;
             }
             Y.soon(Y.bind(this._hasSelectionChanged, this, e));
-        }, null, this);
+        }, {
+            // Standalone will make sure all editors receive the end event.
+            standAlone: true
+        }, this);
 
         return this;
     },

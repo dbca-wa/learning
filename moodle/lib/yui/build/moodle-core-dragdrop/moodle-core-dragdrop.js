@@ -101,37 +101,58 @@ Y.extend(DRAGDROP, Y.Base, {
     lastdroptarget: null,
 
     /**
+     * Listeners.
+     *
+     * @property listeners
+     * @type Array
+     * @default null
+     */
+    listeners: null,
+
+    /**
      * The initializer which sets up the move action.
      *
      * @method initializer
      * @protected
      */
     initializer: function() {
+        this.listeners = [];
+
         // Listen for all drag:start events.
-        Y.DD.DDM.on('drag:start', this.global_drag_start, this);
+        this.listeners.push(Y.DD.DDM.on('drag:start', this.global_drag_start, this));
 
         // Listen for all drag:end events.
-        Y.DD.DDM.on('drag:end', this.global_drag_end, this);
+        this.listeners.push(Y.DD.DDM.on('drag:end', this.global_drag_end, this));
 
         // Listen for all drag:drag events.
-        Y.DD.DDM.on('drag:drag', this.global_drag_drag, this);
+        this.listeners.push(Y.DD.DDM.on('drag:drag', this.global_drag_drag, this));
 
         // Listen for all drop:over events.
-        Y.DD.DDM.on('drop:over', this.global_drop_over, this);
+        this.listeners.push(Y.DD.DDM.on('drop:over', this.global_drop_over, this));
 
         // Listen for all drop:hit events.
-        Y.DD.DDM.on('drop:hit', this.global_drop_hit, this);
+        this.listeners.push(Y.DD.DDM.on('drop:hit', this.global_drop_hit, this));
 
         // Listen for all drop:miss events.
-        Y.DD.DDM.on('drag:dropmiss', this.global_drag_dropmiss, this);
+        this.listeners.push(Y.DD.DDM.on('drag:dropmiss', this.global_drag_dropmiss, this));
 
         // Add keybaord listeners for accessible drag/drop
-        Y.one(Y.config.doc.body).delegate('key', this.global_keydown,
-                'down:32, enter, esc', '.' + MOVEICON.cssclass, this);
+        this.listeners.push(Y.one(Y.config.doc.body).delegate('key', this.global_keydown,
+                'down:32, enter, esc', '.' + MOVEICON.cssclass, this));
 
         // Make the accessible drag/drop respond to a single click.
-        Y.one(Y.config.doc.body).delegate('click', this.global_keydown,
-                '.' + MOVEICON.cssclass , this);
+        this.listeners.push(Y.one(Y.config.doc.body).delegate('click', this.global_keydown,
+                '.' + MOVEICON.cssclass , this));
+    },
+
+    /**
+     * The destructor to shut down the instance of the dragdrop system.
+     *
+     * @method destructor
+     * @protected
+     */
+    destructor: function() {
+        new Y.EventHandle(this.listeners).detach();
     },
 
     /**
@@ -383,9 +404,12 @@ Y.extend(DRAGDROP, Y.Base, {
         // Search for possible drop targets.
         var droptargets = Y.all('.' + this.samenodeclass + ', .' + this.parentnodeclass);
 
-        droptargets.each(function (node) {
+        droptargets.each(function(node) {
             var validdrop = false, labelroot = node;
-            if (node.drop && node.drop.inGroup(this.groups) && node.drop.get('node') !== dragcontainer) {
+            var className = node.getAttribute("class").split(' ').join(', .');
+
+            if (node.drop && node.drop.inGroup(this.groups) && node.drop.get('node') !== dragcontainer &&
+                    node.next(className) !== dragcontainer) {
                 // This is a drag and drop target with the same class as the grabbed node.
                 validdrop = true;
             } else {
@@ -393,12 +417,13 @@ Y.extend(DRAGDROP, Y.Base, {
                 var i, j;
                 for (i = 0; i < elementgroups.length; i++) {
                     for (j = 0; j < this.groups.length; j++) {
-                        if (elementgroups[i] === this.groups[j]) {
-                            // This is a parent node of the grabbed node (used for dropping in empty sections).
-                            validdrop = true;
-                            // This node will have no text - so we get the first valid text from the parent.
-                            labelroot = node.get('parentNode');
-                            break;
+                        if (elementgroups[i] === this.groups[j] && !(node == dragcontainer ||
+                            node.next(className) === dragcontainer || node.get('children').item(0) == dragcontainer)) {
+                                // This is a parent node of the grabbed node (used for dropping in empty sections).
+                                validdrop = true;
+                                // This node will have no text - so we get the first valid text from the parent.
+                                labelroot = node.get('parentNode');
+                                break;
                         }
                     }
                     if (validdrop) {

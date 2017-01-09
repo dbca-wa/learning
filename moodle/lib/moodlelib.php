@@ -448,7 +448,11 @@ define('MOD_ARCHETYPE_ASSIGNMENT', 2);
 /** System (not user-addable) module archetype */
 define('MOD_ARCHETYPE_SYSTEM', 3);
 
-/** Return this from modname_get_types callback to use default display in activity chooser */
+/**
+ * Return this from modname_get_types callback to use default display in activity chooser.
+ * Deprecated, will be removed in 3.5, TODO MDL-53697.
+ * @deprecated since Moodle 3.1
+ */
 define('MOD_SUBTYPE_NO_CHILDREN', 'modsubtypenochildren');
 
 /**
@@ -622,9 +626,6 @@ function required_param_array($parname, $type) {
 function optional_param($parname, $default, $type) {
     if (func_num_args() != 3 or empty($parname) or empty($type)) {
         throw new coding_exception('optional_param requires $parname, $default + $type to be specified (parameter: '.$parname.')');
-    }
-    if (!isset($default)) {
-        $default = null;
     }
 
     // POST has precedence.
@@ -1620,6 +1621,7 @@ function purge_all_caches() {
     cache_helper::purge_all();
 
     // Purge all other caches: rss, simplepie, etc.
+    clearstatcache();
     remove_dir($CFG->cachedir.'', true);
 
     // Make sure cache dir is writable, throws exception if not.
@@ -2618,8 +2620,17 @@ function require_login($courseorid = null, $autologinguest = true, $cm = null, $
         }
     }
 
-    // Check that the user account is properly set up.
-    if (user_not_fully_set_up($USER)) {
+    // Check that the user account is properly set up. If we can't redirect to
+    // edit their profile, perform just the lax check. It will allow them to
+    // use filepicker on the profile edit page.
+
+    if ($preventredirect) {
+        $usernotfullysetup = user_not_fully_set_up($USER, false);
+    } else {
+        $usernotfullysetup = user_not_fully_set_up($USER, true);
+    }
+
+    if ($usernotfullysetup) {
         if ($preventredirect) {
             throw new require_login_exception('User not fully set-up');
         }
@@ -2681,7 +2692,7 @@ function require_login($courseorid = null, $autologinguest = true, $cm = null, $
         if ($preventredirect) {
             throw new require_login_exception('Maintenance in progress');
         }
-
+        $PAGE->set_context(null);
         print_maintenance_message();
     }
 
@@ -2821,15 +2832,6 @@ function require_login($courseorid = null, $autologinguest = true, $cm = null, $
         }
     }
 
-    // Set the global $COURSE.
-    // TODO MDL-49434: setting current course/cm should be after the check $cm->uservisible .
-    if ($cm) {
-        $PAGE->set_cm($cm, $course);
-        $PAGE->set_pagelayout('incourse');
-    } else if (!empty($courseorid)) {
-        $PAGE->set_course($course);
-    }
-
     // Check visibility of activity to current user; includes visible flag, conditional availability, etc.
     if ($cm && !$cm->uservisible) {
         if ($preventredirect) {
@@ -2841,6 +2843,14 @@ function require_login($courseorid = null, $autologinguest = true, $cm = null, $
             $url = new moodle_url('/');
         }
         redirect($url, get_string('activityiscurrentlyhidden'));
+    }
+
+    // Set the global $COURSE.
+    if ($cm) {
+        $PAGE->set_cm($cm, $course);
+        $PAGE->set_pagelayout('incourse');
+    } else if (!empty($courseorid)) {
+        $PAGE->set_course($course);
     }
 
     // Finally access granted, update lastaccess times.
@@ -3135,14 +3145,39 @@ function update_user_login_times() {
 /**
  * Determines if a user has completed setting up their account.
  *
+ * The lax mode (with $strict = false) has been introduced for special cases
+ * only where we want to skip certain checks intentionally. This is valid in
+ * certain mnet or ajax scenarios when the user cannot / should not be
+ * redirected to edit their profile. In most cases, you should perform the
+ * strict check.
+ *
  * @param stdClass $user A {@link $USER} object to test for the existence of a valid name and email
+ * @param bool $strict Be more strict and assert id and custom profile fields set, too
  * @return bool
  */
-function user_not_fully_set_up($user) {
+function user_not_fully_set_up($user, $strict = true) {
+    global $CFG;
+    require_once($CFG->dirroot.'/user/profile/lib.php');
+
     if (isguestuser($user)) {
         return false;
     }
-    return (empty($user->firstname) or empty($user->lastname) or empty($user->email) or over_bounce_threshold($user));
+
+    if (empty($user->firstname) or empty($user->lastname) or empty($user->email) or over_bounce_threshold($user)) {
+        return true;
+    }
+
+    if ($strict) {
+        if (empty($user->id)) {
+            // Strict mode can be used with existing accounts only.
+            return true;
+        }
+        if (!profile_has_required_custom_fields_set($user->id)) {
+            return true;
+        }
+    }
+
+    return false;
 }
 
 /**
@@ -3551,9 +3586,6 @@ function get_extra_user_fields_sql($context, $alias='', $prefix='', $already = a
 function get_user_field_name($field) {
     // Some fields have language strings which are not the same as field name.
     switch ($field) {
-        case 'phone1' : {
-            return get_string('phone');
-        }
         case 'url' : {
             return get_string('webpage');
         }
@@ -3908,7 +3940,6 @@ function delete_user(stdClass $user) {
     require_once($CFG->libdir.'/grouplib.php');
     require_once($CFG->libdir.'/gradelib.php');
     require_once($CFG->dirroot.'/message/lib.php');
-    require_once($CFG->dirroot.'/tag/lib.php');
     require_once($CFG->dirroot.'/user/lib.php');
 
     // Make sure nobody sends bogus record type as parameter.
@@ -3936,6 +3967,15 @@ function delete_user(stdClass $user) {
         return false;
     }
 
+    // Allow plugins to use this user object before we completely delete it.
+    if ($pluginsfunction = get_plugins_with_function('pre_user_delete')) {
+        foreach ($pluginsfunction as $plugintype => $plugins) {
+            foreach ($plugins as $pluginfunction) {
+                $pluginfunction($user);
+            }
+        }
+    }
+
     // Keep user record before updating it, as we have to pass this to user_deleted event.
     $olduser = clone $user;
 
@@ -3951,7 +3991,7 @@ function delete_user(stdClass $user) {
     // TODO: remove from cohorts using standard API here.
 
     // Remove user tags.
-    tag_set('user', $user->id, array(), 'core', $usercontext->id);
+    core_tag_tag::remove_all_item_tags('core', 'user', $user->id);
 
     // Unconditionally unenrol from all courses.
     enrol_user_delete($user);
@@ -4291,7 +4331,7 @@ function authenticate_user_login($username, $password, $ignorelockout=false, &$f
  * @return stdClass A {@link $USER} object - BC only, do not use
  */
 function complete_user_login($user) {
-    global $CFG, $USER;
+    global $CFG, $USER, $SESSION;
 
     \core\session\manager::login_user($user);
 
@@ -4334,6 +4374,7 @@ function complete_user_login($user) {
             if ($changeurl = $userauth->change_password_url()) {
                 redirect($changeurl);
             } else {
+                $SESSION->wantsurl = core_login_get_return_url();
                 redirect($CFG->httpswwwroot.'/login/change_password.php');
             }
         } else {
@@ -4450,6 +4491,7 @@ function hash_internal_user_password($password, $fasthash = false) {
  *
  * Updating the password will modify the $user object and the database
  * record to use the current hashing algorithm.
+ * It will remove Web Services user tokens too.
  *
  * @param stdClass $user User object (password property may be updated).
  * @param string $password Plain text password.
@@ -4499,6 +4541,10 @@ function update_internal_user_password($user, $password, $fasthash = false) {
         // Trigger event.
         $user = $DB->get_record('user', array('id' => $user->id));
         \core\event\user_password_updated::create_from_user($user)->trigger();
+
+        // Remove WS user tokens.
+        require_once($CFG->dirroot.'/webservice/lib.php');
+        webservice::delete_user_ws_tokens($user->id);
     }
 
     return true;
@@ -4685,6 +4731,15 @@ function delete_course($courseorid, $showfeedback = true) {
         return false;
     }
 
+    // Allow plugins to use this course before we completely delete it.
+    if ($pluginsfunction = get_plugins_with_function('pre_course_delete')) {
+        foreach ($pluginsfunction as $plugintype => $plugins) {
+            foreach ($plugins as $pluginfunction) {
+                $pluginfunction($course);
+            }
+        }
+    }
+
     // Make the course completely empty.
     remove_course_contents($courseid, $showfeedback);
 
@@ -4742,7 +4797,6 @@ function remove_course_contents($courseid, $showfeedback = true, array $options 
     require_once($CFG->libdir.'/questionlib.php');
     require_once($CFG->libdir.'/gradelib.php');
     require_once($CFG->dirroot.'/group/lib.php');
-    require_once($CFG->dirroot.'/tag/coursetagslib.php');
     require_once($CFG->dirroot.'/comment/lib.php');
     require_once($CFG->dirroot.'/rating/lib.php');
     require_once($CFG->dirroot.'/notes/lib.php');
@@ -4802,6 +4856,9 @@ function remove_course_contents($courseid, $showfeedback = true, array $options 
                     if ($cm = get_coursemodule_from_instance($modname, $instance->id, $course->id)) {
                         // Delete activity context questions and question categories.
                         question_delete_activity($cm,  $showfeedback);
+
+                        // Notify the competency subsystem.
+                        \core_competency\api::hook_course_module_deleted($cm);
                     }
                     if (function_exists($moddelete)) {
                         // This purges all module data in related tables, extra user prefs, settings, etc.
@@ -4860,10 +4917,12 @@ function remove_course_contents($courseid, $showfeedback = true, array $options 
 
     // Cleanup the rest of plugins.
     $cleanuplugintypes = array('report', 'coursereport', 'format');
+    $callbacks = get_plugins_with_function('delete_course', 'lib.php');
     foreach ($cleanuplugintypes as $type) {
-        $plugins = get_plugin_list_with_function($type, 'delete_course', 'lib.php');
-        foreach ($plugins as $plugin => $pluginfunction) {
-            $pluginfunction($course->id, $showfeedback);
+        if (!empty($callbacks[$type])) {
+            foreach ($callbacks[$type] as $pluginfunction) {
+                $pluginfunction($course->id, $showfeedback);
+            }
         }
         if ($showfeedback) {
             echo $OUTPUT->notification($strdeleted.get_string('type_'.$type.'_plural', 'plugin'), 'notifysuccess');
@@ -4915,7 +4974,10 @@ function remove_course_contents($courseid, $showfeedback = true, array $options 
     $rm->delete_ratings($delopt);
 
     // Delete course tags.
-    coursetag_delete_course_tags($course->id, $showfeedback);
+    core_tag_tag::remove_all_item_tags('core', 'course', $course->id);
+
+    // Notify the competency subsystem.
+    \core_competency\api::hook_course_deleted($course);
 
     // Delete calendar events.
     $DB->delete_records('event', array('courseid' => $course->id));
@@ -5101,6 +5163,12 @@ function reset_course_userdata($data) {
         $cc->delete_all_completion_data();
         $status[] = array('component' => $componentstr,
                 'item' => get_string('deletecompletiondata', 'completion'), 'error' => false);
+    }
+
+    if (!empty($data->reset_competency_ratings)) {
+        \core_competency\api::hook_course_reset_competency_ratings($data->courseid);
+        $status[] = array('component' => $componentstr,
+            'item' => get_string('deletecompetencyratings', 'core_competency'), 'error' => false);
     }
 
     $componentstr = get_string('roles');
@@ -5441,6 +5509,64 @@ function get_mailer($action='get') {
 }
 
 /**
+ * A helper function to test for email diversion
+ *
+ * @param string $email
+ * @return bool Returns true if the email should be diverted
+ */
+function email_should_be_diverted($email) {
+    global $CFG;
+
+    if (empty($CFG->divertallemailsto)) {
+        return false;
+    }
+
+    if (empty($CFG->divertallemailsexcept)) {
+        return true;
+    }
+
+    $patterns = array_map('trim', explode(',', $CFG->divertallemailsexcept));
+    foreach ($patterns as $pattern) {
+        if (preg_match("/$pattern/", $email)) {
+            return false;
+        }
+    }
+
+    return true;
+}
+
+/**
+ * Generate a unique email Message-ID using the moodle domain and install path
+ *
+ * @param string $localpart An optional unique message id prefix.
+ * @return string The formatted ID ready for appending to the email headers.
+ */
+function generate_email_messageid($localpart = null) {
+    global $CFG;
+
+    $urlinfo = parse_url($CFG->wwwroot);
+    $base = '@' . $urlinfo['host'];
+
+    // If multiple moodles are on the same domain we want to tell them
+    // apart so we add the install path to the local part. This means
+    // that the id local part should never contain a / character so
+    // we can correctly parse the id to reassemble the wwwroot.
+    if (isset($urlinfo['path'])) {
+        $base = $urlinfo['path'] . $base;
+    }
+
+    if (empty($localpart)) {
+        $localpart = uniqid('', true);
+    }
+
+    // Because we may have an option /installpath suffix to the local part
+    // of the id we need to escape any / chars which are in the $localpart.
+    $localpart = str_replace('/', '%2F', $localpart);
+
+    return '<' . $localpart . $base . '>';
+}
+
+/**
  * Send an email to a specified user
  *
  * @param stdClass $user  A {@link $USER} object
@@ -5460,7 +5586,7 @@ function get_mailer($action='get') {
 function email_to_user($user, $from, $subject, $messagetext, $messagehtml = '', $attachment = '', $attachname = '',
                        $usetrueaddress = true, $replyto = '', $replytoname = '', $wordwrapwidth = 79) {
 
-    global $CFG;
+    global $CFG, $PAGE, $SITE;
 
     if (empty($user) or empty($user->id)) {
         debugging('Can not send email to null user', DEBUG_DEVELOPER);
@@ -5488,7 +5614,7 @@ function email_to_user($user, $from, $subject, $messagetext, $messagehtml = '', 
         return true;
     }
 
-    if (!empty($CFG->divertallemailsto)) {
+    if (email_should_be_diverted($user->email)) {
         $subject = "[DIVERTED {$user->email}] $subject";
         $user = clone($user);
         $user->email = $CFG->divertallemailsto;
@@ -5578,8 +5704,6 @@ function email_to_user($user, $from, $subject, $messagetext, $messagehtml = '', 
         $tempreplyto[] = array($replyto, $replytoname);
     }
 
-    $mail->Subject = substr($subject, 0, 900);
-
     $temprecipients[] = array($user->email, fullname($user));
 
     // Set word wrap.
@@ -5596,8 +5720,77 @@ function email_to_user($user, $from, $subject, $messagetext, $messagehtml = '', 
         }
     }
 
+    // If the X-PHP-Originating-Script email header is on then also add an additional
+    // header with details of where exactly in moodle the email was triggered from,
+    // either a call to message_send() or to email_to_user().
+    if (ini_get('mail.add_x_header')) {
+
+        $stack = debug_backtrace(false);
+        $origin = $stack[0];
+
+        foreach ($stack as $depth => $call) {
+            if ($call['function'] == 'message_send') {
+                $origin = $call;
+            }
+        }
+
+        $originheader = $CFG->wwwroot . ' => ' . gethostname() . ':'
+             . str_replace($CFG->dirroot . '/', '', $origin['file']) . ':' . $origin['line'];
+        $mail->addCustomHeader('X-Moodle-Originating-Script: ' . $originheader);
+    }
+
     if (!empty($from->priority)) {
         $mail->Priority = $from->priority;
+    }
+
+    $renderer = $PAGE->get_renderer('core');
+    $context = array(
+        'sitefullname' => $SITE->fullname,
+        'siteshortname' => $SITE->shortname,
+        'sitewwwroot' => $CFG->wwwroot,
+        'subject' => $subject,
+        'to' => $user->email,
+        'toname' => fullname($user),
+        'from' => $mail->From,
+        'fromname' => $mail->FromName,
+    );
+    if (!empty($tempreplyto[0])) {
+        $context['replyto'] = $tempreplyto[0][0];
+        $context['replytoname'] = $tempreplyto[0][1];
+    }
+    if ($user->id > 0) {
+        $context['touserid'] = $user->id;
+        $context['tousername'] = $user->username;
+    }
+
+    if (!empty($user->mailformat) && $user->mailformat == 1) {
+        // Only process html templates if the user preferences allow html email.
+
+        if ($messagehtml) {
+            // If html has been given then pass it through the template.
+            $context['body'] = $messagehtml;
+            $messagehtml = $renderer->render_from_template('core/email_html', $context);
+
+        } else {
+            // If no html has been given, BUT there is an html wrapping template then
+            // auto convert the text to html and then wrap it.
+            $autohtml = trim(text_to_html($messagetext));
+            $context['body'] = $autohtml;
+            $temphtml = $renderer->render_from_template('core/email_html', $context);
+            if ($autohtml != $temphtml) {
+                $messagehtml = $temphtml;
+            }
+        }
+    }
+
+    $context['body'] = $messagetext;
+    $mail->Subject = $renderer->render_from_template('core/email_subject', $context);
+    $mail->FromName = $renderer->render_from_template('core/email_fromname', $context);
+    $messagetext = $renderer->render_from_template('core/email_text', $context);
+
+    // Autogenerate a MessageID if it's missing.
+    if (empty($mail->MessageID)) {
+        $mail->MessageID = generate_email_messageid();
     }
 
     if ($messagehtml && !empty($user->mailformat) && $user->mailformat == 1) {
@@ -6102,9 +6295,10 @@ function valid_uploaded_file($newfile) {
  * @param int $sitebytes Set maximum size
  * @param int $coursebytes Current course $course->maxbytes (in bytes)
  * @param int $modulebytes Current module ->maxbytes (in bytes)
+ * @param bool $unused This parameter has been deprecated and is not used any more.
  * @return int The maximum size for uploading files.
  */
-function get_max_upload_file_size($sitebytes=0, $coursebytes=0, $modulebytes=0) {
+function get_max_upload_file_size($sitebytes=0, $coursebytes=0, $modulebytes=0, $unused = false) {
 
     if (! $filesize = ini_get('upload_max_filesize')) {
         $filesize = '5M';
@@ -6143,9 +6337,11 @@ function get_max_upload_file_size($sitebytes=0, $coursebytes=0, $modulebytes=0) 
  * @param int $coursebytes Current course $course->maxbytes (in bytes)
  * @param int $modulebytes Current module ->maxbytes (in bytes)
  * @param stdClass $user The user
+ * @param bool $unused This parameter has been deprecated and is not used any more.
  * @return int The maximum size for uploading files.
  */
-function get_user_max_upload_file_size($context, $sitebytes = 0, $coursebytes = 0, $modulebytes = 0, $user = null) {
+function get_user_max_upload_file_size($context, $sitebytes = 0, $coursebytes = 0, $modulebytes = 0, $user = null,
+        $unused = false) {
     global $USER;
 
     if (empty($user)) {
@@ -6153,7 +6349,7 @@ function get_user_max_upload_file_size($context, $sitebytes = 0, $coursebytes = 
     }
 
     if (has_capability('moodle/course:ignorefilesizelimits', $context, $user)) {
-        return get_max_upload_file_size(USER_CAN_IGNORE_FILE_SIZE_LIMITS);
+        return USER_CAN_IGNORE_FILE_SIZE_LIMITS;
     }
 
     return get_max_upload_file_size($sitebytes, $coursebytes, $modulebytes);
@@ -7044,24 +7240,120 @@ function is_valid_plugin_name($name) {
  *      and the function names as values (e.g. 'report_courselist_hook', 'forum_hook').
  */
 function get_plugin_list_with_function($plugintype, $function, $file = 'lib.php') {
+    global $CFG;
+
+    // We don't include here as all plugin types files would be included.
+    $plugins = get_plugins_with_function($function, $file, false);
+
+    if (empty($plugins[$plugintype])) {
+        return array();
+    }
+
+    $allplugins = core_component::get_plugin_list($plugintype);
+
+    // Reformat the array and include the files.
     $pluginfunctions = array();
-    $pluginswithfile = core_component::get_plugin_list_with_file($plugintype, $file, true);
-    foreach ($pluginswithfile as $plugin => $notused) {
-        $fullfunction = $plugintype . '_' . $plugin . '_' . $function;
+    foreach ($plugins[$plugintype] as $pluginname => $functionname) {
 
-        if (function_exists($fullfunction)) {
-            // Function exists with standard name. Store, indexed by frankenstyle name of plugin.
-            $pluginfunctions[$plugintype . '_' . $plugin] = $fullfunction;
+        // Check that it has not been removed and the file is still available.
+        if (!empty($allplugins[$pluginname])) {
 
-        } else if ($plugintype === 'mod') {
-            // For modules, we also allow plugin without full frankenstyle but just starting with the module name.
-            $shortfunction = $plugin . '_' . $function;
-            if (function_exists($shortfunction)) {
-                $pluginfunctions[$plugintype . '_' . $plugin] = $shortfunction;
+            $filepath = $allplugins[$pluginname] . DIRECTORY_SEPARATOR . $file;
+            if (file_exists($filepath)) {
+                include_once($filepath);
+                $pluginfunctions[$plugintype . '_' . $pluginname] = $functionname;
             }
         }
     }
+
     return $pluginfunctions;
+}
+
+/**
+ * Get a list of all the plugins that define a certain API function in a certain file.
+ *
+ * @param string $function the part of the name of the function after the
+ *      frankenstyle prefix. e.g 'hook' if you are looking for functions with
+ *      names like report_courselist_hook.
+ * @param string $file the name of file within the plugin that defines the
+ *      function. Defaults to lib.php.
+ * @param bool $include Whether to include the files that contain the functions or not.
+ * @return array with [plugintype][plugin] = functionname
+ */
+function get_plugins_with_function($function, $file = 'lib.php', $include = true) {
+    global $CFG;
+
+    $cache = \cache::make('core', 'plugin_functions');
+
+    // Including both although I doubt that we will find two functions definitions with the same name.
+    // Clearning the filename as cache_helper::hash_key only allows a-zA-Z0-9_.
+    $key = $function . '_' . clean_param($file, PARAM_ALPHA);
+
+    if ($pluginfunctions = $cache->get($key)) {
+
+        // Checking that the files are still available.
+        foreach ($pluginfunctions as $plugintype => $plugins) {
+
+            $allplugins = \core_component::get_plugin_list($plugintype);
+            foreach ($plugins as $plugin => $fullpath) {
+
+                // Cache might be out of sync with the codebase, skip the plugin if it is not available.
+                if (empty($allplugins[$plugin])) {
+                    unset($pluginfunctions[$plugintype][$plugin]);
+                    continue;
+                }
+
+                $fileexists = file_exists($allplugins[$plugin] . DIRECTORY_SEPARATOR . $file);
+                if ($include && $fileexists) {
+                    // Include the files if it was requested.
+                    include_once($allplugins[$plugin] . DIRECTORY_SEPARATOR . $file);
+                } else if (!$fileexists) {
+                    // If the file is not available any more it should not be returned.
+                    unset($pluginfunctions[$plugintype][$plugin]);
+                }
+            }
+        }
+        return $pluginfunctions;
+    }
+
+    $pluginfunctions = array();
+
+    // To fill the cached. Also, everything should continue working with cache disabled.
+    $plugintypes = \core_component::get_plugin_types();
+    foreach ($plugintypes as $plugintype => $unused) {
+
+        // We need to include files here.
+        $pluginswithfile = \core_component::get_plugin_list_with_file($plugintype, $file, true);
+        foreach ($pluginswithfile as $plugin => $notused) {
+
+            $fullfunction = $plugintype . '_' . $plugin . '_' . $function;
+
+            $pluginfunction = false;
+            if (function_exists($fullfunction)) {
+                // Function exists with standard name. Store, indexed by frankenstyle name of plugin.
+                $pluginfunction = $fullfunction;
+
+            } else if ($plugintype === 'mod') {
+                // For modules, we also allow plugin without full frankenstyle but just starting with the module name.
+                $shortfunction = $plugin . '_' . $function;
+                if (function_exists($shortfunction)) {
+                    $pluginfunction = $shortfunction;
+                }
+            }
+
+            if ($pluginfunction) {
+                if (empty($pluginfunctions[$plugintype])) {
+                    $pluginfunctions[$plugintype] = array();
+                }
+                $pluginfunctions[$plugintype][$plugin] = $pluginfunction;
+            }
+
+        }
+    }
+    $cache->set($key, $pluginfunctions);
+
+    return $pluginfunctions;
+
 }
 
 /**
@@ -7542,12 +7834,12 @@ function random_bytes_emulate($length) {
     }
 
     // Bad luck, there is no reliable random generator, let's just hash some unique stuff that is hard to guess.
-    $hash = sha1(serialize($CFG) . serialize($_SERVER) . microtime(true) . uniqid('', true), true);
-    // NOTE: the last param in sha1() is true, this means we are getting 20 bytes, not 40 chars as usual.
-    if ($length <= 20) {
-        return substr($hash, 0, $length);
-    }
-    return $hash . random_bytes_emulate($length - 20);
+    $staticdata = serialize($CFG) . serialize($_SERVER);
+    $hash = '';
+    do {
+        $hash .= sha1($staticdata . microtime(true) . uniqid('', true), true);
+    } while (strlen($hash) < $length);
+    return substr($hash, 0, $length);
 }
 
 /**
@@ -7976,72 +8268,6 @@ function make_grades_menu($gradingtype) {
         return $grades;
     }
     return $grades;
-}
-
-/**
- * This function returns the number of activities using the given scale in the given course.
- *
- * @param int $courseid The course ID to check.
- * @param int $scaleid The scale ID to check
- * @return int
- */
-function course_scale_used($courseid, $scaleid) {
-    global $CFG, $DB;
-
-    $return = 0;
-
-    if (!empty($scaleid)) {
-        if ($cms = get_course_mods($courseid)) {
-            foreach ($cms as $cm) {
-                // Check cm->name/lib.php exists.
-                if (file_exists($CFG->dirroot.'/mod/'.$cm->modname.'/lib.php')) {
-                    include_once($CFG->dirroot.'/mod/'.$cm->modname.'/lib.php');
-                    $functionname = $cm->modname.'_scale_used';
-                    if (function_exists($functionname)) {
-                        if ($functionname($cm->instance, $scaleid)) {
-                            $return++;
-                        }
-                    }
-                }
-            }
-        }
-
-        // Check if any course grade item makes use of the scale.
-        $return += $DB->count_records('grade_items', array('courseid' => $courseid, 'scaleid' => $scaleid));
-
-        // Check if any outcome in the course makes use of the scale.
-        $return += $DB->count_records_sql("SELECT COUNT('x')
-                                             FROM {grade_outcomes_courses} goc,
-                                                  {grade_outcomes} go
-                                            WHERE go.id = goc.outcomeid
-                                                  AND go.scaleid = ? AND goc.courseid = ?",
-                                          array($scaleid, $courseid));
-    }
-    return $return;
-}
-
-/**
- * This function returns the number of activities using scaleid in the entire site
- *
- * @param int $scaleid
- * @param array $courses
- * @return int
- */
-function site_scale_used($scaleid, &$courses) {
-    $return = 0;
-
-    if (!is_array($courses) || count($courses) == 0) {
-        $courses = get_courses("all", false, "c.id, c.shortname");
-    }
-
-    if (!empty($scaleid)) {
-        if (is_array($courses) && count($courses) > 0) {
-            foreach ($courses as $course) {
-                $return += course_scale_used($course->id, $scaleid);
-            }
-        }
-    }
-    return $return;
 }
 
 /**
@@ -8833,15 +9059,6 @@ function get_performance_info() {
 
     $info['html'] = '<div class="performanceinfo siteinfo">'.$info['html'].'</div>';
     return $info;
-}
-
-/**
- * Legacy function.
- *
- * @todo Document this function linux people
- */
-function apd_get_profiling() {
-    return shell_exec('pprofp -u ' . ini_get('apd.dumpdir') . '/pprof.' . getmypid() . '.*');
 }
 
 /**

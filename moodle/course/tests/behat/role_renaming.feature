@@ -29,3 +29,15 @@ Feature: Rename roles in a course
     And I navigate to "Enrolled users" node in "Course administration > Users"
     Then I should see "Lecturer" in the "Teacher 1" "table_row"
     And I should see "Learner" in the "Student 1" "table_row"
+
+  Scenario: Ability to rename roles can be prevented
+    Given I log in as "admin"
+    And I set the following system permissions of "Teacher" role:
+      | capability         | permission |
+      | moodle/course:renameroles | Inherit |
+    And I follow "Log out"
+    When I log in as "teacher1"
+    And I follow "Course 1"
+    And I click on "Edit settings" "link" in the "Administration" "block"
+    Then I should not see "Role renaming"
+    And I should not see "Your word for 'Teacher'"

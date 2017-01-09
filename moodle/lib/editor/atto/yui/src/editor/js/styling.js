@@ -12,6 +12,7 @@
 //
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+/* global rangy */
 
 /**
  * @module moodle-editor_atto-editor
@@ -87,7 +88,7 @@ EditorStyling.prototype = {
      */
     toggleInlineSelectionClass: function(toggleclasses) {
         var classname = toggleclasses.join(" ");
-        var cssApplier = rangy.createCssClassApplier(classname, {normalize: true});
+        var cssApplier = rangy.createClassApplier(classname, {normalize: true});
 
         cssApplier.toggleSelection();
     },
@@ -102,7 +103,7 @@ EditorStyling.prototype = {
      */
     formatSelectionInlineStyle: function(styles) {
         var classname = this.PLACEHOLDER_CLASS;
-        var cssApplier = rangy.createCssClassApplier(classname, {normalize: true});
+        var cssApplier = rangy.createClassApplier(classname, {normalize: true});
 
         cssApplier.applyToSelection();
 

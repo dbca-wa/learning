@@ -189,6 +189,10 @@ class mod_forum_generator extends testing_module_generator {
             $timemodified = $record['timemodified'];
         }
 
+        if (!isset($record['pinned'])) {
+            $record['pinned'] = FORUM_DISCUSSION_UNPINNED;
+        }
+
         if (isset($record['mailed'])) {
             $mailed = $record['mailed'];
         }

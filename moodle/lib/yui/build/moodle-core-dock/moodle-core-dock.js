@@ -8,7 +8,6 @@ YUI.add('moodle-core-dock', function (Y, NAME) {
  * @module moodle-core-dock
  */
 
-
 var LOGNS = 'moodle-core-dock',
     BODY = Y.one(Y.config.doc.body),
     CSS = {
@@ -34,7 +33,7 @@ var LOGNS = 'moodle-core-dock',
     DOCKPANEL,
     TABHEIGHTMANAGER,
     BLOCK,
-    DOCKEDITEM;
+    DOCKEDITEM; // eslint-disable-line no-unused-vars
 
 M.core = M.core || {};
 M.core.dock = M.core.dock || {};
@@ -64,6 +63,9 @@ M.core.dock._dockableblocks = {};
  */
 M.core.dock.init = function() {
     Y.all(SELECTOR.dockableblock).each(M.core.dock.registerDockableBlock);
+    Y.Global.on(M.core.globalEvents.BLOCK_CONTENT_UPDATED, function(e) {
+        M.core.dock.notifyBlockChange(e.instanceid);
+    }, this);
     BODY.delegate('click', M.core.dock.dockBlock, SELECTOR.blockmoveto);
     BODY.delegate('key', M.core.dock.dockBlock, SELECTOR.blockmoveto, 'enter');
 };
@@ -1143,6 +1145,8 @@ Y.extend(DOCK, Y.Base, DOCK.prototype, {
     }
 });
 Y.augment(DOCK, Y.EventTarget);
+/* global DOCKPANEL, LOGNS */
+
 /**
  * Dock JS.
  *
@@ -1378,6 +1382,8 @@ Y.extend(DOCKPANEL, Y.Base, DOCKPANEL.prototype, {
     }
 });
 Y.augment(DOCKPANEL, Y.EventTarget);
+/* global TABHEIGHTMANAGER, LOGNS */
+
 /**
  * Dock JS.
  *
@@ -1617,6 +1623,8 @@ Y.Event.define("dock:actionkey", {
         sub._delegateDetacher.detach();
     }
 });
+/* global BLOCK, LOGNS, DOCKEDITEM */
+
 /**
  * Dock JS.
  *
@@ -1858,6 +1866,8 @@ Y.extend(BLOCK, Y.Base, BLOCK.prototype, {
         }
     }
 });
+/* global LOGNS, DOCKEDITEM */
+
 /**
  * Dock JS.
  *
@@ -2186,6 +2196,7 @@ Y.augment(DOCKEDITEM, Y.EventTarget);
         "event-mouseenter",
         "event-resize",
         "escape",
-        "moodle-core-dock-loader"
+        "moodle-core-dock-loader",
+        "moodle-core-event"
     ]
 });

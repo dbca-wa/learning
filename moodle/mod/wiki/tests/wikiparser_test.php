@@ -89,8 +89,8 @@ class mod_wiki_wikiparser_test extends basic_testcase {
 
         // Test section name using HTML entities.
         $input = '<h1>Code &amp; Test</h1>';
-        $output = '<h1><a name="toc-1"></a>Code &amp; Test <a href="edit.php?pageid=&amp;section=Code+%26amp%3B+Test" '.
-            'class="wiki_edit_section">[edit]</a></h1>' . "\n";
+        $output = '<h3><a name="toc-1"></a>Code &amp; Test <a href="edit.php?pageid=&amp;section=Code+%26amp%3B+Test" '.
+            'class="wiki_edit_section">[edit]</a></h3>' . "\n";
         $toc = '<div class="wiki-toc"><p class="wiki-toc-title">Table of contents</p><p class="wiki-toc-section-1 '.
             'wiki-toc-section">1. <a href="#toc-1">Code &amp; Test <a href="edit.php?pageid=&amp;section=Code+%26amp%3B+'.
             'Test" class="wiki_edit_section">[edit]</a></a></p></div>';
@@ -102,8 +102,8 @@ class mod_wiki_wikiparser_test extends basic_testcase {
 
         // Test section name using non-ASCII characters.
         $input = '<h1>Another áéíóúç€ test</h1>';
-        $output = '<h1><a name="toc-1"></a>Another áéíóúç€ test <a href="edit.php?pageid=&amp;section=Another+%C'.
-            '3%A1%C3%A9%C3%AD%C3%B3%C3%BA%C3%A7%E2%82%AC+test" class="wiki_edit_section">[edit]</a></h1>' . "\n";
+        $output = '<h3><a name="toc-1"></a>Another áéíóúç€ test <a href="edit.php?pageid=&amp;section=Another+%C'.
+            '3%A1%C3%A9%C3%AD%C3%B3%C3%BA%C3%A7%E2%82%AC+test" class="wiki_edit_section">[edit]</a></h3>' . "\n";
         $toc = '<div class="wiki-toc"><p class="wiki-toc-title">Table of contents</p><p class="wiki-toc-section-1 '.
             'wiki-toc-section">1. <a href="#toc-1">Another áéíóúç€ test <a href="edit.php?pageid=&amp;section=Another+%C'.
             '3%A1%C3%A9%C3%AD%C3%B3%C3%BA%C3%A7%E2%82%AC+test" class="wiki_edit_section">[edit]</a></a></p></div>';
@@ -115,8 +115,8 @@ class mod_wiki_wikiparser_test extends basic_testcase {
 
         // Test section name with a URL.
         $input = '<h1>Another http://moodle.org test</h1>';
-        $output = '<h1><a name="toc-1"></a>Another <a href="http://moodle.org">http://moodle.org</a> test <a href="edit.php'.
-            '?pageid=&amp;section=Another+http%3A%2F%2Fmoodle.org+test" class="wiki_edit_section">[edit]</a></h1>' . "\n";
+        $output = '<h3><a name="toc-1"></a>Another <a href="http://moodle.org">http://moodle.org</a> test <a href="edit.php'.
+            '?pageid=&amp;section=Another+http%3A%2F%2Fmoodle.org+test" class="wiki_edit_section">[edit]</a></h3>' . "\n";
         $toc = '<div class="wiki-toc"><p class="wiki-toc-title">Table of contents</p><p class="wiki-toc-section-1 '.
             'wiki-toc-section">1. <a href="#toc-1">Another http://moodle.org test <a href="edit.php?pageid=&amp;section='.
             'Another+http%3A%2F%2Fmoodle.org+test" class="wiki_edit_section">[edit]</a></a></p></div>';
@@ -130,11 +130,11 @@ class mod_wiki_wikiparser_test extends basic_testcase {
 
         // Test toc section names being wikilinks.
         $input = '<h1>[[Heading 1]]</h1><h2>[[Heading A]]</h2><h2>Heading D</h2>';
-        $regexpoutput = '!<h1><a name="toc-1"></a>' .
+        $regexpoutput = '!<h3><a name="toc-1"></a>' .
             '<a class="wiki_newentry" href.*mod/wiki/create\.php\?.*title=Heading\+1.*action=new.*>Heading 1<.*' .
-            '<h2><a name="toc-2"></a>' .
+            '<h4><a name="toc-2"></a>' .
             '<a class="wiki_newentry" href.*mod/wiki/create\.php\?.*title=Heading\+A.*action=new.*>Heading A<.*' .
-            '<h2><a name="toc-3"></a>' .
+            '<h4><a name="toc-3"></a>' .
             'Heading D!ms';
         $regexptoc = '!<a href="#toc-1">Heading 1.*<a href="#toc-2">Heading A</a>.*<a href="#toc-3">Heading D</a>!ms';
         $section = wiki_parser_proxy::get_section($input, 'html', 'Another [[wikilinked]] test');
@@ -150,8 +150,8 @@ class mod_wiki_wikiparser_test extends basic_testcase {
 
         // Test section name using HTML entities.
         $input = '= Code & Test =';
-        $output = '<h1><a name="toc-1"></a>Code &amp; Test <a href="edit.php?pageid=&amp;section=Code+%26amp%3B+Test" '.
-            'class="wiki_edit_section">[edit]</a></h1>' . "\n";
+        $output = '<h3><a name="toc-1"></a>Code &amp; Test <a href="edit.php?pageid=&amp;section=Code+%26amp%3B+Test" '.
+            'class="wiki_edit_section">[edit]</a></h3>' . "\n";
         $toc = '<div class="wiki-toc"><p class="wiki-toc-title">Table of contents</p><p class="wiki-toc-section-1 '.
             'wiki-toc-section">1. <a href="#toc-1">Code &amp; Test <a href="edit.php?pageid=&amp;section=Code+%26amp%3B+'.
             'Test" class="wiki_edit_section">[edit]</a></a></p></div>';
@@ -163,8 +163,8 @@ class mod_wiki_wikiparser_test extends basic_testcase {
 
         // Test section name using non-ASCII characters.
         $input = '= Another áéíóúç€ test =';
-        $output = '<h1><a name="toc-1"></a>Another áéíóúç€ test <a href="edit.php?pageid=&amp;section=Another+%C'.
-            '3%A1%C3%A9%C3%AD%C3%B3%C3%BA%C3%A7%E2%82%AC+test" class="wiki_edit_section">[edit]</a></h1>' . "\n";
+        $output = '<h3><a name="toc-1"></a>Another áéíóúç€ test <a href="edit.php?pageid=&amp;section=Another+%C'.
+            '3%A1%C3%A9%C3%AD%C3%B3%C3%BA%C3%A7%E2%82%AC+test" class="wiki_edit_section">[edit]</a></h3>' . "\n";
         $toc = '<div class="wiki-toc"><p class="wiki-toc-title">Table of contents</p><p class="wiki-toc-section-1 '.
             'wiki-toc-section">1. <a href="#toc-1">Another áéíóúç€ test <a href="edit.php?pageid=&amp;section=Another+%C'.
             '3%A1%C3%A9%C3%AD%C3%B3%C3%BA%C3%A7%E2%82%AC+test" class="wiki_edit_section">[edit]</a></a></p></div>';
@@ -176,8 +176,8 @@ class mod_wiki_wikiparser_test extends basic_testcase {
 
         // Test section name with a URL, creole does not support linking links in a heading.
         $input = '= Another http://moodle.org test =';
-        $output = '<h1><a name="toc-1"></a>Another http://moodle.org test <a href="edit.php'.
-            '?pageid=&amp;section=Another+http%3A%2F%2Fmoodle.org+test" class="wiki_edit_section">[edit]</a></h1>' . "\n";
+        $output = '<h3><a name="toc-1"></a>Another http://moodle.org test <a href="edit.php'.
+            '?pageid=&amp;section=Another+http%3A%2F%2Fmoodle.org+test" class="wiki_edit_section">[edit]</a></h3>' . "\n";
         $toc = '<div class="wiki-toc"><p class="wiki-toc-title">Table of contents</p><p class="wiki-toc-section-1 '.
             'wiki-toc-section">1. <a href="#toc-1">Another http://moodle.org test <a href="edit.php?pageid=&amp;section='.
             'Another+http%3A%2F%2Fmoodle.org+test" class="wiki_edit_section">[edit]</a></a></p></div>';
@@ -192,8 +192,8 @@ class mod_wiki_wikiparser_test extends basic_testcase {
 
         // Test section name using HTML entities.
         $input = '= Code & Test =';
-        $output = '<h1><a name="toc-1"></a>Code & Test <a href="edit.php?pageid=&amp;section=Code+%26+Test" '.
-            'class="wiki_edit_section">[edit]</a></h1>' . "\n";
+        $output = '<h3><a name="toc-1"></a>Code & Test <a href="edit.php?pageid=&amp;section=Code+%26+Test" '.
+            'class="wiki_edit_section">[edit]</a></h3>' . "\n";
         $toc = '<div class="wiki-toc"><p class="wiki-toc-title">Table of contents</p><p class="wiki-toc-section-1 '.
             'wiki-toc-section">1. <a href="#toc-1">Code & Test <a href="edit.php?pageid=&amp;section=Code+%26+'.
             'Test" class="wiki_edit_section">[edit]</a></a></p></div>';
@@ -205,8 +205,8 @@ class mod_wiki_wikiparser_test extends basic_testcase {
 
         // Test section name using non-ASCII characters.
         $input = '= Another áéíóúç€ test =';
-        $output = '<h1><a name="toc-1"></a>Another áéíóúç€ test <a href="edit.php?pageid=&amp;section=Another+%C'.
-            '3%A1%C3%A9%C3%AD%C3%B3%C3%BA%C3%A7%E2%82%AC+test" class="wiki_edit_section">[edit]</a></h1>' . "\n";
+        $output = '<h3><a name="toc-1"></a>Another áéíóúç€ test <a href="edit.php?pageid=&amp;section=Another+%C'.
+            '3%A1%C3%A9%C3%AD%C3%B3%C3%BA%C3%A7%E2%82%AC+test" class="wiki_edit_section">[edit]</a></h3>' . "\n";
         $toc = '<div class="wiki-toc"><p class="wiki-toc-title">Table of contents</p><p class="wiki-toc-section-1 '.
             'wiki-toc-section">1. <a href="#toc-1">Another áéíóúç€ test <a href="edit.php?pageid=&amp;section=Another+%C'.
             '3%A1%C3%A9%C3%AD%C3%B3%C3%BA%C3%A7%E2%82%AC+test" class="wiki_edit_section">[edit]</a></a></p></div>';
@@ -218,8 +218,8 @@ class mod_wiki_wikiparser_test extends basic_testcase {
 
         // Test section name with a URL, nwiki does not support linking links in a heading.
         $input = '= Another http://moodle.org test =';
-        $output = '<h1><a name="toc-1"></a>Another http://moodle.org test <a href="edit.php'.
-            '?pageid=&amp;section=Another+http%3A%2F%2Fmoodle.org+test" class="wiki_edit_section">[edit]</a></h1>' . "\n";
+        $output = '<h3><a name="toc-1"></a>Another http://moodle.org test <a href="edit.php'.
+            '?pageid=&amp;section=Another+http%3A%2F%2Fmoodle.org+test" class="wiki_edit_section">[edit]</a></h3>' . "\n";
         $toc = '<div class="wiki-toc"><p class="wiki-toc-title">Table of contents</p><p class="wiki-toc-section-1 '.
             'wiki-toc-section">1. <a href="#toc-1">Another http://moodle.org test <a href="edit.php?pageid=&amp;section='.
             'Another+http%3A%2F%2Fmoodle.org+test" class="wiki_edit_section">[edit]</a></a></p></div>';

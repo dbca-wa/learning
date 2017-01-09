@@ -55,6 +55,7 @@ class core_test_generator_testcase extends advanced_testcase {
 
     public function test_create_user() {
         global $DB, $CFG;
+        require_once($CFG->dirroot.'/user/lib.php');
 
         $this->resetAfterTest(true);
         $generator = $this->getDataGenerator();
@@ -63,8 +64,8 @@ class core_test_generator_testcase extends advanced_testcase {
         $this->setCurrentTimeStart();
         $user = $generator->create_user();
         $this->assertEquals($count + 1, $DB->count_records('user'));
-        $this->assertSame($user->username, clean_param($user->username, PARAM_USERNAME));
-        $this->assertSame($user->email, clean_param($user->email, PARAM_EMAIL));
+        $this->assertSame($user->username, core_user::clean_field($user->username, 'username'));
+        $this->assertSame($user->email, core_user::clean_field($user->email, 'email'));
         $this->assertSame(AUTH_PASSWORD_NOT_CACHED, $user->password);
         $this->assertNotEmpty($user->firstnamephonetic);
         $this->assertNotEmpty($user->lastnamephonetic);
@@ -124,6 +125,11 @@ class core_test_generator_testcase extends advanced_testcase {
         $this->assertSame('', $user->idnumber);
         $this->assertSame(md5($record['username']), $user->email);
         $this->assertFalse(context_user::instance($user->id, IGNORE_MISSING));
+
+        // Test generating user with interests.
+        $user = $generator->create_user(array('interests' => 'Cats, Dogs'));
+        $userdetails = user_get_user_details($user);
+        $this->assertSame('Cats, Dogs', $userdetails['interests']);
     }
 
     public function test_create() {
@@ -167,6 +173,9 @@ class core_test_generator_testcase extends advanced_testcase {
         $section = $generator->create_course_section(array('course'=>$course->id, 'section'=>3));
         $this->assertEquals($course->id, $section->course);
 
+        $course = $generator->create_course(array('tags' => 'Cat, Dog'));
+        $this->assertEquals(array('Cat', 'Dog'), array_values(core_tag_tag::get_item_tags_array('core', 'course', $course->id)));
+
         $scale = $generator->create_scale();
         $this->assertNotEmpty($scale);
     }
@@ -189,6 +198,10 @@ class core_test_generator_testcase extends advanced_testcase {
         $this->assertNotEmpty($page);
         $cm = get_coursemodule_from_instance('page', $page->id, $SITE->id, true);
         $this->assertEquals(3, $cm->sectionnum);
+
+        $page = $generator->create_module('page', array('course' => $SITE->id, 'tags' => 'Cat, Dog'));
+        $this->assertEquals(array('Cat', 'Dog'),
+            array_values(core_tag_tag::get_item_tags_array('core', 'course_modules', $page->cmid)));
 
         // Prepare environment to generate modules with all possible options.
 

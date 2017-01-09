@@ -267,8 +267,7 @@ ACTIONMENU.prototype = {
         }
 
         if (this.menulink) {
-            if (!e || e.type != 'click') {
-                // We needed to test !e to retain backwards compatiablity if the event is not passed.
+            if (e.type != 'click') {
                 this.menulink.focus();
             }
             this.menulink = null;

@@ -358,10 +358,12 @@ class mod_quiz_mod_form extends moodleform_mod {
         if (!empty($this->_instance)) {
             $this->_feedbacks = $DB->get_records('quiz_feedback',
                     array('quizid' => $this->_instance), 'mingrade DESC');
+            $numfeedbacks = count($this->_feedbacks);
         } else {
             $this->_feedbacks = array();
+            $numfeedbacks = $quizconfig->initialnumfeedbacks;
         }
-        $numfeedbacks = max(count($this->_feedbacks) * 1.5, 5);
+        $numfeedbacks = max($numfeedbacks, 1);
 
         $nextel = $this->repeat_elements($repeatarray, $numfeedbacks - 1,
                 $repeatedoptions, 'boundary_repeats', 'boundary_add_fields', 3,
@@ -528,6 +530,19 @@ class mod_quiz_mod_form extends moodleform_mod {
             $graceperiodmin = get_config('quiz', 'graceperiodmin');
             if ($data['graceperiod'] <= $graceperiodmin) {
                 $errors['graceperiod'] = get_string('graceperiodtoosmall', 'quiz', format_time($graceperiodmin));
+            }
+        }
+
+        if (array_key_exists('completion', $data) && $data['completion'] == COMPLETION_TRACKING_AUTOMATIC) {
+            $completionpass = isset($data['completionpass']) ? $data['completionpass'] : $this->current->completionpass;
+
+            // Show an error if require passing grade was selected and the grade to pass was set to 0.
+            if ($completionpass && (empty($data['gradepass']) || grade_floatval($data['gradepass']) == 0)) {
+                if (isset($data['completionpass'])) {
+                    $errors['completionpassgroup'] = get_string('gradetopassnotset', 'quiz');
+                } else {
+                    $errors['gradepass'] = get_string('gradetopassmustbeset', 'quiz');
+                }
             }
         }
 

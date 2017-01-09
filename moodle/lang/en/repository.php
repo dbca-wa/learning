@@ -32,7 +32,7 @@ $string['addplugin'] = 'Add a repository plugin';
 $string['allowexternallinks'] = 'Allow external links';
 $string['areamainfile'] = 'Main file';
 $string['coursebackup'] = 'Course backups';
-$string['pluginname'] = 'Repository plugin name'; // todo fix this, this string identifier is reserved
+$string['pluginname'] = 'Repository plugin name'; // Todo fix this, this string identifier is reserved.
 $string['pluginnamehelp'] = 'If you leave this empty the default name will be used.';
 $string['sectionbackup'] = 'Section backups';
 $string['activitybackup'] = 'Activity backup';
@@ -242,9 +242,6 @@ $string['unzipped'] = 'Unzipped successfully';
 $string['wrongcontext'] = 'You cannot access to this context';
 $string['xhtmlerror'] = 'You are probably using an XHTML strict header. Certain YUI components don\'t work in this mode; please turn it off.';
 $string['ziped'] = 'Compress folder successfully';
-
-// Deprecated since Moodle 2.8.
-$string['hidden'] = 'Hidden';
 
 // Deprecated since Moodle 2.9.
 $string['personalrepositories'] = 'Available repository instances';

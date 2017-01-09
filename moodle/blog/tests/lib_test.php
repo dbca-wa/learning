@@ -46,9 +46,9 @@ class core_blog_lib_testcase extends advanced_testcase {
         $this->resetAfterTest();
 
         // Create default course.
-        $course = $this->getDataGenerator()->create_course(array('category'=>1, 'shortname'=>'ANON'));
+        $course = $this->getDataGenerator()->create_course(array('category' => 1, 'shortname' => 'ANON'));
         $this->assertNotEmpty($course);
-        $page = $this->getDataGenerator()->create_module('page', array('course'=>$course->id));
+        $page = $this->getDataGenerator()->create_module('page', array('course' => $course->id));
         $this->assertNotEmpty($page);
 
         // Create default group.
@@ -58,21 +58,22 @@ class core_blog_lib_testcase extends advanced_testcase {
         $group->id = $DB->insert_record('groups', $group);
 
         // Create default user.
-        $user = $this->getDataGenerator()->create_user(array('username'=>'testuser', 'firstname'=>'Jimmy', 'lastname'=>'Kinnon'));
+        $user = $this->getDataGenerator()->create_user(array(
+                'username' => 'testuser',
+                'firstname' => 'Jimmy',
+                'lastname' => 'Kinnon'
+        ));
 
         // Create default tag.
-        $tag = new stdClass();
-        $tag->userid = $user->id;
-        $tag->name = 'testtagname';
-        $tag->rawname = 'Testtagname';
-        $tag->tagtype = 'official';
-        $tag->id = $DB->insert_record('tag', $tag);
+        $tag = $this->getDataGenerator()->create_tag(array('userid' => $user->id,
+            'rawname' => 'Testtagname', 'isstandard' => 1));
 
         // Create default post.
         $post = new stdClass();
         $post->userid = $user->id;
         $post->groupid = $group->id;
         $post->content = 'test post content text';
+        $post->module = 'blog';
         $post->id = $DB->insert_record('post', $post);
 
         // Grab important ids.
@@ -91,35 +92,35 @@ class core_blog_lib_testcase extends advanced_testcase {
         // Try all the filters at once: Only the entry filter is active.
         $filters = array('site' => $SITE->id, 'course' => $this->courseid, 'module' => $this->cmid,
             'group' => $this->groupid, 'user' => $this->userid, 'tag' => $this->tagid, 'entry' => $this->postid);
-        $blog_listing = new blog_listing($filters);
-        $this->assertFalse(array_key_exists('site', $blog_listing->filters));
-        $this->assertFalse(array_key_exists('course', $blog_listing->filters));
-        $this->assertFalse(array_key_exists('module', $blog_listing->filters));
-        $this->assertFalse(array_key_exists('group', $blog_listing->filters));
-        $this->assertFalse(array_key_exists('user', $blog_listing->filters));
-        $this->assertFalse(array_key_exists('tag', $blog_listing->filters));
-        $this->assertTrue(array_key_exists('entry', $blog_listing->filters));
+        $bloglisting = new blog_listing($filters);
+        $this->assertFalse(array_key_exists('site', $bloglisting->filters));
+        $this->assertFalse(array_key_exists('course', $bloglisting->filters));
+        $this->assertFalse(array_key_exists('module', $bloglisting->filters));
+        $this->assertFalse(array_key_exists('group', $bloglisting->filters));
+        $this->assertFalse(array_key_exists('user', $bloglisting->filters));
+        $this->assertFalse(array_key_exists('tag', $bloglisting->filters));
+        $this->assertTrue(array_key_exists('entry', $bloglisting->filters));
 
         // Again, but without the entry filter: This time, the tag, user and module filters are active.
         $filters = array('site' => $SITE->id, 'course' => $this->courseid, 'module' => $this->cmid,
             'group' => $this->groupid, 'user' => $this->userid, 'tag' => $this->postid);
-        $blog_listing = new blog_listing($filters);
-        $this->assertFalse(array_key_exists('site', $blog_listing->filters));
-        $this->assertFalse(array_key_exists('course', $blog_listing->filters));
-        $this->assertFalse(array_key_exists('group', $blog_listing->filters));
-        $this->assertTrue(array_key_exists('module', $blog_listing->filters));
-        $this->assertTrue(array_key_exists('user', $blog_listing->filters));
-        $this->assertTrue(array_key_exists('tag', $blog_listing->filters));
+        $bloglisting = new blog_listing($filters);
+        $this->assertFalse(array_key_exists('site', $bloglisting->filters));
+        $this->assertFalse(array_key_exists('course', $bloglisting->filters));
+        $this->assertFalse(array_key_exists('group', $bloglisting->filters));
+        $this->assertTrue(array_key_exists('module', $bloglisting->filters));
+        $this->assertTrue(array_key_exists('user', $bloglisting->filters));
+        $this->assertTrue(array_key_exists('tag', $bloglisting->filters));
 
         // We should get the same result by removing the 3 inactive filters: site, course and group.
         $filters = array('module' => $this->cmid, 'user' => $this->userid, 'tag' => $this->tagid);
-        $blog_listing = new blog_listing($filters);
-        $this->assertFalse(array_key_exists('site', $blog_listing->filters));
-        $this->assertFalse(array_key_exists('course', $blog_listing->filters));
-        $this->assertFalse(array_key_exists('group', $blog_listing->filters));
-        $this->assertTrue(array_key_exists('module', $blog_listing->filters));
-        $this->assertTrue(array_key_exists('user', $blog_listing->filters));
-        $this->assertTrue(array_key_exists('tag', $blog_listing->filters));
+        $bloglisting = new blog_listing($filters);
+        $this->assertFalse(array_key_exists('site', $bloglisting->filters));
+        $this->assertFalse(array_key_exists('course', $bloglisting->filters));
+        $this->assertFalse(array_key_exists('group', $bloglisting->filters));
+        $this->assertTrue(array_key_exists('module', $bloglisting->filters));
+        $this->assertTrue(array_key_exists('user', $bloglisting->filters));
+        $this->assertTrue(array_key_exists('tag', $bloglisting->filters));
 
     }
 
@@ -539,6 +540,67 @@ class core_blog_lib_testcase extends advanced_testcase {
         $nodes = $reflector->getProperty('nodes');
         $nodes->setAccessible(true);
         $this->assertArrayNotHasKey('blogs', $nodes->getValue($tree));
+    }
+
+    public function test_blog_get_listing_course() {
+        $this->setAdminUser();
+        $coursecontext = context_course::instance($this->courseid);
+        $anothercourse = $this->getDataGenerator()->create_course();
+
+        // Add blog associations with a course.
+        $blog = new blog_entry($this->postid);
+        $blog->add_association($coursecontext->id);
+
+        // There is one entry associated with a course.
+        $bloglisting = new blog_listing(array('course' => $this->courseid));
+        $this->assertCount(1, $bloglisting->get_entries());
+
+        // There is no entry associated with a wrong course.
+        $bloglisting = new blog_listing(array('course' => $anothercourse->id));
+        $this->assertCount(0, $bloglisting->get_entries());
+
+        // There is no entry associated with a module.
+        $bloglisting = new blog_listing(array('module' => $this->cmid));
+        $this->assertCount(0, $bloglisting->get_entries());
+
+        // There is one entry associated with a site (id is ignored).
+        $bloglisting = new blog_listing(array('site' => 12345));
+        $this->assertCount(1, $bloglisting->get_entries());
+
+        // There is one entry associated with course context.
+        $bloglisting = new blog_listing(array('context' => $coursecontext->id));
+        $this->assertCount(1, $bloglisting->get_entries());
+    }
+
+    public function test_blog_get_listing_module() {
+        $this->setAdminUser();
+        $coursecontext = context_course::instance($this->courseid);
+        $contextmodule = context_module::instance($this->cmid);
+        $anothermodule = $this->getDataGenerator()->create_module('page', array('course' => $this->courseid));
+
+        // Add blog associations with a course.
+        $blog = new blog_entry($this->postid);
+        $blog->add_association($contextmodule->id);
+
+        // There is no entry associated with a course.
+        $bloglisting = new blog_listing(array('course' => $this->courseid));
+        $this->assertCount(0, $bloglisting->get_entries());
+
+        // There is one entry associated with a module.
+        $bloglisting = new blog_listing(array('module' => $this->cmid));
+        $this->assertCount(1, $bloglisting->get_entries());
+
+        // There is no entry associated with a wrong module.
+        $bloglisting = new blog_listing(array('module' => $anothermodule->cmid));
+        $this->assertCount(0, $bloglisting->get_entries());
+
+        // There is one entry associated with a site (id is ignored).
+        $bloglisting = new blog_listing(array('site' => 12345));
+        $this->assertCount(1, $bloglisting->get_entries());
+
+        // There is one entry associated with course context (module is a subcontext of a course).
+        $bloglisting = new blog_listing(array('context' => $coursecontext->id));
+        $this->assertCount(1, $bloglisting->get_entries());
     }
 }
 

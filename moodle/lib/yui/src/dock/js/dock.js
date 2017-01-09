@@ -6,7 +6,6 @@
  * @module moodle-core-dock
  */
 
-
 var LOGNS = 'moodle-core-dock',
     BODY = Y.one(Y.config.doc.body),
     CSS = {
@@ -32,7 +31,7 @@ var LOGNS = 'moodle-core-dock',
     DOCKPANEL,
     TABHEIGHTMANAGER,
     BLOCK,
-    DOCKEDITEM;
+    DOCKEDITEM; // eslint-disable-line no-unused-vars
 
 M.core = M.core || {};
 M.core.dock = M.core.dock || {};
@@ -62,6 +61,9 @@ M.core.dock._dockableblocks = {};
  */
 M.core.dock.init = function() {
     Y.all(SELECTOR.dockableblock).each(M.core.dock.registerDockableBlock);
+    Y.Global.on(M.core.globalEvents.BLOCK_CONTENT_UPDATED, function(e) {
+        M.core.dock.notifyBlockChange(e.instanceid);
+    }, this);
     BODY.delegate('click', M.core.dock.dockBlock, SELECTOR.blockmoveto);
     BODY.delegate('key', M.core.dock.dockBlock, SELECTOR.blockmoveto, 'enter');
 };

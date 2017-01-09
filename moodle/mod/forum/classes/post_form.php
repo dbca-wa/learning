@@ -138,25 +138,13 @@ class mod_forum_post_form extends moodleform {
             $mform->addHelpButton('attachments', 'attachment', 'forum');
         }
 
-        if (empty($post->id) && $manageactivities) {
-            $mform->addElement('checkbox', 'mailnow', get_string('mailnow', 'forum'));
+        if (!$post->parent && has_capability('mod/forum:pindiscussions', $modcontext)) {
+            $mform->addElement('checkbox', 'pinned', get_string('discussionpinned', 'forum'));
+            $mform->addHelpButton('pinned', 'discussionpinned', 'forum');
         }
 
-        if (!empty($CFG->forum_enabletimedposts) && !$post->parent && has_capability('mod/forum:viewhiddentimedposts', $coursecontext)) { // hack alert
-            $mform->addElement('header', 'displayperiod', get_string('displayperiod', 'forum'));
-
-            $mform->addElement('date_selector', 'timestart', get_string('displaystart', 'forum'), array('optional'=>true));
-            $mform->addHelpButton('timestart', 'displaystart', 'forum');
-
-            $mform->addElement('date_selector', 'timeend', get_string('displayend', 'forum'), array('optional'=>true));
-            $mform->addHelpButton('timeend', 'displayend', 'forum');
-
-        } else {
-            $mform->addElement('hidden', 'timestart');
-            $mform->setType('timestart', PARAM_INT);
-            $mform->addElement('hidden', 'timeend');
-            $mform->setType('timeend', PARAM_INT);
-            $mform->setConstants(array('timestart'=> 0, 'timeend'=>0));
+        if (empty($post->id) && $manageactivities) {
+            $mform->addElement('checkbox', 'mailnow', get_string('mailnow', 'forum'));
         }
 
         if ($groupmode = groups_get_activity_groupmode($cm, $course)) {
@@ -232,6 +220,24 @@ class mod_forum_post_form extends moodleform {
                 $mform->addElement('static', 'groupinfo', get_string('group'), $groupname);
             }
         }
+
+        if (!empty($CFG->forum_enabletimedposts) && !$post->parent && has_capability('mod/forum:viewhiddentimedposts', $coursecontext)) {
+            $mform->addElement('header', 'displayperiod', get_string('displayperiod', 'forum'));
+
+            $mform->addElement('date_time_selector', 'timestart', get_string('displaystart', 'forum'), array('optional' => true));
+            $mform->addHelpButton('timestart', 'displaystart', 'forum');
+
+            $mform->addElement('date_time_selector', 'timeend', get_string('displayend', 'forum'), array('optional' => true));
+            $mform->addHelpButton('timeend', 'displayend', 'forum');
+
+        } else {
+            $mform->addElement('hidden', 'timestart');
+            $mform->setType('timestart', PARAM_INT);
+            $mform->addElement('hidden', 'timeend');
+            $mform->setType('timeend', PARAM_INT);
+            $mform->setConstants(array('timestart' => 0, 'timeend' => 0));
+        }
+
         //-------------------------------------------------------------------------------
         // buttons
         if (isset($post->edit)) { // hack alert
