@@ -34,7 +34,7 @@ $THEME->lessvariablescallback = 'theme_dpawbs3_less_variables';
 $THEME->extralesscallback = 'theme_dpawbs3_extra_less';
 $THEME->supportscssoptimisation = false;
 $THEME->yuicssmodules = array();
-$THEME->enable_dock = true;
+$THEME->enable_dock = false;
 $THEME->editor_sheets = array();
 $THEME->csspostprocess = 'theme_dpawbs3_process_css';
 

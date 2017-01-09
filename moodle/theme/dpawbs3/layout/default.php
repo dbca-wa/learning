@@ -89,7 +89,7 @@ echo $OUTPUT->doctype() ?>
 </nav>
             <div class="breadcrumb-button"><?php echo $OUTPUT->page_heading_button(); ?></div>
             <?php if ($knownregionpre || $knownregionpost) { ?>
-                <div class="breadcrumb-button"> <?php echo $OUTPUT->content_zoom(); ?></div>
+                <div class="breadcrumb-button"></div>
             <?php } ?>
         </div>
 
