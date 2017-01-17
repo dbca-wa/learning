@@ -24,8 +24,11 @@ $CFG->wwwroot   = $wwwroot;
 $CFG->dataroot  = $dataroot;
 $CFG->admin     = 'admin';
 
-$CFG->debug = 6143;
-$CFG->debugdisplay = 0;
+// Force a debugging mode regardless the settings in the site administration
+@error_reporting(E_ALL | E_STRICT); // NOT FOR PRODUCTION SERVERS!
+@ini_set('display_errors', '1');    // NOT FOR PRODUCTION SERVERS!
+$CFG->debug = (E_ALL | E_STRICT);   // === DEBUG_DEVELOPER - NOT FOR PRODUCTION SERVERS!
+$CFG->debugdisplay = 1;             // NOT FOR PRODUCTION SERVERS!
 
 $CFG->directorypermissions = 0777;
 

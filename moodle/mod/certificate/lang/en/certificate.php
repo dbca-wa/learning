@@ -18,8 +18,7 @@
 /**
  * Language strings for the certificate module
  *
- * @package    mod
- * @subpackage certificate
+ * @package    mod_certificate
  * @copyright  Mark Nelson <markn@moodle.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -59,18 +58,6 @@ Letter Non-Embedded prints on letter size paper without embedded fonts.
 The non-embedded types use the Helvetica and Times fonts.  If you feel your users will not have these fonts on their computer, or if your language uses characters or symbols that are not accommodated by the Helvetica and Times fonts, then choose an embedded type.  The embedded types use the Dejavusans and Dejavuserif fonts.  This will make the pdf files rather large; thus it is not recommended to use an embedded type unless you must.
 
 New type folders can be added to the certificate/type folder. The name of the folder and any new language strings for the new type must be added to the certificate language file.';
-
-// Reg training language
-$string['erpatttitle'] = 'CERTIFICATE of ATTENDANCE';
-$string['erpcomptitle'] = 'CERTIFICATE of COMPLETION';
-$string['erpcertify'] = 'This certificate of attendance certifies that';
-$string['erpstatement'] = 'has undertaken the following training';
-
-
-
-
-
-
 $string['certify'] = 'This is to certify that';
 $string['code'] = 'Code';
 $string['completiondate'] = 'Course Completion';
@@ -96,7 +83,7 @@ Email Certificate: Choosing this option sends the certificate to the student as 
 After a user receives their certificate, if they click on the certificate link from the course homepage, they will see the date they received their certificate and will be able to review their received certificate.';
 $string['designoptions'] = 'Design Options';
 $string['download'] = 'Force download';
-$string['emailcertificate'] = 'Email (Must also choose save!)';
+$string['emailcertificate'] = 'Email';
 $string['emailothers'] = 'Email Others';
 $string['emailothers_help'] = 'Enter the email addresses here, separated by a comma, of those who should be alerted with an email whenever students receive a certificate.';
 $string['emailstudenttext'] = 'Attached is your certificate for {$a->course}.';
@@ -117,6 +104,10 @@ You can review it here:
 
     <a href="{$a->url}">Certificate Report</a>.';
 $string['entercode'] = 'Enter certificate code to verify:';
+$string['fontsans'] = 'Sans-serif font family';
+$string['fontsans_desc'] = 'Sans-serif font family for certificates with embedded fonts';
+$string['fontserif'] = 'Serif font family';
+$string['fontserif_desc'] = 'Serif font family for certificates with embedded fonts';
 $string['getcertificate'] = 'Get your certificate';
 $string['grade'] = 'Grade';
 $string['gradedate'] = 'Grade Date';
@@ -140,6 +131,8 @@ $string['lastviewed'] = 'You last received this certificate on:';
 $string['letter'] = 'Letter';
 $string['lockingoptions'] = 'Locking Options';
 $string['modulename'] = 'Certificate';
+$string['modulename_help'] = 'This module allows for the dynamic generation of certificates based on predefined conditions set by the teacher.';
+$string['modulename_link'] = 'Certificate_module';
 $string['modulenameplural'] = 'Certificates';
 $string['mycertificates'] = 'My Certificates';
 $string['nocertificates'] = 'There are no certificates';
@@ -196,7 +189,7 @@ $string['seal'] = 'Seal';
 $string['sigline'] = 'line';
 $string['signature'] = 'Signature';
 $string['statement'] = 'has completed the course';
-$string['summaryofattempts'] = 'Summary of Previously Received Certificates';
+$string['summaryofattempts'] = 'Summary of previously received certificates';
 $string['textoptions'] = 'Text Options';
 $string['title'] = 'CERTIFICATE of ACHIEVEMENT';
 $string['to'] = 'Awarded to';

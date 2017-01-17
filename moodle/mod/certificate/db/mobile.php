@@ -1,5 +1,5 @@
 <?php
-// This file is part of Moodle - http://moodle.org/
+// This file is part of the Certificate module for Moodle - http://moodle.org/
 //
 // Moodle is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -15,18 +15,13 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * JWplayer filter
+ * Certificate module capability definition
  *
- * @package    filter
- * @subpackage jwplayer
- * @copyright  2014 Ruslan Kabalin, Lancaster University
+ * @package    mod_certificate
+ * @copyright  2016 Juan Leyva <juan@moodle.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-defined('MOODLE_INTERNAL') || die();
-
-$plugin->version   = 2017010400;        // The current plugin version (Date: YYYYMMDDXX).
-$plugin->requires  = 2015051100;        // Requires Moodle 2.9
-$plugin->component = 'filter_jwplayer'; // Full name of the plugin (used for diagnostics).
-$plugin->maturity = MATURITY_STABLE;
-$plugin->release   = '7-0.6 for Moodle 2.9-3.1, JW7 CDN 7.8.6)';
+$addons = array(
+    "mod_certificate" => array()
+);

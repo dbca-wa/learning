@@ -4,3 +4,5 @@ env.php
 *.swp
 *.sql
 moodle_bak/
+moodledata/
+moodle/mod/certificate/pix/
