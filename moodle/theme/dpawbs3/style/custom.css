@@ -638,6 +638,9 @@ padding: 20px 0 10px 0;
     left: 0;
   }
 }
+#page-footer {
+  border: 0px;
+}
 .dir-ltr ul:not([class]),
 .dir-ltr ol:not([class]) {
   margin: 0 0 10px 25px;
