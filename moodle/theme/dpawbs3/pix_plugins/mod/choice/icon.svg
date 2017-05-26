@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   id="svg3359"
+   version="1.1"
+   inkscape:version="0.91 r13725"
+   width="30"
+   height="31.25"
+   viewBox="0 0 30 31.25"
+   sodipodi:docname="icon_newred.svg">
+  <metadata
+     id="metadata3365">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title></dc:title>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <defs
+     id="defs3363" />
+  <sodipodi:namedview
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1"
+     objecttolerance="10"
+     gridtolerance="10"
+     guidetolerance="10"
+     inkscape:pageopacity="0"
+     inkscape:pageshadow="2"
+     inkscape:window-width="1920"
+     inkscape:window-height="1018"
+     id="namedview3361"
+     showgrid="false"
+     inkscape:zoom="21.360282"
+     inkscape:cx="21.929076"
+     inkscape:cy="18.730175"
+     inkscape:window-x="-8"
+     inkscape:window-y="-8"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="svg3359" />
+  <text
+     xml:space="preserve"
+     style="font-style:normal;font-weight:normal;font-size:40px;line-height:125%;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+     x="6.6478524"
+     y="14.068579"
+     id="text3371"
+     sodipodi:linespacing="125%"><tspan
+       sodipodi:role="line"
+       id="tspan3373"
+       x="6.6478524"
+       y="14.068579"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:'Wingdings 2';-inkscape-font-specification:'Wingdings 2, '" /></text>
+  <text
+     xml:space="preserve"
+     style="font-style:normal;font-weight:normal;font-size:36.39415359px;line-height:125%;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#f90000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+     x="-2.5885761"
+     y="27.445812"
+     id="text3375"
+     sodipodi:linespacing="125%"
+     transform="scale(0.94291438,1.0605417)"><tspan
+       sodipodi:role="line"
+       id="tspan3377"
+       x="-2.5885761"
+       y="27.445812">☑</tspan></text>
+</svg>
