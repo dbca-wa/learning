@@ -278,6 +278,9 @@ text-shadow: -1px -1px 0 @navbarlinkborder;
 text-transform: Capitalize;
 }
 #block-region-side-post a, #block-region-side-post a:visited {color:#fff;}
+#block-region-side-post .moodle-actionmenu a, #block-region-side-post .moodle-actionmenu a:visited {
+    color: @link;
+}
 #block-region-side-post a:hover {color:#def3ff}
 #block-region-side-post{
 padding: 0 0 40px 0;
@@ -294,8 +297,10 @@ color: @minicalendar;
 #block-region-side-post .block .content h3 {color:#fff; background: @navbarlinkborder;
 text-shadow: -1px -1px 0 @navbarlinkborder;}
 #page-footer {
-margin-bottom:0;
-padding-bottom:0}
+  margin-bottom:0;
+  padding-bottom:0;
+  border:0
+}
 
 /* Login */
 .loginbox h2, .loginbox .subcontent {
@@ -515,10 +520,6 @@ left:0;
 
 }
 
-// Remove border from footer
-#page-footer {
-  border: 0px;
-}
 
 // Fix for bullet points
 .dir-ltr {

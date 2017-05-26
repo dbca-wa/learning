@@ -277,6 +277,10 @@ a.logo {
 #block-region-side-post a:visited {
   color: #fff;
 }
+#block-region-side-post .moodle-actionmenu a,
+#block-region-side-post .moodle-actionmenu a:visited {
+  color: #0085b2;
+}
 #block-region-side-post a:hover {
   color: #def3ff;
 }
@@ -300,6 +304,7 @@ a.logo {
 #page-footer {
   margin-bottom: 0;
   padding-bottom: 0;
+  border: 0;
 }
 /* Login */
 .loginbox h2,
@@ -637,9 +642,6 @@ padding: 20px 0 10px 0;
     width: 45%;
     left: 0;
   }
-}
-#page-footer {
-  border: 0px;
 }
 .dir-ltr ul:not([class]),
 .dir-ltr ol:not([class]) {
