@@ -1,0 +1,522 @@
+/* Custom CSS
+-------------------------*/
+
+// Main color: blueish
+@navbarborder : #00528D; // mild blue #3 – navbar right border
+@dropdownhoverbg: #005590; // mid blue #3-2 – dropdown over background
+@calendarboder: #10559A; // course blue border – calendar border
+@coursebg: #125DA7; // course blue background – calendar background
+@submitbuttonborder: #2E6DA4; // submit button border
+@navbarlinkborder: #226FBB; // light blue # 3 – navbar link border – infotext – block border – block header background / block content title brackground, table border – block hr
+@navborder: #3073B5; // border blue #3 – navbar toggle background – nav dropdown border
+@link: #0070A8; // link color
+@submitbutton: #337AB7; // submit button background
+@navbarbg: #3580CA; // mid blue #2 – navbar background – moodle header background – block background
+@navdropdownborder: #4B8ECB; // nav collapse #2 – navbar toggle border, navbar dropdown border
+@navborderform: #488CCE; // border blue #2 – navbar border collapse/form
+@blockborder: #4B94DD; // light blue #2 – block border, block hr
+@navlinkborder: #4992D7; // mild blue #1 – navbar link border
+@minicalendar: #9ABFE4; // light blue #1 – minicalendar weekend text color – link dimmed text and visited
+
+// Blueish/greenish color
+@boxiconbg: #3A87AD; // moodle blue – box icon background
+
+// Complementary color: greenish
+@navbartopinverse: #86a95c; //
+@footer: #749d5f; //
+@footerblock: #6a9057; //
+@boxiconimage: #63B76C; //
+
+// We let the white / grey colors hardcoded as they should be the same whatever main color you decide to take.
+
+// Images file name
+@headerbackgroundimage: ~"[[pix:theme|top-bg]]";
+@underfeatureimage: ~"[[pix:theme|under-feature-blue]]";
+@pagefooterimage: ~"[[pix:theme|social-bg-green]]";
+
+ body {
+background: #f9f9f9 url([[pix:theme|soft_wallpaper]]) repeat 0 0;
+padding-top:44px;
+color: #333;
+}
+
+a {
+color: @link;
+text-decoration: none;
+}
+
+figure.pull-right {
+	margin:10px 0 10px 15px;
+}
+input.form-submit, input#id_submitbutton, input#id_submitbutton2, .path-admin .buttons input[type="submit"], td.submit input  {
+color: #fff;
+background-color: @submitbutton;
+border-color: @submitbuttonborder;
+
+/* button standards */
+display: inline-block;
+padding: 6px 12px;
+margin-bottom: 0;
+font-size: 14px;
+font-weight: 400;
+line-height: 1.42857143;
+text-align: center;
+white-space: nowrap;
+vertical-align: middle;
+-ms-touch-action: manipulation;
+touch-action: manipulation;
+cursor: pointer;
+-webkit-user-select: none;
+-moz-user-select: none;
+-ms-user-select: none;
+user-select: none;
+background-image: none;
+border: 1px solid transparent;
+border-radius: 4px;
+}
+
+.moodleheader h1 {
+  width:0;
+  height:0;
+  display:block;
+  text-indent:-9999px;
+}
+
+h1, h2, h3, h4, h5, h6 {
+font-family: inherit;
+font-weight: bold;
+color: inherit;
+text-rendering: optimizelegibility;
+}
+.sitelink {display:none;}
+
+.navbar-nav > li > a {
+padding-top: 10px !IMPORTANT;
+padding-bottom: 10px !IMPORTANT;
+cursor: pointer;
+color: #fff;
+text-shadow: none;
+border-left: 1px solid @navlinkborder;
+border-right: 1px solid @navbarlinkborder;
+}
+.navbar-nav {
+margin: 0;
+}
+.nav > li {float:left;}
+.navbar {
+min-height: 30px;
+margin-bottom: 0px;
+border:none;
+}
+
+/* Frontpage */
+#page-site-index #region-main .sitetopic {
+    background: linear-gradient(rgba(0,0,0,0.4),rgba(0,0,0,0.4)), url([[pix:theme|our-wa-parks-bg-3]]);
+    background-repeat: no-repeat;
+    background-position: top center;
+    background-attachment: scroll;
+    -webkit-background-size: cover;
+    -moz-background-size: cover;
+    background-size: cover;
+    -o-background-size: cover;
+    color: #fff;
+    margin-bottom:20px;
+    padding: 10px 20px;
+}
+#page-site-index #region-main .sitetopic h2 {
+font-family: Arial, Sans-Serif;
+font-weight:normal;
+font-size: 34px;
+text-shadow: 0 1px 3px rgba(0,0,0,.5);
+}
+#page-site-index #region-main .sitetopic .infotext {
+padding: 10px;
+    color: @navbarlinkborder;
+    text-shadow: none;
+    background-color: rgba(255, 255, 255, 0.7);
+    margin-left: -15px;
+    font-size: 18px;
+}
+#page-site-index #region-main .sitetopic ul.fpuserlinks {margin-top:20px;}
+#page-site-index #region-main .sitetopic ul.fpuserlinks li {
+margin-bottom: 20px;
+    float: right;
+}
+
+.navbar-fixed-top {border-top:4px solid @navbartopinverse !important;}
+.navbar-inverse .nav .active > a, .navbar-inverse .nav .active > a:hover {color:#ffffff; background:@navbartopinverse;}
+.related-nav li a {border:none;}
+.related-nav a:hover {color:#fff; text-decoration:none;}
+#topmainnav > .navbar-right {border-top:8px solid @navbarborder;}
+
+.caret{border-top-color:#fff;border-bottom-color:#fff}
+.navbar-inner{background:@navbarbg;background-color:@navbarbg;background-image:none;background-repeat:repeat-x;border:none;-webkit-border-radius:0px;-moz-border-radius:0px;border-radius:0px;box-shadow:none}
+#topmainnav .nav> li > a {cursor:pointer;color:#fff;text-shadow:none;border-left:1px solid @navlinkborder;border-right:1px solid @navbarlinkborder}#topmainnav .nav > li > a:hover,
+#topmainnav .nav > .active > a,
+#topmainnav .nav > li > a:hover,
+#topmainnav .nav > .active > a:hover,
+#topmainnav .nav > .active > a:focus,
+#topmainnav .nav > .active > a:visited,
+#topmainnav .nav li.dropdown.active > .dropdown-toggle,
+#topmainnav .nav li.dropdown.open > a:hover > .dropdown-toggle,
+#topmainnav .nav li.dropdown.open a:hover,
+#topmainnav .nav li.dropdown.open >.dropdown-toggle,
+#topmainnav .nav li.dropdown.active >.dropdown-toggle,
+#topmainnav .nav li.dropdown.open.active > .dropdown-toggle,
+.dropdown-menu > .active > a:hover {background:@dropdownhoverbg;color:#fff;text-shadow:none;-webkit-box-shadow:none;-moz-box-shadow:none;box-shadow:none}
+
+
+
+
+.navbar-text {
+margin-top: 10px;
+margin-bottom: 10px;
+}
+
+.navbar-inverse {
+background-color: #1b1b1b;
+background-image: -moz-linear-gradient(top,#222,#111);
+background-image: -webkit-gradient(linear,0 0,0 100%,from(#222),to(#111));
+background-image: -webkit-linear-gradient(top,#222,#111);
+background-image: -o-linear-gradient(top,#222,#111);
+background-image: linear-gradient(to bottom,#222,#111);
+background-repeat: repeat-x;
+border-color: #252525;
+filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#ff222222',endColorstr='#ff111111',GradientType=0);
+}
+
+#topmainnav {
+color: #fff;
+background: @navbarbg;
+margin-bottom: 0;
+border-radius: 0;
+}
+
+#page-content {
+margin: 15px auto;
+padding-bottom: 20px;
+background: #fff;
+-webkit-box-shadow: 0px 0px 5px rgba(50, 50, 50, 0.25);
+-moz-box-shadow: 0px 0px 5px rgba(50, 50, 50, 0.25);
+box-shadow: 0px 0px 5px rgba(50,50,50,0.25);
+}
+
+#region-main {
+padding: 20px;
+}
+
+.moodleheader {
+height:110px;
+padding-top: 10px;
+background: @navbarbg url(@headerbackgroundimage) repeat-x center bottom;
+color:#fff;
+}
+.moodleheader a:link {color:#fff;}
+
+
+.under-feature {
+background:  url(@underfeatureimage) repeat-x top center;
+height: 20px;
+margin-bottom: 10px;
+}
+
+#region-main {
+padding-top: 20px;
+}
+a.logo {
+    background: url([[setting:logo]]) no-repeat 0 0;
+    background-size: 100% auto;
+    display: [[logodisplay]];
+    float: left;
+    height: [[logoheight]];
+    margin: 0;
+    padding: 0;
+    width: [[logowidth]];
+}
+
+.dir-rtl a.logo {
+    background: url([[setting:logo]]) no-repeat 0 0;
+    float: right;
+}
+
+/* Main content */
+// TODO: I believe it is a css error but for the sake of not creating a regression, adding it back to the css file.
+e("#region-main {20px;}");
+
+/* Sidebar right */
+
+#block-region-side-post .block {
+padding-top: 0;
+background-color: inherit;
+border: 1px solid @navbarlinkborder;
+border-top: 1px solid @blockborder;
+border-bottom: 1px solid @navbarlinkborder;
+margin: 0px;
+margin-bottom: -1px;
+border-left: none;
+border-right: none;
+-webkit-border-radius: 0px;
+-moz-border-radius: 0px;
+border-radius: 0px;
+box-shadow: none;
+}
+#block-region-side-post .block .header {background-color:inherit;padding:0}
+
+
+
+
+#block-region-side-post .block .header h2 {
+display: block;
+padding: 10px;
+margin: 0;
+font-size: 16px;
+font-weight: bold;
+line-height: 20px;
+color: #fff;
+background: @navbarlinkborder;
+text-shadow: -1px -1px 0 @navbarlinkborder;
+text-transform: Capitalize;
+}
+#block-region-side-post a, #block-region-side-post a:visited {color:#fff;}
+#block-region-side-post a:hover {color:#def3ff}
+#block-region-side-post{
+padding: 0 0 40px 0;
+background: @navbarbg url([[pix:theme|asidebg]])repeat-x bottom left;
+color: #fff;
+}
+#block-region-side-post hr {
+border-top: 1px solid @navbarlinkborder;
+border-bottom: 1px solid @blockborder;
+}
+#block-region-side-post .block .minicalendar td.weekend {
+color: @minicalendar;
+}
+#block-region-side-post .block .content h3 {color:#fff; background: @navbarlinkborder;
+text-shadow: -1px -1px 0 @navbarlinkborder;}
+#page-footer {
+margin-bottom:0;
+padding-bottom:0}
+
+/* Login */
+.loginbox h2, .loginbox .subcontent {
+padding: 20px;
+}
+.loginbox {margin: 40px 0;}
+
+.loginbox.twocolumns .loginpanel {
+background-color: #fafafa;
+border: 1px solid #f0f0f0;
+border-radius: 4px;
+-webkit-box-shadow: none;
+box-shadow: none;
+}
+
+/* Moodle standards */
+
+/* Course */
+.course-content .section-summary {
+margin-top: 10px !IMPORTANT;
+list-style: none;
+border: 1px solid #eaeaea;
+background: #fbfbfb;
+-webkit-box-shadow: inset 1px 1px 1px 1px rgba(255,255,255,1);
+-moz-box-shadow: inset 1px 1px 1px 1px rgba(255,255,255,1);
+box-shadow: inset 1px 1px 1px 1px rgba(255,255,255,1);
+}
+
+.course-content ul.topics li.section .content, .course-content ul.weeks li.section .content {
+padding: 10px;
+}
+
+.course-content ul li.section.main {
+margin-top: 0;
+border-bottom: 1px solid #eaeaea !IMPORTANT;
+}
+
+table#explaincaps tbody>tr:nth-child(odd)>td, table#defineroletable tbody>tr:nth-child(odd)>td, table.grading-report tbody>tr:nth-child(odd)>td, table#listdirectories tbody>tr:nth-child(odd)>td, table.rolecaps tbody>tr:nth-child(odd)>td, table.userenrolment tbody>tr:nth-child(odd)>td, table#form tbody>tr:nth-child(odd)>td, form#movecourses table tbody>tr:nth-child(odd)>td, #page-admin-course-index .editcourse tbody>tr:nth-child(odd)>td, .forumheaderlist tbody>tr:nth-child(odd)>td, table.flexible tbody>tr:nth-child(odd)>td, .generaltable tbody>tr:nth-child(odd)>td, table#explaincaps tbody>tr:nth-child(odd)>th, table#defineroletable tbody>tr:nth-child(odd)>th, table.grading-report tbody>tr:nth-child(odd)>th, table#listdirectories tbody>tr:nth-child(odd)>th, table.rolecaps tbody>tr:nth-child(odd)>th, table.userenrolment tbody>tr:nth-child(odd)>th, table#form tbody>tr:nth-child(odd)>th, form#movecourses table tbody>tr:nth-child(odd)>th, #page-admin-course-index .editcourse tbody>tr:nth-child(odd)>th, .forumheaderlist tbody>tr:nth-child(odd)>th, table.flexible tbody>tr:nth-child(odd)>th, .generaltable tbody>tr:nth-child(odd)>th {
+background-color: inherit;
+}
+table.flexible th, .generaltable th, table.flexible td, .generaltable td {
+padding: 8px;
+line-height: 20px;
+text-align: left;
+vertical-align: top;
+border-bottom: 1px solid @navbarlinkborder;
+}
+
+.path-calendar .maincalendar .eventlist .event {
+border: 1px solid #eaeaea;
+}
+table .cell {padding:5px;}
+.coursebox>.info>.coursename {
+line-height: 30px;
+}
+.coursebox {
+padding: 5px;
+margin-bottom: 10px;
+-webkit-border-radius: 0;
+-moz-border-radius: 0px;
+border-radius: 0;
+}
+
+
+.coursebox>.info>.coursename {float:none; font-size:20px;}
+
+.coursebox>.info>.coursename a {
+display: block;
+padding-left: 21px;
+background-image: url([[pix:moodle|i/course]]);
+background-position: left .5em;
+background-repeat: no-repeat;
+}
+
+
+
+.coursebox .moreinfo {
+float: right;
+padding: 3px 0;
+}
+.navbar-inner {filter:none;}
+.calendar-event-panel .yui3-overlay-content {
+background-color: @coursebg;
+border: 1px solid @calendarboder;
+margin-top: -5px;
+margin-left: -5px;
+}
+
+.calendar-event-panel .yui3-overlay-content h2.eventtitle {
+font-size: 18px;
+}
+
+.availabilityinfo {
+color: #c09853;
+}
+.availabilityinfo {
+padding: 8px 35px 8px 14px;
+margin-bottom: 20px;
+text-shadow: 0 1px 0 rgba(255, 255, 255, 0.5);
+background-color: #fcf8e3;
+border: 1px solid #fbeed5;
+-webkit-border-radius: 4px;
+-moz-border-radius: 4px;
+border-radius: 4px;
+}
+
+
+.filemanager, .filepicker, .file-picker {
+ font-size: 14px; 
+}
+.coursebox>.info>h3.coursename {border-bottom: 1px solid #eaeaea;}
+.coursebox .content .summary, .coursebox .content .coursecat {float: none;width: 100%;}
+#page-course-index-category .generalbox.info {border:none;}
+#page-course-index-category .categorypicker {margin: 0 0 20px 0; border:1px solid #eaeaea; background:#f5f5f5; padding: 10px;}
+#block-region-side-post .dimmed_text, #block-region-side-post a.dimmed, #block-region-side-post a.dimmed:visited, #block-region-side-post a.dimmed, #block-region-side-post a.dimmed:link, #block-region-side-post a.dimmed:visited, #block-region-side-post a.dimmed_text, #block-region-side-post a.dimmed_text:link, a.dimmed_text:visited, #block-region-side-post .dimmed_text, #block-region-side-post .dimmed_text a, #block-region-side-post .dimmed_text a:link, #block-region-side-post .dimmed_text a:visited, #block-region-side-post .usersuspended, #block-region-side-post .usersuspended a, #block-region-side-post .usersuspended a:link, #block-region-side-post .usersuspended a:visited, #block-region-side-post .dimmed_category, #block-region-side-post .dimmed_category a {color:@minicalendar;}
+
+
+/* Footer */
+/*
+#basePosition {
+background: @footer url(@pagefooterimage) repeat-x 0 0;
+color: #fff;
+padding: 20px 0 10px 0;
+}
+*/
+#page-footer {
+background: @footer url(@pagefooterimage) repeat-x 0 0;
+color: #fff;
+padding: 40px 0;
+min-height:200px;
+}
+
+#page-footer  a   {color:#fff;}
+.footer-block {
+background: @footerblock url([[pix:theme|green-divider]]) repeat-x center top;
+color: #fff;
+padding: 40px 0 ;
+}
+
+
+
+
+/* Features */
+
+.featurette {
+    padding: 20px 0;
+	text-align: center;
+}
+.featurette > div > div{
+	padding: 10px;
+	border: 1px solid transparent;
+	border-radius: 4px;
+	transition: 0.2s;
+}
+.featurette > div:hover > div{
+	margin-top: -10px;
+	border: 1px solid rgb(200, 200, 200);
+	box-shadow: rgba(0, 0, 0, 0.1) 0px 5px 5px 2px;
+	background: rgba(200, 200, 200, 0.1);
+	transition: 0.5s;
+}
+
+.box > .icon { text-align: center; position: relative; }
+.box > .icon > .image { position: relative; z-index: 2; margin: auto; width: 105px; height: 105px; border: 8px solid white; line-height: 105px; border-radius: 50%; background: @boxiconimage; vertical-align: middle; }
+.box > .icon > .green { background: @navbartopinverse;}
+.box > .icon > .blue { background: @boxiconbg;}
+.box > .icon > .orange { background: #f39200;}
+.box > .icon > .red { background: #b94a48;}
+.box > .icon:hover > .image { background: #f39200; }
+.box > .icon > .image > i { margin: 17px 0 0 15px; /*font-size: 36px !important; */ color: #fff !important; }
+.box > .icon:hover > .image > i { color: white !important; }
+.box > .icon > .info { min-height: 210px; padding-bottom:10px;margin-top: -20px; background: #f9f9f9; border: 1px solid #e0e0e0;  }
+.box > .icon:hover > .info { background: rgba(0, 0, 0, 0.04); border-color: #e0e0e0; color: white; }
+.box > .icon > .info > h3.title { font-size: 22px; color: #222; font-weight: bold; }
+.box > .icon > .info > p {color: #666; line-height: 1.5em; margin: 20px;}
+.box > .icon:hover > .info > h3.title, .box > .icon:hover > .info > p, .box > .icon:hover > .info > .more > a { color: #222;}
+.box > .icon > .info > .more a { }
+.box > .icon:hover > .info > .more > a { color: #fff; background-image:none; }
+.box > .icon:hover > .info > .more > a.btn-success { color: #fff; background-color: #f39200; background-image:none; }
+.box .space { height: 30px; }
+
+/* Device specific */
+
+.navbar-default .navbar-collapse, .navbar-default .navbar-form {
+border-color: @navborderform;
+}
+
+.navbar-default .navbar-toggle {
+border:1px solid @navdropdownborder; background: @navborder;
+}
+
+.navbar-collapse {padding:0;}
+.collapse > .nav {padding:0;}
+.collapse > .nav > li.dropdown {float:none; display:block; border-top:1px solid @navdropdownborder; border-bottom: 1px solid @navborder;}
+
+@media (min-width: 1200px) {
+
+.loginbox.twocolumns .loginpanel,
+.loginbox.twocolumns .signuppanel {
+width: 45%;
+left:0;
+}
+
+}
+
+@media (min-width: 768px) {
+.navbar-collapse {padding:0;}
+.collapse > .nav {padding:0;}
+.collapse > .nav > li.dropdown {float:left; display:block; border-top:none; border-bottom: none;}
+#topmainnav > .navbar-right {border-top:none;}
+
+.loginbox.twocolumns .loginpanel,
+.loginbox.twocolumns .signuppanel {
+width: 45%;
+left:0;
+}
+
+}
+
+
+/* Custom CSS Settings
+-------------------------*/
+// this placeholder is
+e("[[setting:customcss]]");

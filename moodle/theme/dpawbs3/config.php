@@ -25,9 +25,21 @@
 $THEME->name = 'dpawbs3';
 $THEME->parents = array('bootstrap');
 $THEME->rendererfactory = 'theme_overridden_renderer_factory';
-
 $THEME->doctype = 'html5';
-$THEME->sheets = array('custom');
+switch ($CFG->httpswwwroot) {
+    // Dev stylesheet
+    case 'https://learning-dev.dpaw.wa.gov.au':
+        $THEME->sheets = array('custom_dev');
+        break;
+    // UAT stylesheet
+    case 'https://learning-uat.dpaw.wa.gov.au':
+        $THEME->sheets = array('custom_uat');
+        break;
+    // Prod stylesheet
+    default:
+        $THEME->sheets = array('custom');
+        break;
+}
 $THEME->lessfile = 'dpawbs3';
 $THEME->parents_exclude_sheets = array('bootstrap' => array('moodle'));
 $THEME->lessvariablescallback = 'theme_dpawbs3_less_variables';
