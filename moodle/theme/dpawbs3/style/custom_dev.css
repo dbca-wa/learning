@@ -647,6 +647,9 @@ padding: 20px 0 10px 0;
 .dir-ltr ol:not([class]) {
   margin: 0 0 10px 25px;
 }
+#page-mod-certificate-mod #fitem_id_bordercolor {
+  display: none;
+}
 /* Custom CSS Settings
 -------------------------*/
 [[setting:customcss]]

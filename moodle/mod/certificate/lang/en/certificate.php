@@ -18,8 +18,7 @@
 /**
  * Language strings for the certificate module
  *
- * @package    mod
- * @subpackage certificate
+ * @package    mod_certificate
  * @copyright  Mark Nelson <markn@moodle.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -31,8 +30,12 @@ $string['awarded'] = 'Awarded';
 $string['awardedto'] = 'Awarded To';
 $string['back'] = 'Back';
 $string['border'] = 'Border';
+$string['borderblack'] = 'Black';
+$string['borderblue'] = 'Blue';
+$string['borderbrown'] = 'Brown';
 $string['bordercolor'] = 'Border Lines';
 $string['bordercolor_help'] = 'Since images can substantially increase the size of the pdf file, you may choose to print a border of lines instead of using a border image (be sure the Border Image option is set to No).  The Border Lines option will print a nice border of three lines of varying widths in the chosen color.';
+$string['bordergreen'] = 'Green';
 $string['borderlines'] = 'Lines';
 $string['borderstyle'] = 'Border Image';
 $string['borderstyle_help'] = 'The Border Image option allows you to choose a border image from the certificate/pix/borders folder.  Select the border image that you want around the certificate edges or select no border.';
@@ -61,11 +64,6 @@ $string['erpatttitle'] = 'CERTIFICATE of ATTENDANCE';
 $string['erpcomptitle'] = 'CERTIFICATE of COMPLETION';
 $string['erpcertify'] = 'This certificate of attendance certifies that';
 $string['erpstatement'] = 'has undertaken the following training';
-
-
-
-
-
 
 $string['certify'] = 'This is to certify that';
 $string['code'] = 'Code';
@@ -140,6 +138,8 @@ $string['lastviewed'] = 'You last received this certificate on:';
 $string['letter'] = 'Letter';
 $string['lockingoptions'] = 'Locking Options';
 $string['modulename'] = 'Certificate';
+$string['modulename_help'] = 'This module allows for the dynamic generation of certificates based on predefined conditions set by the teacher.';
+$string['modulename_link'] = 'Certificate_module';
 $string['modulenameplural'] = 'Certificates';
 $string['mycertificates'] = 'My Certificates';
 $string['nocertificates'] = 'There are no certificates';
